@@ -17,5 +17,23 @@
     color:#85586F;
 }
 
+.hidden {
+    display: none;
+}
 
+/* Expanded content when sidebar is hidden */
+.expanded {
+    margin-left: 0;
+    transition: margin-left 0.3s;
+}
 
+/* Compressed content when sidebar is visible */
+.compressed {
+    margin-left: 250px; /* Adjust to the width of your sidebar */
+    transition: margin-left 0.3s;
+}
+
+/* Sidebar visible state */
+.visible {
+    display: block;
+}

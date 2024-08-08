@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div id="content" class="expanded">
+    <div class="container">
+        <div class="row justify-content-center">
+            New Project
+            <hr>
+            <form method="POST">
+                <div class="form-floating mb-3">
+                    <div class="row">
+                        <input type="text" placeholder="Unnamed Project" name="project_name" id="project_name"
+                        class="form-control">
+                    </div>
+                </div>
+                <div class="form-floating">
+                    <textarea placeholder="Add description" id="description" name="description"></textarea>
+                </div>
+                
+
+            </form>
+            
+        </div>
+    </div>
+</div>
+{% endblock content %}
