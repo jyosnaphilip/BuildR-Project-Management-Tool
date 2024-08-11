@@ -19,3 +19,24 @@ function toggleSidebar() {
         sidebarToggle.style.display = 'block'; // Show the toggle button
     }
 }
+$(document).ready(function(){
+    
+    var multipleCancelButton = new Choices('#choices-multiple-remove-button', {
+       removeItemButton: true,
+       searchResultLimit:5,
+     }); 
+    
+    
+});
+
+$(document).ready(function(){
+    var $j = jQuery.noConflict();
+    $j('.input-daterange').datepicker({
+        format: 'dd-mm-yyyy',
+        autoclose: true,
+        calendarWeeks : true,
+        clearBtn: true,
+        disableTouchKeyboard: true
+    });
+    
+    });
