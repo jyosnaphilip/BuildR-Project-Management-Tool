@@ -9,3 +9,6 @@ def add_project(request):
 
 def project_view(request):
     return render(request,'users\project_view.html')
+
+def issue_view(request):
+    return render(request,'users\issue_view.html')

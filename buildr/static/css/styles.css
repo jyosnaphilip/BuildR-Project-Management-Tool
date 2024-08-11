@@ -394,5 +394,20 @@ tfoot tr:nth-child(2) th {
   
 }
 
+
+.btn-outline-light:hover{
+  color:#85586F;
+}
+
+.row-issues{
+  background-color: #85586F;
+  color:#ffff;
+  border-color: #BDBDBD;
+
+}
+.row-issues:hover{
+  background-color: #895d74;
+
+}
   
   
