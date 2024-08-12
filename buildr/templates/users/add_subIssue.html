@@ -1,0 +1,124 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<!-- Include jQuery -->
+
+<!-- Include Select2 CSS and JS -->
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0/dist/css/select2.min.css" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0/dist/js/select2.min.js"></script>
+
+
+
+
+<div id="content" class="expanded">
+    <div class="container ">
+        <div class="row justify-content-center w-75" style="margin: auto;">
+
+
+            <form method="POST">
+                <div class="form-box p-3">
+                    <div class="text">
+                        Add issue
+                    </div>
+
+                    <div class="form-row">
+                        <div class="input-data">
+                            <input type="text" required>
+                            <div class="underline"></div>
+                            <label for="name">title</label>
+                        </div>
+
+                    </div>
+
+                    <div class="form-row">
+                        <div class="input-data textarea">
+                            <textarea rows="8" cols="80" ></textarea>
+                            <br />
+                            <div class="underline"></div>
+                            <label for="">Add description</label>
+                            <br />
+                        </div>
+                    </div>
+                    
+                    <div class="form-row justify-content-start ms-3">
+                        
+                          
+                          <div class="dropdown rounded-pill me-2">
+                            <button class="btn  dropdown-toggle rounded-pill" type="button" data-bs-toggle="dropdown" aria-expanded="false" fdprocessedid="5bab4i">
+                              Priority
+                            </button>
+                            <ul class="dropdown-menu" style="">
+                              <li><a class="dropdown-item" href="#"><i class="fa-solid fa-triangle-exclamation fa-l"></i> Urgent</a></li>
+                              <li><a class="dropdown-item " href="#"><i class="fa-solid fa-exclamation fa-l p-1 "></i> High</a></li>
+                              <li><a class="dropdown-item" href="#"><i class="fa-solid fa-ellipsis fa-lg p-1" style="color: #fafafa;"></i>Moderate</a></li>
+                              <li><a class="dropdown-item" href="#"><i class="fa-solid fa-angles-down fa-lg p-1" style="color: #fafafa;"></i>Low</a></li>
+                              <li><a class="dropdown-item" href="#">No Priority</a></li>
+                            </ul>
+                          </div>
+                          <div class="dropdown rounded-pill me-2">
+                            <button class="btn dropdown-toggle rounded-pill" type="button" data-bs-toggle="dropdown" aria-expanded="false" fdprocessedid="5bab4i">
+                              Status
+                            </button>
+                            <ul class="dropdown-menu" style="">
+                                <li><a class="dropdown-item" href="#"><i class="fa-regular fa-circle fa-l"></i> Open</a></li>
+                                <li><a class="dropdown-item" href="#"><i class="fa-solid fa-circle-half-stroke fa-l"></i> In progress</a></li>
+                                <li><a class="dropdown-item" href="#"><i class="fa-solid fa-circle-pause fa-l"></i> Paused</a></li>
+
+                                <li><a class="dropdown-item" href="#"><i class="fa-solid fa-circle-check fa-l"></i> Closed</a></li>
+                                
+                          </div>
+                          <div class="col-sm-4">
+                          <div class="input-group input-daterange " style="color:white;">
+                            
+                            <input type="text" id="end" class="form-control   rounded-pill  w-25 me-2"  placeholder="Start" style="color:#ffff; background-color: #85586F; ">
+                            <label class="ml-3 form-control-placeholder" id="end-p" for="end" ></label>
+                            <!-- <span class="fa fa-calendar fa-xs" id="fa-2"></span> -->
+                            <input type="text" id="start" class="form-control rounded-pill w-25" placeholder="Target" style="background-color: #85586F;border-color: #85586F;color:white;">
+                            <label class=" form-control-placeholder" id="start-p" for="start"></label>
+                            <!-- <span class="fa fa-calendar" id="fa-1" ></span> -->
+                          </div>
+                        </div>
+                          
+                    </div>
+                    <div class="form-row justify-content-end">
+                        <div class="col-sm-3 w-25 rounded-pill">
+                            <div class="rounded-pill">
+                                <select id="choices-multiple-remove-button" placeholder="Assign to"
+                                    class="rounded-pill" multiple>
+                                    <option value="HTML">HTML</option>
+                                    <option value="Jquery">Jquery</option>
+                                    <option value="CSS">CSS</option>
+                                    <option value="Bootstrap 3">Bootstrap 3</option>
+                                    <option value="Bootstrap 4">Bootstrap 4</option>
+                                    <option value="Java">Java</option>
+                                    <option value="Javascript">Javascript</option>
+
+                                </select>
+                            </div>
+                        </div>
+
+                        
+                    </div>
+
+                    
+                    
+                    <div class="form-row submit-btn justify-content-center">
+                        <div class="input-data rounded-pill">
+                            <div class="inner"></div>
+                            <input type="submit" value="submit">
+                        </div>
+                    </div>
+                </div>
+               
+
+            </form>
+             
+        </div>
+    </div>
+</div>
+
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.js"></script>
+
+{% endblock content %}

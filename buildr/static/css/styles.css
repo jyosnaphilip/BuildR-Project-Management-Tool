@@ -131,6 +131,22 @@ form .form-row .textarea{
   background: #F8EDE3;
   color:#85586F;
 }
+textarea .underline{
+  position: absolute;
+  bottom: 0;
+  height: 2px;
+  width: 100%;
+}
+textarea .underline:before{
+  position: absolute;
+  content: "";
+  height: 2px;
+  width: 100%;
+  background: #85586F;
+  transform: scaleX(0);
+  transform-origin: center;
+  transition: transform 0.3s ease;
+}
 .input-data .underline{
   position: absolute;
   bottom: 0;

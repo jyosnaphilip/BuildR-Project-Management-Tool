@@ -12,3 +12,9 @@ def project_view(request):
 
 def issue_view(request):
     return render(request,'users\issue_view.html')
+
+def add_issue(request):
+    return render(request,'users/add_issue.html')
+
+def add_subIssue(request):
+    return render(request,'users/add_subIssue.html')

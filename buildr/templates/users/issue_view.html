@@ -10,13 +10,13 @@
             <div class="">
                 <div class="d-flex justify-content-between   ">
                     <span class="text">Issue Name</span>
-                    <button type="button" class="btn" data-bs-toggle="modal" data-bs-target="#editProject" data-bs-whatever="@mdo"><i class="fa-solid fa-pen pt-4" style="color: #85586f;"></i></button>
+                    <button type="button" class="btn" data-bs-toggle="modal" data-bs-target="#editIssue" data-bs-whatever="@mdo"><i class="fa-solid fa-pen pt-4" style="color: #85586f;"></i></button>
                     <!-- modal -->
-                    <div class="modal fade" id="editProject" tabindex="-1" aria-labelledby="editProjectLabel" aria-hidden="true">
+                    <div class="modal fade" id="editIssue" tabindex="-1" aria-labelledby="editIssueLabel" aria-hidden="true">
                         <div class="modal-dialog">
                           <div class="modal-content">
                             <div class="modal-header" style="background-color: #85586f;color:#fafafa;">
-                              <h1 class="modal-title fs-5" id="editProjectLabel">Edit Issue</h1>
+                              <h1 class="modal-title fs-5" id="editIssueLabel">Edit Issue</h1>
                               <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" style="color:white;"></button>
                             </div>
                             <div class="modal-body form-box">
@@ -134,7 +134,8 @@
                       </div>
                 </div>
                 <!-- modal end -->
-                <div class="row ms-2">
+
+                <div class="row  ms-2">
                    
                     <div class="col-sm-1 mb-2">
                     
@@ -189,8 +190,8 @@
                         </ul>
                     </div>
                     <div class=" col-sm-2 ms-1 ms-4 mb-2 ">    
-                        <button class="rounded-pill btn btn-sm " style="background-color: #85586f; color:#f5f7fa;"><i
-                                class="fa-solid fa-plus" style="color: #f5f7fa;"></i> Add sub-issue</button>
+                        <a class="rounded-pill btn btn-sm " href="{% url 'add_subIssue' %}" style="background-color: #85586f; color:#f5f7fa;"><i
+                                class="fa-solid fa-plus" style="color: #f5f7fa;"></i> Add sub-issue</a>
                     </div>
                 </div>
                 </div>
@@ -222,7 +223,7 @@
                         <span class="btn btn-sm dropdown dropdown-toggle rounded-pill align-contents-end" type="button" data-bs-toggle="dropdown" aria-expanded="false" fdprocessedid="5bab4i">
                             Priority
                         </span>
-                          <ul class="dropdown-menu" ">
+                          <ul class="dropdown-menu" >
                             <li><a class="dropdown-item" href="#"><i class="fa-solid fa-triangle-exclamation fa-l"></i> Urgent</a></li>
                             <li><a class="dropdown-item " href="#"><i class="fa-solid fa-exclamation fa-l p-1 "></i> High</a></li>
                             <li><a class="dropdown-item" href="#"><i class="fa-solid fa-ellipsis fa-lg p-1" style="color: #fafafa;"></i>Moderate</a></li>
