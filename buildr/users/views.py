@@ -60,3 +60,17 @@ def join_workspace(request):
 
 def new_workspace(request):
     return render(request,'partials/new_workspace.html')
+def add_project(request):
+    return render(request, 'users/add_project.html')
+
+def project_view(request):
+    return render(request,'users\project_view.html')
+
+def issue_view(request):
+    return render(request,'users\issue_view.html')
+
+def add_issue(request):
+    return render(request,'users/add_issue.html')
+
+def add_subIssue(request):
+    return render(request,'users/add_subIssue.html')

@@ -1,3 +1,20 @@
+@media (max-width: 700px) {
+  .container .text{
+    font-size: 30px;
+  }
+  .container form{
+    padding: 10px 0 0 0;
+  }
+  .container form .form-row{
+    display: block;
+  }
+  form .form-row .input-data{
+    margin: 35px 0!important;
+  }
+  .submit-btn .input-data{
+    width: 40%!important;
+  }
+}
 .theme1 {
     background-color: #F8EDE3;
 
@@ -16,167 +33,397 @@
 }
 
 
-/* --------------------------------------------navbar----------------------------- */
 
-.join-workspace {
-    text-decoration: none;
-    color: #000;
+.hidden {
+    display: none;
 }
 
-/* -------------------------------------forms------------------------------------------ */
-
-.container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    text-align: center;
-    padding-top: 44px;
-    padding-bottom: 36px;
-    margin-top: 110px;
-    padding-left: 50px;
-}
-
-.row {
-    padding-top: 25px;
-    padding-bottom: 20px;
-    width: 100%;
-    margin: 0 auto;
-}
-
-.form-heading { 
-    font-family: "Work Sans", sans-serif;
-    font-optical-sizing: auto;
-    font-style: normal;
-    padding-bottom: 0;
+/* Expanded content when sidebar is hidden */
+.expanded {
     margin-left: 0;
-    margin-top: 15px;
-} 
-
-.form-control {
-    max-width: 300px;
-    margin: 0 auto 20px auto;
+    transition: margin-left 0.3s;
 }
 
-.form-floating .form-control {
-    border-radius: 0.25rem;
-    height: 35px;
+/* Compressed content when sidebar is visible */
+.compressed {
+    margin-left: 250px; /* Adjust to the width of your sidebar */
+    transition: margin-left 0.3s;
 }
 
-.col-12 {   
-    padding-top: 10px;
+/* Sidebar visible state */
+.visible {
+    display: block;
 }
 
-.register-link {
-    text-decoration: none;
-    color: #2a0314;
-}
-
-.btn.btn-style{
-    margin-top: 0;
-    background-color:#993a63;
-    /* margin-left: 1px; */
-    padding: 12px;
-    color: wheat;
-    border-color:#993a63 ;
-    width: fit-content;
-}
-
-.btn.btn-style:hover {  
-    background-color: #cd3275;
-}
-
-.col-md-8{
-    margin-top: 50px;
-    margin-left: 210px;
-    line-height: 90px;
-}
-
-.workspace-container {
-    margin-top: 160px;
-    margin-right: 75px;
-    max-width: 150%;
+@import url('https://fonts.googleapis.com/css?family=Poppins:400,500,600,700&display=swap');
+*{
+  margin: 0;
+  padding: 0;
+  outline: none;
+  box-sizing: border-box;
+  font-family: 'Poppins', sans-serif;
 }
 
 
-/* -------------------------------------sign in page -------------------------- */
-
-
-.col-3 .register-link{
-    text-decoration: none;
-    color: #4b0724;
-    padding-left: 150px;
+.container .text{
+  text-align: left;
+  padding: 2%;
+  font-size: 35px;
+  font-weight: 600;
+  font-family: 'Poppins', sans-serif;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: #85586F;
+}
+.container form{
+  padding: 30px 0 0 0;
+}
+.container form .form-row{
+  display: flex;
+  margin: 32px 0;
+}
+form .form-row .input-data{
+  width: 100%;
+  height: 40px;
+  margin: 0 20px;
+  position: relative;
+}
+form .form-row .textarea{
+  height: 70px;
+}
+.input-data input,
+.textarea textarea{
+  display: block;
+  width: 100%;
+  height: 100%;
+  border: none;
+  font-size: 17px;
+  border-bottom: 2px solid rgba(0,0,0, 0.12);
+  background-color: #F8EDE3;
+}
+.form-box{
+    box-shadow: 0px 0px 10px rgba(0,0,0,0.1);
+    background-color: #F8EDE3;
 }
 
-.col-3 .workspace-link {
-    text-decoration: none;
-    color: #4b0724;
-    padding-right: 150px;
+.input-data input:focus ~ label, .textarea textarea:focus ~ label,
+.input-data input:valid ~ label, .textarea textarea:valid ~ label{
+  transform: translateY(-20px);
+  font-size: 14px;
+  color: #85586F;
+  background-color: #F8EDE3;
+}
+.textarea textarea{
+  resize: none;
+  padding-top: 10px;
+}
+.input-data label{
+  position: absolute;
+  pointer-events: none;
+  bottom: 10px;
+  font-size: 16px;
+  transition: all 0.3s ease;
+  color:#85586F;
+  background-color: #F8EDE3;
+}
+.textarea label{
+  width: 100%;
+  bottom: 40px;
+  background: #F8EDE3;
+  color:#85586F;
+}
+textarea .underline{
+  position: absolute;
+  bottom: 0;
+  height: 2px;
+  width: 100%;
+}
+textarea .underline:before{
+  position: absolute;
+  content: "";
+  height: 2px;
+  width: 100%;
+  background: #85586F;
+  transform: scaleX(0);
+  transform-origin: center;
+  transition: transform 0.3s ease;
+}
+.input-data .underline{
+  position: absolute;
+  bottom: 0;
+  height: 2px;
+  width: 100%;
+  
+}
+.input-data .underline:before{
+  position: absolute;
+  content: "";
+  height: 2px;
+  width: 100%;
+  background: #85586F;
+  transform: scaleX(0);
+  transform-origin: center;
+  transition: transform 0.3s ease;
+  
+}
+.input-data input:focus ~ .underline:before,
+.input-data input:valid ~ .underline:before,
+.textarea textarea:focus ~ .underline:before,
+.textarea textarea:valid ~ .underline:before{
+  transform: scale(1);
+}
+.submit-btn .input-data{
+  overflow: hidden;
+  height: 45px!important;
+  width: 25%!important;
+  
 }
 
 
-/* ----------------------------------workspace------------------------- */
-
-
-.workspace-name {
-    margin-top: 25px; 
-}
-.workspace-url {
-    margin-top: 50px;
+.submit-btn .input-data input{
+ 
+  background-color: #85586F;
+  color:white;
+  
 }
 
-.input-group {
-    align-items: center;
-    text-align: center;
-    margin-left: 600px;
-    margin-top: 45px;
+
+body {
+    margin: 0;
+    padding: 0;
+    background-color: #F8EDE3;
+  }
+  
+
+  
+.dropdown{
+  background-color: #85586F;
+  color:white;
+  margin-right: 2px;
 }
-/* .register-form {
-    text-align: center;
-    margin-top: 16px;
+.dropdown-toggle{
+  color:white;
+}
+.dropdown-menu{
+  background-color:#836373;
+
+}
+.dropdown-menu > li > a:hover {
+  
+  background-color:#836373;
+  color:white
+}
+.dropdown-menu > li > a{
+  background-color:#85586F;
+  color:white;
+}
+
+  .bg-light {
+    background: #eef0f4;
+  }
+  
+  .choices__list--dropdown .choices__item--selectable {
+    padding-right: 1rem;
+    background-color: #85586F;
+    color: white;
+
+  }
+  .choices .choices__inner .choices__list--multiple .choices__item--selectable {
+    background-color: #85586F;  
+    color: white;
+    border-color: #85586F;
+    border-radius: 50px;
+    font-weight: 200;
+}
+.choices .choices__list .choices__item--choice:hover {
+  background-color: #836373;  /* Example: lighter orange on hover */
+  color: white; 
+}
+
+  
+  .choices__list--single {
+    padding: 0;
+  }
+
+  .card {
+    transform: translateY(-50%);
+  }
+  
+  .choices[data-type*=select-one]:after {
+    right: 1.5rem;
+  }
+  
+  .shadow {
+    box-shadow: 0.3rem 0.3rem 1rem rgba(178, 200, 244, 0.23);
+  }
+
+  .fa-calendar {
+    position: absolute;
+    top: 13px;
+    font-size: 20px;
+    color: white;
+    z-index: 1000;
+  }
+  
+  #fa-1 {
+    left: calc(40%);
+    margin-bottom:2px;
+    z-index: 0;
+    color:#eee;
+  }
+  
+  #fa-2 {
+    left: calc(90%);
+    margin-bottom: 2px;
+    z-index: 1;
+    color:#eee;
+  }
+  #end-p {
+    left: calc(50% + 4px);
+  }
+  .datepicker {
+    background-color: #fff;
+    border-radius: 0 !important;
+    align-content: center !important;
+    padding: 0 !important;
+  }
+  
+  .datepicker-dropdown {
+    top: 180px !important;
+    left: calc(50% - 173.5px) !important;
+    border-right: #85586F;
+    border-left: #85586F;
     
+      width: 312px; /* Set this to your desired smaller width */
+  
+  }
+  
+  .datepicker-dropdown.datepicker-orient-left:before {
+    left: calc(50% - 6px) !important;
+  }
+  
+  .datepicker-dropdown.datepicker-orient-left:after {
+    left: calc(50% - 5px) !important;
+    border-bottom-color: #85586F;
+  }
+  
+  .datepicker-dropdown.datepicker-orient-right:after {
+    border-bottom-color: #85586F;
+  }
+
+  .datepicker table tr td.today, span.focused {
+    border-radius: 50% !important;
+    background-image: linear-gradient(#FFF3E0, #FFE0B2);
+  
+  }
+  
+  thead tr:nth-child(2) {
+    background-color: #85586F !important;
+
+  }
+  
+  /*Weekday title*/
+  thead tr:nth-child(3) th {
+    font-weight: bold !important;
+  padding: 20px 10px !important;
+  color: #BDBDBD !important;
+  
 }
 
-.left-tag {
-    padding-right: 5px;
-    align-items: center;
-    text-align: center;
-    margin-left: 325px;
-    width: 125px;
-     
-} */
-/* 
-.right-tag {
-    padding-left: 5px;
-    align-items: center;
-    text-align: center;
-    margin-left: 73px;
-    padding-top: 0;
+
+.datepicker table tbody tr td,.datepicker table tr th  {
+  padding: 10px !important;
+  width:5px;
+    height:5px;
 }
 
-.input .right-tag {
-    padding: 50px;
-    margin-top: 50px;
-} */
-
-
-/* 
-.text-muted {
-    color: #331c28;
+tfoot tr:nth-child(2) th {
+  padding: 10px !important;
+  border-top: 1px solid #CFD8DC !important;
+  width:4px;
+    height:4px;
 }
 
-.ml-2 {
-    text-decoration: none;
-    color: #331c28;
+.cw {
+  font-size: 10px !important;
+  background-color: #E8EAF6 !important;
+  border-radius: 0px !important;
+  padding: 0px 20px !important;
+  margin-right: 10px solid #fff !important;
 }
 
-.workspace {
-    text-decoration: none;
-    color: #331c28;
-} */
+.old, .day, .new {
+  width: 2px !important;
+  height: 2px !important;
+  border-radius: 0px !important;
+  font-size: 14px;
+}
+
+.day.old, .day.new {
+  color: #E0E0E0 !important;
+}
+
+.day.old:hover, .day.new:hover {
+  border-radius: 50% !important;
+}
+.old-day:hover, .day:hover, .new-day:hover, .month:hover, .year:hover, .decade:hover, .century:hover {
+  border-radius: 50% !important;
+  background-color: #eee;
+}
+
+.active {
+  border-radius: 50% !important;
+  background-image: linear-gradient(#85586F,#85586F) !important;
+  color: #fff !important;
+}
+
+.range-start, .range-end {
+  border-radius: 50% !important;
+  background-image: linear-gradient(#85586F,#85586F) !important;
+}
+
+.range {
+  background-color: #E3F2FD !important;
+}
+
+.prev, .next, .datepicker-switch {
+  border-radius: 0 !important;
+  padding: 10px 10px 10px 10px !important;
+  font-size: 14px;
+  
+  opacity: 0.7;
+  color: #fff;
+}
+
+.prev:hover, .next:hover, .datepicker-switch:hover {
+  background-color: inherit !important;
+  opacity: 1;
+}
+
+@media screen and (max-width: 726px) {
+  .datepicker-dropdown.datepicker-orient-right:before {
+    right: calc(50% - 6px);
+    
+  }
+  .datepicker-dropdown.datepicker-orient-right:after {
+    right: calc(50% - 5px);
+  }
+  
+}
 
 
-/* border-width: 1px;
-border-color: black; */
-/* border-style: double solid; */
+.btn-outline-light:hover{
+  color:#85586F;
+}
 
-/* ---------------------------------------------------------login page------------------------------------------------------- */
+.row-issues{
+  background-color: #85586F;
+  color:#ffff;
+  border-color: #BDBDBD;
+
+}
+.row-issues:hover{
+  background-color: #895d74;
+
+}
+  
+  
