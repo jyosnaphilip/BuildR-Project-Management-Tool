@@ -1,0 +1,30 @@
+{% extends 'login_base.html' %}
+
+{% block content %}
+
+<div class="workspace-container">
+    <div class="row">
+
+
+        <div class="form-group form-heading text-center">
+            <label for="workspaceName" class="workspace-name">Workspace Name</label>
+            <br>
+            <input type="text" class="workspace-name" id="workspace-name" placeholder="workspace name" required>
+            <br>
+            <label for="workspaceUrl" class="workspace-url">Workspace URL</label>
+            <div class="input-group">
+                <div class="input-group-prepend">
+                    <span class="input-group-text">buildr.app/</span>
+                </div>
+                <input type="text" class="form-control" id="workspaceUrl" placeholder="workspace-name" required>
+            </div>
+        </div>
+
+        <div class="col-12 text-center">
+            <button class="btn btn-style" type="submit" href="{% url 'home' %}">Create</button>
+        </div>
+
+    </div>
+</div>
+
+{% endblock content %}
