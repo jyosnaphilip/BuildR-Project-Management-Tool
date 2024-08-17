@@ -15,8 +15,6 @@ class workspace(models.Model):
 class User(AbstractUser):
     is_admin = models.BooleanField(default=False,blank=False)
     user_id=models.UUIDField(default=uuid.uuid4,auto_created=True,editable=False)
-    workspace=models.ForeignKey(workspace,on_delete=models.CASCADE)
-    join_date=models.DateTimeField(auto_now_add=True)
     points = models.IntegerField(default=0)
     level = models.IntegerField(default=1)
 
