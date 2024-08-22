@@ -2,13 +2,15 @@ from django.http import HttpResponse
 from django.shortcuts import render,redirect
 from django.contrib import messages
 from django.contrib.auth.models import User
-from django.contrib.auth import authenticate
-
+from django.contrib.auth import authenticate,login,logout
+from .models import customUser
 
 # Create your views here.
-def home(request):
-    return render(request,'users\home.html')
+def home(request,custom_id):
+    return render(request,'users\home.html',{'custom_id':custom_id})
 
+#auth-----------------------------------------------
+# register---------------------------------------
 def register(request):
     if request.method == 'POST':
         first_name = request.POST.get('FirstName')
@@ -20,40 +22,57 @@ def register(request):
 
         if password1 == password2:
             if User.objects.filter(username=username).exists():
-                print("Username Taken")
+                messages.error(request,"Username Already Exists!")
+                return redirect('register')
+                
             elif User.objects.filter(email=email).exists():
-                print("Email is taken")
+                messages.error(request,"Email is already registered!")
+                return redirect('register')
+                
             else:
                 user = User.objects.create_user(username=username,password=password1,email=email,first_name=first_name,last_name=last_name)
+                user.set_password(password1)
                 user.save()
-                return HttpResponse("User has been created successfully")
-                print("User created")
+                print(user)
+                custom_User=customUser(user_id=user) #automatically create a row in customUser table- profile pic  & gamemode can be changed
+                custom_User.save()
+                messages.success(request,'Account Created Successfully ')
+                return redirect('login')
+                
         else:
             print("Password not matching")
-            return redirect('home')
+            return redirect('register')
     else:
         return render(request, 'login/register.html')
 
-def login(request):
-    if request.method == "POST":
-        username = request.POST['username']
-        password = request.POST['password']
+# register end----------------------------------------------
 
-        user = authenticate(request,username=username,password=password)
-    
+
+def user_login(request):
+    if request.method == "POST":
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+        user = authenticate(username=username,password=password)
         if user is not None:
-            login(request, user)
-            return redirect('home')
+            login(request,user)
+            custom_user=customUser.objects.get(user=user)
+            customUser_id=custom_user.custom_id
+            return redirect('home',customUser_id)
     
         else:
-            messages.success(request, "Error. Try Again")
-            return redirect('register')
+            messages.error(request, "Username or password is incorrect!")
+            return redirect('login')
     
     else:
         return render(request, 'login/login.html')
 
+
+                
+
+
 def logout(request):
     return render(request,'login/login.html')
+#auth end------------------------
 
 def join_workspace(request):
     return render(request, 'partials/join_workspace.html')

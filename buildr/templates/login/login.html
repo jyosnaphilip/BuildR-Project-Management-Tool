@@ -1,5 +1,5 @@
 {% extends 'login_base.html' %}
-
+{% load static %}
 {% block content %}
 
 <div class="container mt-0">
@@ -7,31 +7,36 @@
         <div class="col-sm-5 border p-5 shadow">
         <span class="border-start">
             <h3 class="form-heading">Sign in</h3>
-
-            <form class="row g-3 form-floating">
-
+            {% if messages %}
+                {% for message in messages %}
+                    <p {% if message.tags %} class="{{ message.tags }}" {% endif %}>{{ message }}</p>
+                {% endfor %}
+            
+            {% endif %}
+            <form class="row g-3 form-floating" method="POST">
+                {% csrf_token %}
                 <div class="col-sm-12">
                     <!-- <label for="validationDefaultUsername" class="form-label">Username</label> -->
-                    <input type="text" class="form-control" id="validationDefaultUsername" placeholder="Username"
-                        aria-describedby="inputGroupPrepend2" required>
+                    <input type="text" class="form-control" id="username" placeholder="Username"
+                        aria-describedby="inputGroupPrepend2" name="username" required>
                 </div>
 
 
                 <div class="col-sm-12">
                     <!-- <label for="validationDefault03" class="form-label">City</label> -->
-                    <input type="password" class="form-control" id="inputPassword" required  fdprocessedid="vlf8fr"
-                        placeholder="Password">
+                    <input type="password" class="form-control" id="password" name="password" required  fdprocessedid="vlf8fr"
+                        placeholder="Password" >
                 </div>
 
 
                 <div class="col-sm-12 text-center">
-                    <button class="btn btn-style" type="submit" href="{% url 'home' %}" style="color:white;">Sign in</button>
+                    <button class="btn btn-style" type="submit" href="{% url 'login' %}" style="color:white;">Sign in</button>
                 </div>
 
 
                 <div class="row text-center">
                     <div class="text-center ps-4">
-                        <a href="{% url 'home' %}" class="register-link">Don't have an account? Register Now</a>
+                        <a href="{% url 'register' %}" class="register-link">Don't have an account? Register Now</a>
                     </div>
                 </div>
 
