@@ -23,9 +23,10 @@
 </head>
 
 <body style="background-color: #F8EDE3;">
-
+    {% if workspaces %}
     {% include 'partials\navbar.html' %}
-
+    {% endif %}
+    
     {% block content %}
     
         

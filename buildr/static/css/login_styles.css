@@ -1,3 +1,14 @@
+body {
+    min-height: 100vh;
+    margin: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: linear-gradient(45deg,#6a11cb  0%, #6e193e 100%);
+    color: #ffffff;
+}
+/* #6a11cb */
 /* --------------------------------------------navbar----------------------------- */
 
 .join-workspace {
@@ -14,13 +25,13 @@
     text-align: center;
     padding-top: 44px;
     padding-bottom: 36px;
-    margin-top: 110px;
+   
     padding-left: 50px;
 }
 
 .row {
-    padding-top: 25px;
-    padding-bottom: 20px;
+    padding-top: 15px;
+    padding-bottom: 15px;
     width: 100%;
     margin: 0 auto;
 }
@@ -31,7 +42,7 @@
     font-style: normal;
     padding-bottom: 0;
     margin-left: 0;
-    margin-top: 15px;
+    margin-top: 10px;
 } 
 
 
@@ -96,19 +107,9 @@
 /* ----------------------------------workspace------------------------- */
 
 
-.workspace-name {
-    margin-top: 25px; 
-}
-.workspace-url {
-    margin-top: 50px;
-}
 
-.input-group {
-    align-items: center;
-    text-align: center;
-    margin-left: 600px;
-    margin-top: 45px;
-}
+
+
 
 .form-control{
     max-width: 300px;

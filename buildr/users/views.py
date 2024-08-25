@@ -3,11 +3,14 @@ from django.shortcuts import render,redirect
 from django.contrib import messages
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate,login,logout
-from .models import customUser
-
+from .models import customUser,workspace,workspaceMember,workspaceCode
+from django.utils import timezone
 # Create your views here.
 def home(request,custom_id):
-    return render(request,'users\home.html',{'custom_id':custom_id})
+    ws=get_ws(custom_id)
+    
+
+    return render(request,'users\home.html',{'custom_id':custom_id,'workspaces':ws})
 
 #auth-----------------------------------------------
 # register---------------------------------------
@@ -33,7 +36,6 @@ def register(request):
                 user = User.objects.create_user(username=username,password=password1,email=email,first_name=first_name,last_name=last_name)
                 user.set_password(password1)
                 user.save()
-                print(user)
                 custom_User=customUser(user_id=user) #automatically create a row in customUser table- profile pic  & gamemode can be changed
                 custom_User.save()
                 messages.success(request,'Account Created Successfully ')
@@ -46,6 +48,16 @@ def register(request):
         return render(request, 'login/register.html')
 
 # register end----------------------------------------------
+def chk_workspace(user_id):
+    print(user_id)
+    check=workspaceMember.objects.filter(customUser=user_id).exists()
+    
+    return check
+
+def get_ws(user_id):
+    ws_lst=workspaceMember.objects.filter(customUser=user_id).values_list('workspace__ws_name',flat=True)
+    
+    return ws_lst
 
 
 def user_login(request):
@@ -57,7 +69,11 @@ def user_login(request):
             login(request,user)
             custom_user=customUser.objects.get(user=user)
             customUser_id=custom_user.custom_id
-            return redirect('home',customUser_id)
+            if chk_workspace(customUser_id):
+                 #checks if user is already part of a workspace
+                return redirect('home',customUser_id)
+            else:
+                return redirect('first-signin',customUser_id)
     
         else:
             messages.error(request, "Username or password is incorrect!")
@@ -67,18 +83,53 @@ def user_login(request):
         return render(request, 'login/login.html')
 
 
-                
+def first_signin(request,customUser_id):
+    return render(request,'users/first_sign_in.html',{'customUser_id':customUser_id})                
 
 
 def logout(request):
     return render(request,'login/login.html')
 #auth end------------------------
 
-def join_workspace(request):
-    return render(request, 'partials/join_workspace.html')
+def join_workspace(request,custom_id):
+    return render(request, 'partials/join_workspace.html',{'custom_id':custom_id})
 
-def new_workspace(request):
-    return render(request,'partials/new_workspace.html')
+
+def check_ws(ws_name):
+    check=workspace.objects.filter(ws_name=ws_name).exists()
+    return check
+
+def new_workspace(request,custom_id):
+    if request.method=="POST":
+        ws_name=request.POST.get('ws_name')
+        
+        name_check=check_ws(ws_name)
+       
+        if (not name_check) :
+            ws=workspace(ws_name=ws_name,admin=customUser.objects.get(custom_id=custom_id))
+            ws.save()
+
+            ws_member=workspaceMember(workspace=workspace.objects.get(ws_id=ws.ws_id),customUser=customUser.objects.get(custom_id=custom_id))
+            ws_member.save()
+            code=workspaceCode.objects.filter(ws=ws).order_by('-created_on').first()
+    
+            if not code or code.has_expired():
+                if code:
+                    code.regenerate_code()
+                else:
+                    expires_on = timezone.now() + timezone.timedelta(days=120)  # Set expiration duration
+                    workspaceCode.objects.create(
+                        ws=workspace.objects.get(ws_id=ws.ws_id),
+                        code=workspaceCode.generate_unique_code(),
+                        expires_on=expires_on
+                    )
+                    return render(request,'users/home.html',{'custom_id':custom_id,"ws_id":ws})
+            else:
+                messages.error(request,'Workspace name already exists!')
+            return redirect('new_workspace',custom_id)
+
+    
+    return render(request,'partials/new_workspace.html',{'custom_id':custom_id})
 def add_project(request):
     return render(request, 'users/add_project.html')
 

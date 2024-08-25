@@ -1,6 +1,7 @@
 {% extends 'base.html' %}
 {% load static %}
 {% block content %}
+{% if workspaces %}
 <div id="content" class="expanded">
     <div class="container">
         <div class="row justify-content-center">
@@ -110,6 +111,11 @@
         </div>
     </div>
 </div>
+
+
+
+
+{% endif %}
 
     
 {% endblock content %}

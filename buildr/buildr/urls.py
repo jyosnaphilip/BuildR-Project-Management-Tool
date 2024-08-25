@@ -20,7 +20,7 @@ from users.views import *
 from django.contrib.auth import views as auth_views
 from users.views import register,logout,join_workspace,new_workspace
 
-from users.views import home,add_project,project_view,issue_view,add_issue,add_subIssue,user_login
+from users.views import home,add_project,project_view,issue_view,add_issue,add_subIssue,user_login,first_signin
 urlpatterns = [
     path('admin/', admin.site.urls),
    
@@ -30,10 +30,12 @@ urlpatterns = [
     path('add_issue',add_issue,name="add_issue"),
     path('add_subIssue',add_subIssue,name='add_subIssue'),
   
-    path('home/<str:custom_id>',home,name='home'),
+    path('home/<str:custom_id>/',home,name='home'),
     path('register/',register,name='register'),
     path('',user_login,name='login'),
     path('logout/',logout,name='logout'),
-    path('join-workspace/',join_workspace, name='join-workspace'),
-    path('new-workspace',new_workspace,name='new_workspace')
+    path('join-workspace/<str:custom_id>',join_workspace, name='join-workspace'),
+    path('new-workspace/<str:custom_id>',new_workspace,name='new_workspace'),
+   path('new-signin/<str:customUser_id>',first_signin,name='first-signin'),
+
 ]
