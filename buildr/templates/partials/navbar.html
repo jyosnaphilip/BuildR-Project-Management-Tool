@@ -1,21 +1,31 @@
 <div id="sidebar-toggle" onclick="toggleSidebar()">
-  
-<button  class="btn" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasScrolling" aria-controls="offcanvasScrolling"><i class="fa-solid fa-bars fa-2xl m-3 p-1" style="color: #85586f;"></i>Workspace name</button>
+  {% if workspaces %}
+<button  class="btn font" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasScrolling" aria-controls="offcanvasScrolling" style="color:#ffff;"><i class="fa-solid fa-bars fa-2xl m-3 p-1" style="color: #ffff"></i>{{workspaces.0.workspace}} </button>
 </div>
 <div id="sidebar" class="hidden">
   
-  <div class="offcanvas offcanvas-start theme1" style="width:20%; background-color: #F8EDE3;" data-bs-scroll="true" data-bs-backdrop="false" tabindex="-1" id="offcanvasScrolling" aria-labelledby="offcanvasScrollingLabel">
+  <div class="offcanvas offcanvas-start theme1" style="width:20%; background-color: #ffff" data-bs-scroll="true" data-bs-backdrop="false" tabindex="-1" id="offcanvasScrolling" aria-labelledby="offcanvasScrollingLabel">
     <div class="offcanvas-header">
-      {% if workspaces %}
-      <h5 class="offcanvas-title" id="offcanvasScrollingLabel">{{workspaces.0}}</h5>
-        {% if workspaces|length > 0 %}
-        <i class="fa-solid fa-angle-down m-1" data-bs-toggle="dropdown" aria-expanded="false"></i>
-        <ul class="dropdown-menu">
-          {% for workspace in workspaces %}
-          <li><a class="dropdown-item" href="#">Action</a></li>
+      
+      <h5 class="offcanvas-title font" id="offcanvasScrollingLabel">
+        <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+        <select id="workspaceDropdown" name="workspace" style="border:none;">
+          
+            <option style="color:black;" value="{{current_ws}}" >
+                {{current_ws.ws_name}}
+            </option>
+          
+          {% for ws in workspaces %}
+
+            <option style="color:black;" value="{{ ws.workspace__ws_id }}" >
+                {{ ws.workspace__ws_name }}
+            </option>
           {% endfor %}
-        </ul>
-        {% endif %}
+        </select>
+      </h5>
+       
+ 
+        
       {% endif %}
       <button type="button" class="btn-close" onclick="toggleSidebar()" data-bs-dismiss="offcanvas" aria-label="Close"></button>
     </div>
@@ -29,7 +39,65 @@
     <p>
       <a href="{% url 'join-workspace' custom_id %}" class="join-workspace">Join Workspace</a>
     </p>
-      <a href="{% url 'add_project' %}"><i class="fa-solid fa-plus fa-2xl"></i> Add Project</a>
+      <p><a href="{% url 'add_project' %}"><i class="fa-solid fa-plus fa-2xl"></i> Add Project</a></p>
+      <p>{% if flag %}
+        <button type="button" class="btn btn-dark" data-bs-toggle="modal" data-bs-target="#codeModal">
+          Add members
+        </button>
+        
+        <!-- Modal -->
+        
+      {% endif %}</p>
+    </div>
+  </div>
+  <div class="modal" id="codeModal" tabindex="-1">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Share this workspace code to add members:</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <p>{{ws_code}}</p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          
+        </div>
+      </div>
     </div>
   </div>
 </div>
+<script>
+  document.getElementById('workspaceDropdown').addEventListener('change', function() {
+      const ws_id = this.value;
+      fetch("{% url 'switch_ws' %}", {
+          method: 'POST',
+          headers: {
+              'X-CSRFToken': '{{ csrf_token }}',
+              'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ 'ws_id': ws_id })
+      }).then(response => window.location.reload());
+  });
+
+  document.getElementById('addMemberBtn').addEventListener('click', function() {
+    var myModal = new bootstrap.Modal(document.getElementById('workspaceCodeModal'), {
+        keyboard: false
+    });
+    myModal.show();
+});
+
+document.getElementById('copyCodeBtn').addEventListener('click', function() {
+    var codeInput = document.getElementById('workspaceCodeInput');
+    codeInput.select();
+    codeInput.setSelectionRange(0, 99999);  // For mobile devices
+
+    document.execCommand('copy');
+
+    var copyMessage = document.getElementById('copyMessage');
+    copyMessage.style.display = 'block';  // Show "Copied to clipboard!" message
+});
+
+  </script>
+  

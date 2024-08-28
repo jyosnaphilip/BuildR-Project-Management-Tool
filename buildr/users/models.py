@@ -8,7 +8,8 @@ class customUser(models.Model):
     custom_id=models.UUIDField(primary_key=True,default=uuid.uuid4,auto_created=True)
     user=models.ForeignKey(User,on_delete=models.CASCADE)
     profile_pic=models.ImageField(upload_to='user_dp',null=True,blank=True)
-    gameMode=models.BooleanField(default=True,blank=False,)
+    gameMode=models.BooleanField(default=True,blank=False)
+    last_ws=models.ForeignKey("workspace",null=True,blank=True,on_delete=models.SET_NULL)
 
     def __str__(self) :
         return self.user
@@ -38,9 +39,11 @@ class workspaceCode(models.Model):
     expires_on=models.DateTimeField()
     
     def has_expired(self):
-        return timezone.now>self.expires_on
+        return timezone.now()>self.expires_on
+       
     
     def regenerate_code(self):
+        
         self.code = self.generate_unique_code()
         self.created_at = timezone.now()
         self.expires_on = self.created_at + timezone.timedelta(days=120) 
