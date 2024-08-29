@@ -1,31 +1,40 @@
 from django.http import HttpResponse
-from django.shortcuts import render,redirect
+from django.shortcuts import render,redirect,get_object_or_404
 from django.contrib import messages
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate,login,logout
-from .models import customUser,workspace,workspaceMember,workspaceCode
+from .models import customUser,workspace,workspaceMember,workspaceCode,Project,priority,status,project_member_bridge
 from django.utils import timezone
 import json
+from datetime import datetime
 from django.http import JsonResponse
 
 
 def check_code(ws_code):
-    
+    print(ws_code)
     ws_code = workspaceCode.objects.get(code=ws_code[0]['code'], is_active=True)
     if ws_code.has_expired():
         ws_code.regenerate_code()
         return ws_code.code
     else:
         return ws_code.code
-    
+def create_code(ws_id):
+    ws_code=workspaceCode(ws_id=ws_id)
+    ws_code.regenerate_code()
+    ws_code.save()
+    return ws_code.code 
 # Create your views here.
 def home(request,custom_id):
-    current_ws = request.session.get('current_ws', None)
-    ws=get_ws(custom_id,current_ws) #all ws
-    current_ws=workspace.objects.get(ws_id=current_ws) 
+    current_ws_id = request.session.get('current_ws', None)
+    ws=get_ws(custom_id,current_ws_id) #all ws
+    current_ws=workspace.objects.get(ws_id=current_ws_id) 
     if str(current_ws.admin.custom_id)==custom_id:
         flag=True
-        code=check_code(ws)
+        ws_code=workspaceCode.objects.filter(ws=current_ws_id,is_active=True).values('code','ws_id')
+        if len(ws_code)==0:
+            code=create_code(current_ws_id)
+        else:
+            code=check_code(ws_code)
 
     else:
         flag=False
@@ -92,7 +101,7 @@ def get_ws(user_id,ws_id=None):
          # for a user with only one workspace we end up removing that from ws_lst in above line
         #to mitigate that, im putting this if condn
         if len(ws_lst)==0:
-            ws_lst=workspaceMember.objects.filter(customUser=user_id)
+            ws_lst=workspaceMember.objects.filter(customUser=user_id).values('workspace__ws_id', 'workspace__ws_name')
  
     else:
         ws_lst=workspaceMember.objects.filter(customUser=user_id).values('workspace__ws_id', 'workspace__ws_name')
@@ -204,8 +213,46 @@ def new_workspace(request,custom_id):
 
     
     return render(request,'partials/new_workspace.html',{'custom_id':custom_id})
+
+
 def add_project(request):
-    return render(request, 'users/add_project.html')
+    ws_id=request.session['current_ws']
+    ws_id = get_object_or_404(workspace, ws_id=ws_id)  # Assuming ws_id is in POST
+        
+    ws_members=workspaceMember.objects.filter(workspace=ws_id,active=True)
+    if request.method=="POST":
+        project_name=request.POST.get('project_name')
+        desc=request.POST.get('desc')
+        prior=request.POST.get('priority')
+        stat=request.POST.get('status')
+        # prior={'1':'Urgent','2':'High Priority','3':'Medium Priority','4':'Low Priority','5':'No Priority'}
+        # stat={'1':'Open','2':'In Progress','3':'Closed'}
+        start=request.POST.get('start')
+        deadline=request.POST.get('deadline')
+        deadline=datetime.strptime(deadline,'%d-%m-%Y').date()
+        lead=request.POST.getlist('lead')
+        members=request.POST.getlist('members')
+        priority_obj = get_object_or_404(priority, id=int(prior))
+        status_obj = get_object_or_404(status, id=int(stat))
+     
+        project=Project(name=project_name,description=desc,deadline=deadline,ws=ws_id,priority=priority_obj,status=status_obj)
+        project.save()
+        for lead_id in lead:
+            print(lead_id)
+            
+            
+            project_member_bridge.objects.create(project=Project.objects.get(project_id=project.project_id),team_member=customUser.objects.get(custom_id=lead_id),role='Lead')
+            print('here')
+        for member_id in members:
+            
+            member = get_object_or_404(customUser,custom_id=member_id)
+            project_member_bridge.objects.create(
+                project=project,
+                team_member=member,
+                role='Team member'
+            )
+        return redirect('project_view')
+    return render(request, 'users/add_project.html',{'ws_members':ws_members})
 
 def project_view(request):
     return render(request,'users\project_view.html')

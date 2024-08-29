@@ -49,7 +49,7 @@ class workspaceCode(models.Model):
         self.expires_on = self.created_at + timezone.timedelta(days=120) 
         self.save()
     
-    def generate_unique_code():
+    def generate_unique_code(self):
         return uuid.uuid4().hex[:8].upper()
     
 class playerStats(models.Model):
@@ -73,10 +73,11 @@ class playerStats(models.Model):
 
 class priority(models.Model):
     name = models.CharField(max_length=100, choices=[
-        ('Urgent', 'Open'),
+        ('Urgent', 'Urgent'),
         ('High Priority', 'High Priority'),
         ('Medium Priority', 'Medium Priority'),
-        ('Low Priority','Low Prioirty')
+        ('Low Priority','Low Priority'),
+        ('No Priority','No Priority')
     ])
 
     def __str__(self):
@@ -98,7 +99,15 @@ class Project(models.Model):
     ws = models.ForeignKey(workspace, on_delete=models.CASCADE, related_name='projects')
     priority = models.ForeignKey(priority, on_delete=models.SET_NULL, null=True, blank=True, related_name='projects')
     status = models.ForeignKey(status, on_delete=models.SET_NULL, null=True, blank=True, related_name='projects')
-
+    team=models.ManyToManyField(customUser,through='project_member_bridge')
     def __str__(self):
         return self.name
-
+    
+class project_member_bridge(models.Model):
+    team_member=models.ForeignKey(customUser,on_delete=models.CASCADE)
+    project=models.ForeignKey(Project,on_delete=models.CASCADE)
+    role=models.CharField(max_length=12, choices=[
+        ('Lead', 'Lead'),
+        ('Team member', 'Team member')
+    ])
+    joined_on=models.DateTimeField(auto_now_add=True)
