@@ -16,7 +16,6 @@
             </option>
           
           {% for ws in workspaces %}
-
             <option style="color:black;" value="{{ ws.workspace__ws_id }}" >
                 {{ ws.workspace__ws_name }}
             </option>
@@ -31,8 +30,9 @@
     </div>
     <div class="offcanvas-body">
       <p>My tasks</p>
-      <p><a href="{% url 'project_view' %}">Project 1{color code icon}</a></p>
-      <p>Project 2{color code icon}</p>
+      {% for project in projects %}
+      <p><a href="{% url 'project_view' project.project_id %}">{{project.name}}</a></p>
+      {% endfor %}
     <p>
     <a href="{% url 'new_workspace' custom_id %}" class="join-workspace">Create Workspace</a>
     </p>

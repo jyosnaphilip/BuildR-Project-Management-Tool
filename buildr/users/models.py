@@ -111,3 +111,25 @@ class project_member_bridge(models.Model):
         ('Team member', 'Team member')
     ])
     joined_on=models.DateTimeField(auto_now_add=True)
+    active=models.BooleanField(default=True)
+
+class issue(models.Model):
+    issue_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    name = models.CharField(max_length=255)
+    description = models.TextField()
+    deadline = models.DateField(null=True, blank=True)
+    created_on = models.DateTimeField(auto_now_add=True)
+    completed = models.BooleanField(default=False)
+    project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name='issues')
+    priority = models.ForeignKey(priority, on_delete=models.SET_NULL, null=True, blank=True, related_name='issues')
+    status = models.ForeignKey(status, on_delete=models.SET_NULL, null=True, blank=True, related_name='issues')
+    assignee=models.ManyToManyField(customUser,through='issue_assignee_bridge')
+    parent_task=models.ForeignKey('self', on_delete=models.CASCADE,null=True)
+    def __str__(self):
+        return self.name
+
+class issue_assignee_bridge(models.Model):
+    assignee=models.ForeignKey(customUser,on_delete=models.CASCADE)
+    issue=models.ForeignKey(issue,on_delete=models.CASCADE)
+    assigned_on=models.DateTimeField(auto_now_add=True)
+    active=models.BooleanField(default=True)

@@ -6,7 +6,7 @@
         <div class="row justify-content-center">
             <div class="">
                 <div class="d-flex justify-content-between   ">
-                    <span class="text">Project Name</span>
+                    <span class="text">{{project}}</span>
                     <button type="button" class="btn" data-bs-toggle="modal" data-bs-target="#editProject" data-bs-whatever="@mdo"><i class="fa-solid fa-pen pt-4" style="color: #85586f;"></i></button>
                     <!-- modal -->
                     <div class="modal fade" id="editProject" tabindex="-1" aria-labelledby="editProjectLabel" aria-hidden="true">
@@ -151,65 +151,70 @@
                 <!-- modal end -->
                 <div class="row ms-2">
                    
-                    <div class="col-sm-1 mb-2">
-                    
-                        <button class="btn btn-sm dropdown dropdown-toggle rounded-pill" type="button" data-bs-toggle="dropdown" aria-expanded="false" fdprocessedid="5bab4i">
-                          Priority
-                        </button>
-                        <ul class="dropdown-menu" >
-                          <li><a class="dropdown-item" href="#"><i class="fa-solid fa-triangle-exclamation fa-l"></i> Urgent</a></li>
-                          <li><a class="dropdown-item " href="#"><i class="fa-solid fa-exclamation fa-l p-1 "></i> High</a></li>
-                          <li><a class="dropdown-item" href="#"><i class="fa-solid fa-ellipsis fa-lg p-1" style="color: #fafafa;"></i>Moderate</a></li>
-                          <li><a class="dropdown-item" href="#"><i class="fa-solid fa-angles-down fa-lg p-1" style="color: #fafafa;"></i>Low</a></li>
-                          <li><a class="dropdown-item" href="#">No Priority</a></li>
-                        </ul>
+                    <div class="col-sm-2 mb-2">
+                        <select id="status-dropdown" class="form-select custom-select rounded-pill" type="button" name="status" data-bs-toggle="dropdown"  aria-expanded="false">
+                            {% for prior in priority %}
+                            {% if project.prior.id|stringformat:"s" == prior.id|stringformat:"s" %}
+
+                            <option value="{{prior.id}}"  class="dropdown-item" selected>{{prior.name}}</option>
+                            {% else %}
+
+                            <option class="dropdown-item" value="{{prior.id}}"><i class="fa-regular fa-circle fa-l"></i> {{prior.name}}</option>
+                            {% endif %}
+                        {% endfor %}
+                        </select>
+                        
                     </div>  
                     <div class="col-sm-2 mb-2 ">
-                        <button class="btn btn-sm dropdown dropdown-toggle rounded-pill" type="button" data-bs-toggle="dropdown" aria-expanded="false" fdprocessedid="5bab4i">
-                            Status
-                        </button>
-                        <ul class="dropdown-menu" >
-                            <li><a class="dropdown-item" href="#"><i class="fa-regular fa-circle fa-l"></i> Open</a></li>
-                            <li><a class="dropdown-item" href="#"><i class="fa-solid fa-circle-half-stroke fa-l"></i> In progress</a></li>
-                            <li><a class="dropdown-item" href="#"><i class="fa-solid fa-circle-pause fa-l"></i> Paused</a></li>
+                        <div class="dropdown rounded-pill me-2">
+                            <select id="status-dropdown" class="form-select custom-select rounded-pill" type="button" name="status" data-bs-toggle="dropdown"  aria-expanded="false">
+                                {% for stat in status %}
+                                {% if project.status.id|stringformat:"s" == stat.id|stringformat:"s" %}
     
-                            <li><a class="dropdown-item" href="#"><i class="fa-solid fa-circle-check fa-l"></i> Closed</a></li>
-                        </ul>   
+                                <option value="{{stat.id}}"  class="dropdown-item" selected>{{stat.name}}</option>
+                                {% else %}
+    
+                                <option class="dropdown-item" value="{{stat.id}}"><i class="fa-regular fa-circle fa-l"></i> {{stat.name}}</option>
+                                {% endif %}
+                            {% endfor %}
+                            </select>
+                            
+                          </div>
                     </div>
                     
                        
                     
-                    <div class="col-sm-2 mb-2">
+                    <div class="col-sm-3 mb-2">
                             <span class="input-group input-daterange  " style="color:white;">
                                                         
-                                <input type="text" id="end" class="form-control btn btn-sm  rounded-pill   me-2"  placeholder="Start" style="color:#ffff; background-color: #85586F; ">
-                                <label class="ml-3 form-control-placeholder" id="end-p" for="end" ></label>
+                                <button type="text" id="end" class="form-control btn btn-sm  rounded-pill   me-2"  placeholder="Start" style="color:#ffff; background-color: #85586F; ">{{project.created_on}}</button>
                                 <!-- <span class="fa fa-calendar fa-xs" id="fa-2"></span> -->
-                                <input type="text" id="start" class="form-control rounded-pill btn btn-sm " placeholder="Target" style="background-color: #85586F;border-color: #85586F;color:white;">
-                                <label class=" form-control-placeholder" id="start-p" for="start"></label>
+                                <button type="text" id="start" class="form-control rounded-pill btn btn-sm " style="background-color: #85586F;border-color: #85586F;color:white;">{{project.deadline}}</button>
                                 <!-- <span class="fa fa-calendar" id="fa-1" ></span> -->
                             </span>
                     </div>
                     <div class="col-sm-1 mb-2 ms-3">
-                        <button class="rounded-pill btn btn-sm" style="background-color: #85586f; color:#f5f7fa;">
-                            <i class="fa-solid fa-user" style="color: #edeff2;"></i>
-                            Lead</button>
-
+                        <button class="btn btn-sm dropdown dropdown-toggle rounded-pill" type="button" data-bs-toggle="dropdown" aria-expanded="false" fdprocessedid="5bab4i">
+                            <i class="fa-solid fa-user-group " style="color: #e7eaee;"></i> Lead
+                        </button>
+                        <ul class="dropdown-menu" >
+                            {% for l in lead %}
+                            <li><a class="dropdown-item" href="#"><i class="fa-regular fa-circle fa-l"></i> {{l.team_member.user.first_name}} {{l.team_member.user.last_name}}</a></li>
+                            {% endfor %}
+                        </ul>
                     </div>
                     <div class="col-sm-1 mb-2 ms-0">
                         <button class="btn btn-sm dropdown dropdown-toggle rounded-pill" type="button" data-bs-toggle="dropdown" aria-expanded="false" fdprocessedid="5bab4i">
                             <i class="fa-solid fa-user-group " style="color: #e7eaee;"></i> Members
                         </button>
                         <ul class="dropdown-menu" >
-                            <li><a class="dropdown-item" href="#"><i class="fa-regular fa-circle fa-l"></i> Open</a></li>
-                            <li><a class="dropdown-item" href="#"><i class="fa-solid fa-circle-half-stroke fa-l"></i> In progress</a></li>
-                            <li><a class="dropdown-item" href="#"><i class="fa-solid fa-circle-pause fa-l"></i> Paused</a></li>
-    
-                            <li><a class="dropdown-item" href="#"><i class="fa-solid fa-circle-check fa-l"></i> Closed</a></li>
+                            {% for member in team %}
+                            <li><a class="dropdown-item" href="#"><i class="fa-regular fa-circle fa-l"></i> {{member.team_member.user.first_name}} {{member.team_member.user.last_name}}</a></li>
+                            {% endfor %}
                         </ul>
                     </div>
                     <div class=" col-sm-2 offset-sm-2 ms-4 mb-2 ">    
-                        <a class="rounded-pill btn btn-sm " href="{% url 'add_issue' %}" style="background-color: #85586f; color:#f5f7fa;"><i
+                        <a class="rounded-pill btn btn-sm " href="{% url 'add_issue' project.project_id %}" style="background-color: #85586f; color:#f5f7fa;"><i
                                 class="fa-solid fa-plus" style="color: #f5f7fa;"></i> Add issue</a>
                     </div>
                 </div>
@@ -222,17 +227,20 @@
              <div class="container">
                 
                 <div class="row p-1 row-issues " >
-                    <div class="col-sm-1">
-                        <span class="btn btn-sm dropdown dropdown-toggle rounded-pill"  type="button" data-bs-toggle="dropdown" aria-expanded="false" fdprocessedid="5bab4i">
-                            Status
-                        </span>
-                        <ul class="dropdown-menu" >
-                            <li><a class="dropdown-item" href="#"><i class="fa-regular fa-circle fa-l"></i> Open</a></li>
-                            <li><a class="dropdown-item" href="#"><i class="fa-solid fa-circle-half-stroke fa-l"></i> In progress</a></li>
-                            <li><a class="dropdown-item" href="#"><i class="fa-solid fa-circle-pause fa-l"></i> Paused</a></li>
-                            <li><a class="dropdown-item" href="#"><i class="fa-solid fa-circle-check fa-l"></i> Closed</a></li>
-                        </ul> 
-                    </div>
+                    <div class="col-sm-1 dropdown rounded-pill me-2">
+                        <select id="status-dropdown" class="form-select custom-select rounded-pill" type="button" name="status" data-bs-toggle="dropdown"  aria-expanded="false">
+                            {% for stat in statuses %}
+                            {% if project.status.id|stringformat:"s" == stat.id|stringformat:"s" %}
+
+                            <option value="{{stat.id}}"  class="dropdown-item" selected>{{stat.name}}</option>
+                            {% else %}
+
+                            <option class="dropdown-item" value="{{stat.id}}"><i class="fa-regular fa-circle fa-l"></i> {{stat.name}}</option>
+                            {% endif %}
+                        {% endfor %}
+                        </select>
+                        
+                      </div>
                     <div class="col-sm-8 pt-1"  style="cursor: pointer;" id="issue1">
                         issue (completed subissue/total subisue)
                     </div>
@@ -244,9 +252,10 @@
                     </div>
                     <div class="col-sm-1">
                         <span class="btn btn-sm dropdown dropdown-toggle rounded-pill align-contents-end" type="button" data-bs-toggle="dropdown" aria-expanded="false" fdprocessedid="5bab4i">
-                            Priority
+                            
                         </span>
-                          <ul class="dropdown-menu" >
+                          <select id="status-dropdown" >
+                            
                             <li><a class="dropdown-item" href="#"><i class="fa-solid fa-triangle-exclamation fa-l"></i> Urgent</a></li>
                             <li><a class="dropdown-item " href="#"><i class="fa-solid fa-exclamation fa-l p-1 "></i> High</a></li>
                             <li><a class="dropdown-item" href="#"><i class="fa-solid fa-ellipsis fa-lg p-1" style="color: #fafafa;"></i>Moderate</a></li>
@@ -271,5 +280,34 @@
     window.location.href = "{% url 'issue_view' %}"; 
 };
 </script>
+<script>
+    $(document).ready(function() {
+        // Trigger AJAX request when dropdown value changes
+        $('#status-dropdown').change(function() {
+            var selectedStatus = $(this).val();
+            
+            // Send AJAX request
+            $.ajax({
+                url: "{% url 'update_status' project_id=project.project_id %}",
+                method: "POST",
+                data: {
+                    'status_id': selectedStatus,
+                    'csrfmiddlewaretoken': '{{ csrf_token }}'
+                },
+                success: function(response) {
+                    if (response.success) {
+                        alert('Status updated to ' + response.new_status);
+                    } else {
+                        alert('Error updating status: ' + response.error);
+                    }
+                },
+                error: function() {
+                    alert('An error occurred. Please try again.');
+                }
+            });
+        });
+    });
+</script>
+
 
 {% endblock content %}

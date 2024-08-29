@@ -20,7 +20,7 @@
 
                     <div class="form-row">
                         <div class="input-data">
-                            <input type="text" name="project_name" required>
+                            <input type="text" id="name" name="project_name" required>
                             <div class="underline"></div>
                             <label for="name">Project Name</label>
                         </div>
@@ -29,10 +29,10 @@
 
                     <div class="form-row">
                         <div class="input-data textarea">
-                            <textarea rows="8" cols="80" name="desc" ></textarea>
+                            <textarea rows="8" cols="80" id="desc" name="desc" ></textarea>
                             <br />
                             <div class="underline"></div>
-                            <label for="">Add description</label>
+                            <label for="desc">Add description</label>
                             <br />
                         </div>
                     </div>
@@ -66,9 +66,6 @@
                           <div class="col-sm-4">
                           <div class="input-group input-daterange " style="color:white;">
                             
-                            <input type="text" id="end" name="start" class="form-control   rounded-pill  w-25 me-2"  placeholder="Start" style="color:#ffff; background-color: #85586F; ">
-                            <label class="ml-3 form-control-placeholder" id="end-p" for="end" ></label>
-                            <!-- <span class="fa fa-calendar fa-xs" id="fa-2"></span> -->
                             <input type="text" id="start" name="deadline" class="form-control rounded-pill w-25" placeholder="Target" style="background-color: #85586F;border-color: #85586F;color:white;">
                             <label class=" form-control-placeholder" id="start-p" for="start"></label>
                             <!-- <span class="fa fa-calendar" id="fa-1" ></span> -->
@@ -112,15 +109,7 @@
                     
 
                     
-                    <div class="form-row">
-
-                        <div class="input-data textarea">
-                            <textarea rows="8" cols="80" required></textarea>
-                            <br />
-                            <div class="underline"></div>
-                            <label for="">Ideas</label>
-                        </div>
-                    </div>
+                    
                     <div class="form-row submit-btn justify-content-center">
                         <div class="input-data rounded-pill">
                             <div class="inner"></div>
