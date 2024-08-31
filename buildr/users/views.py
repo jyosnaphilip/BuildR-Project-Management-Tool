@@ -5,11 +5,10 @@ from django.contrib.auth.models import User
 from django.contrib.auth import authenticate,login,logout
 from .models import customUser,workspace,workspaceMember,workspaceCode
 from django.utils import timezone
+
 # Create your views here.
 def home(request,custom_id):
     ws=get_ws(custom_id)
-    
-
     return render(request,'users\home.html',{'custom_id':custom_id,'workspaces':ws})
 
 #auth-----------------------------------------------

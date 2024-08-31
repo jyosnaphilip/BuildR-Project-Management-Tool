@@ -5,7 +5,7 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    background: linear-gradient(45deg,#6a11cb  0%, #6e193e 100%);
+    background: linear-gradient(55deg,#7c0c6c  0%, #025c45 100%);
     color: #ffffff;
 }
 /* #6a11cb */
@@ -25,7 +25,6 @@ body {
     text-align: center;
     padding-top: 44px;
     padding-bottom: 36px;
-   
     padding-left: 50px;
 }
 
@@ -46,7 +45,6 @@ body {
 } 
 
 
-
 .form-floating .form-control {
     border-radius: 0.25rem;
     height: 35px;
@@ -61,18 +59,19 @@ body {
     color: #2a0314;
 }
 
-.btn.btn-style{
-    margin-top: 0;
-    background-color:#993a63;
+.btn.btn-style {
+    /* background-color:#993a63; */
     /* margin-left: 1px; */
+    /* color: wheat; */
+    /* border-color:#993a63 ; */
+    margin-top: 0;
     padding: 12px;
-    color: wheat;
-    border-color:#993a63 ;
     width: fit-content;
 }
 
-.btn.btn-style:hover {  
-    background-color: #cd3275;
+.btn.btn-style :hover{  
+    background-color: #f0dfe6;
+    color: #000;
 }
 
 .col-md-8{
@@ -86,7 +85,6 @@ body {
     margin-right: 75px;
     max-width: 150%;
 }
-
 
 /* -------------------------------------sign in page -------------------------- */
 
@@ -105,11 +103,6 @@ body {
 
 
 /* ----------------------------------workspace------------------------- */
-
-
-
-
-
 
 .form-control{
     max-width: 300px;
