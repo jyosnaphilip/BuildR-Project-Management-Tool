@@ -1,16 +1,62 @@
 from django.http import HttpResponse
-from django.shortcuts import render,redirect
+from django.views.decorators.http import require_POST
+from django.shortcuts import render,redirect,get_object_or_404
 from django.contrib import messages
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate,login,logout
-from .models import customUser,workspace,workspaceMember,workspaceCode
+from .models import customUser,workspace,workspaceMember,workspaceCode,Project,priority,status,project_member_bridge,issue,issue_assignee_bridge
 from django.utils import timezone
+import json
+from datetime import datetime
+from django.http import JsonResponse
 
+
+def check_code(ws_code):
+    ws_code = workspaceCode.objects.get(code=ws_code[0]['code'], is_active=True)
+    if ws_code.has_expired():
+        ws_code.regenerate_code()
+        return ws_code.code
+    else:
+        return ws_code.code
+def create_code(ws_id):
+    ws_code=workspaceCode(ws_id=ws_id)
+    ws_code.regenerate_code()
+    ws_code.save()
+    return ws_code.code 
 # Create your views here.
-def home(request,custom_id):
-    ws=get_ws(custom_id)
-    return render(request,'users\home.html',{'custom_id':custom_id,'workspaces':ws})
 
+def get_projects(custom_id,ws_id):
+    projects=Project.objects.filter(ws=ws_id.ws_id, project_member_bridge__team_member=custom_id)
+    return projects
+
+def home(request,custom_id):
+    current_ws_id = request.session.get('current_ws', None)
+    ws=get_ws(custom_id,current_ws_id) #all ws
+    current_ws=workspace.objects.get(ws_id=current_ws_id) 
+    projects=get_projects(custom_id,current_ws)
+    if str(current_ws.admin.custom_id)==custom_id:
+        flag=True
+        ws_code=workspaceCode.objects.filter(ws=current_ws_id,is_active=True).values('code','ws_id')
+        if len(ws_code)==0:
+            code=create_code(current_ws_id)
+        else:
+            code=check_code(ws_code)
+
+    else:
+        flag=False
+        code=None
+    return render(request, 'users\home.html', {'custom_id':custom_id,'workspaces': ws,'current_ws': current_ws,'flag':flag,'ws_code':code,'projects':projects})
+
+def change_ws(request):
+    if request.method == 'POST' and request.user.is_authenticated:
+        data = json.loads(request.body)
+        ws_id = data.get('ws_id')
+        custom_user = customUser.objects.get(user=request.user)
+        if workspaceMember.objects.filter(customUser=custom_user, workspace__ws_id=ws_id).exists():
+            request.session['current_ws'] = ws_id
+            return JsonResponse({'status': 'success'})
+    return JsonResponse({'status': 'error'}, status=400)
+    
 #auth-----------------------------------------------
 # register---------------------------------------
 def register(request):
@@ -35,7 +81,7 @@ def register(request):
                 user = User.objects.create_user(username=username,password=password1,email=email,first_name=first_name,last_name=last_name)
                 user.set_password(password1)
                 user.save()
-                custom_User=customUser(user_id=user) #automatically create a row in customUser table- profile pic  & gamemode can be changed
+                custom_User=customUser(user_id=user.id) #automatically create a row in customUser table- profile pic  & gamemode can be changed
                 custom_User.save()
                 messages.success(request,'Account Created Successfully ')
                 return redirect('login')
@@ -48,14 +94,21 @@ def register(request):
 
 # register end----------------------------------------------
 def chk_workspace(user_id):
-    print(user_id)
     check=workspaceMember.objects.filter(customUser=user_id).exists()
     
     return check
 
-def get_ws(user_id):
-    ws_lst=workspaceMember.objects.filter(customUser=user_id).values_list('workspace__ws_name',flat=True)
-    
+def get_ws(user_id,ws_id=None):
+    if ws_id:
+        ws_lst=workspaceMember.objects.filter(customUser=user_id).exclude(workspace__ws_id=ws_id).values('workspace__ws_id', 'workspace__ws_name')
+         # for a user with only one workspace we end up removing that from ws_lst in above line
+        #to mitigate that, im putting this if condn
+        if len(ws_lst)==0:
+            ws_lst=workspaceMember.objects.filter(customUser=user_id).values('workspace__ws_id', 'workspace__ws_name')
+ 
+    else:
+        ws_lst=workspaceMember.objects.filter(customUser=user_id).values('workspace__ws_id', 'workspace__ws_name')
+
     return ws_lst
 
 
@@ -68,11 +121,15 @@ def user_login(request):
             login(request,user)
             custom_user=customUser.objects.get(user=user)
             customUser_id=custom_user.custom_id
-            if chk_workspace(customUser_id):
-                 #checks if user is already part of a workspace
-                return redirect('home',customUser_id)
+            if custom_user.last_ws:
+                request.session['current_ws']=str(custom_user.last_ws.ws_id)
             else:
-                return redirect('first-signin',customUser_id)
+                first_workspace = workspaceMember.objects.filter(customUser=custom_user).first()
+                if first_workspace:
+                    request.session['current_ws'] = str(first_workspace.workspace.ws_id)
+                    return redirect('home',customUser_id)
+                else:
+                    return redirect('first-signin',customUser_id)
     
         else:
             messages.error(request, "Username or password is incorrect!")
@@ -87,10 +144,38 @@ def first_signin(request,customUser_id):
 
 
 def logout(request):
-    return render(request,'login/login.html')
+    if request.user.is_authenticated:
+        custom_user=customUser.objects.get(user=request.user)
+        current_ws=request.session.get('current_ws')
+        if current_ws:
+            custom_user.last_workspace=workspace.objects.get(ws_id=current_ws)
+            custom_user.save()
+    logout(request)
+    return redirect('login')
 #auth end------------------------
 
 def join_workspace(request,custom_id):
+    if request.method=="POST":
+        code=request.POST.get('ws-code')
+        if workspaceCode.objects.filter(code=code,is_active=True).exists():
+            ws_code=workspaceCode.objects.filter(code=code,is_active=True).values('code','ws_id')
+
+            actual_code=check_code(ws_code)
+            
+            if(code==actual_code):
+                
+                ws_member=workspaceMember(workspace=workspace.objects.get(ws_id=ws_code[0]['ws_id']),customUser=customUser.objects.get(custom_id=custom_id))
+                ws_member.save()
+                
+                request.session['current_ws'] = str(ws_code[0]['ws_id'])
+                
+                return redirect('home',custom_id)
+            else:
+                messages.error("Invalid Code!")
+                return redirect('join_workspace')
+        else:
+            messages.error("Invalid Code!")
+            return redirect('join_workspace')
     return render(request, 'partials/join_workspace.html',{'custom_id':custom_id})
 
 
@@ -117,29 +202,101 @@ def new_workspace(request,custom_id):
                     code.regenerate_code()
                 else:
                     expires_on = timezone.now() + timezone.timedelta(days=120)  # Set expiration duration
-                    workspaceCode.objects.create(
+                    code=workspaceCode.objects.create(
                         ws=workspace.objects.get(ws_id=ws.ws_id),
                         code=workspaceCode.generate_unique_code(),
                         expires_on=expires_on
                     )
-                    return render(request,'users/home.html',{'custom_id':custom_id,"ws_id":ws})
+                    code.save()
+
+                return render(request,'users/home.html',{'custom_id':custom_id,"ws_id":ws,'code':code})
             else:
-                messages.error(request,'Workspace name already exists!')
+                messages.error(request,'Code incorrect!')
             return redirect('new_workspace',custom_id)
 
     
     return render(request,'partials/new_workspace.html',{'custom_id':custom_id})
-def add_project(request):
-    return render(request, 'users/add_project.html')
 
-def project_view(request):
-    return render(request,'users\project_view.html')
+
+def add_project(request):
+    ws_id=request.session['current_ws']
+    ws_id = get_object_or_404(workspace, ws_id=ws_id)  # Assuming ws_id is in POST
+        
+    ws_members=workspaceMember.objects.filter(workspace=ws_id,active=True)
+    if request.method=="POST":
+        project_name=request.POST.get('project_name')
+        desc=request.POST.get('desc')
+        prior=request.POST.get('priority')
+        stat=request.POST.get('status')
+        # prior={'1':'Urgent','2':'High Priority','3':'Medium Priority','4':'Low Priority','5':'No Priority'}
+        # stat={'1':'Open','2':'In Progress','3':'Closed'}
+        start=request.POST.get('start')
+        deadline=request.POST.get('deadline')
+        deadline=datetime.strptime(deadline,'%d-%m-%Y').date()
+        lead=request.POST.getlist('lead')
+        members=request.POST.getlist('members')
+        priority_obj = get_object_or_404(priority, id=int(prior))
+        status_obj = get_object_or_404(status, id=int(stat))
+     
+        project=Project(name=project_name,description=desc,deadline=deadline,ws=ws_id,priority=priority_obj,status=status_obj)
+        project.save()
+        for lead_id in lead:          
+            project_member_bridge.objects.create(project=Project.objects.get(project_id=project.project_id),team_member=customUser.objects.get(custom_id=lead_id),role='Lead')
+        for member_id in members:
+            
+            member = get_object_or_404(customUser,custom_id=member_id)
+            project_member_bridge.objects.create(
+                project=project,
+                team_member=member,
+                role='Team member'
+            )
+        return redirect('project_view')
+    return render(request, 'users/add_project.html',{'ws_members':ws_members})
+
+def project_view(request,project_id):
+    project=Project.objects.get(project_id=project_id)
+    team=project_member_bridge.objects.filter(project_id=project_id,role="Team member")
+    lead=project_member_bridge.objects.filter(project_id=project_id,role="Lead")
+    statuses=status.objects.all()
+    priorities=priority.objects.all()
+    return render(request,'users\project_view.html',{'project':project,'lead':lead,'team':team,'status':statuses,'priority':priorities})
+@require_POST
+def update_status(request,project_id):
+    project=get_object_or_404(Project,project_id=project_id)
+    new_status_id=request.POST.get('status_id')
+    if new_status_id:
+        new_status=get_object_or_404(status,id=new_status_id)
+        project.status=new_status
+        project.save()
+        return JsonResponse({'success':True,'new_status':new_status.name})
+    return JsonResponse({'success':False,'error':'invalid_status'})
 
 def issue_view(request):
     return render(request,'users\issue_view.html')
 
-def add_issue(request):
-    return render(request,'users/add_issue.html')
+def add_issue(request,project_id):
+    team_members=project_member_bridge.objects.filter(project=project_id,active=True)
+    if request.method=="POST":
+        title=request.POST.get('title')
+        desc=request.POST.get('desc')
+        prior=request.POST.get('priority')
+        stat=request.POST.get('status')
+        deadline=request.POST.get('deadline')
+        deadline=datetime.strptime(deadline,'%d-%m-%Y').date()
+        assignees=request.POST.getlist('assignees')
+        priority_obj = get_object_or_404(priority, id=int(prior))
+        status_obj = get_object_or_404(status, id=int(stat))
+        issue_instance=issue(name=title,description=desc,deadline=deadline,priority=priority_obj,status=status_obj,project=Project.objects.get(project_id=project_id))
+        issue_instance.save()
+        print(assignees)
+        for assignee_id in assignees:
+            
+            assignee = get_object_or_404(customUser,custom_id=assignee_id)
+            issue_assignee_bridge.objects.create(
+                issue=issue_instance,
+                assignee=assignee)
+        return redirect('project_view',project_id)
+    return render(request,'users/add_issue.html',{'team_members':team_members})
 
 def add_subIssue(request):
     return render(request,'users/add_subIssue.html')

@@ -20,16 +20,16 @@ from users.views import *
 from django.contrib.auth import views as auth_views
 from users.views import register,logout,join_workspace,new_workspace
 
-from users.views import home,add_project,project_view,issue_view,add_issue,add_subIssue,user_login,first_signin
+from users.views import home,add_project,project_view,issue_view,add_issue,add_subIssue,user_login,first_signin,change_ws,update_status
 urlpatterns = [
     path('admin/', admin.site.urls),
    
     path('add-project',add_project,name='add_project'),
-    path('project_view',project_view,name="project_view"),
+    path('project_view/<str:project_id>',project_view,name="project_view"),
     path('issue_view',issue_view,name="issue_view"),
-    path('add_issue',add_issue,name="add_issue"),
+    path('add_issue/<str:project_id>',add_issue,name="add_issue"),
     path('add_subIssue',add_subIssue,name='add_subIssue'),
-  
+    path('update_status/<str:project_id>',update_status,name="update_status"),
     path('home/<str:custom_id>/',home,name='home'),
     path('register/',register,name='register'),
     path('',user_login,name='login'),
@@ -37,5 +37,6 @@ urlpatterns = [
     path('join-workspace/<str:custom_id>',join_workspace, name='join-workspace'),
     path('new-workspace/<str:custom_id>',new_workspace,name='new_workspace'),
    path('new-signin/<str:customUser_id>',first_signin,name='first-signin'),
+   path('switch_ws/',change_ws,name='switch_ws'),
 
 ]

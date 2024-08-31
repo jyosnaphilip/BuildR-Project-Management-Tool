@@ -8,7 +8,8 @@ class customUser(models.Model):
     custom_id=models.UUIDField(primary_key=True,default=uuid.uuid4,auto_created=True)
     user=models.ForeignKey(User,on_delete=models.CASCADE)
     profile_pic=models.ImageField(upload_to='user_dp',null=True,blank=True)
-    gameMode=models.BooleanField(default=True,blank=False,)
+    gameMode=models.BooleanField(default=True,blank=False)
+    last_ws=models.ForeignKey("workspace",null=True,blank=True,on_delete=models.SET_NULL)
 
     def __str__(self) :
         return self.user
@@ -38,15 +39,17 @@ class workspaceCode(models.Model):
     expires_on=models.DateTimeField()
     
     def has_expired(self):
-        return timezone.now>self.expires_on
+        return timezone.now()>self.expires_on
+       
     
     def regenerate_code(self):
+        
         self.code = self.generate_unique_code()
         self.created_at = timezone.now()
         self.expires_on = self.created_at + timezone.timedelta(days=120) 
         self.save()
     
-    def generate_unique_code():
+    def generate_unique_code(self):
         return uuid.uuid4().hex[:8].upper()
     
 class playerStats(models.Model):
@@ -70,10 +73,11 @@ class playerStats(models.Model):
 
 class priority(models.Model):
     name = models.CharField(max_length=100, choices=[
-        ('Urgent', 'Open'),
+        ('Urgent', 'Urgent'),
         ('High Priority', 'High Priority'),
         ('Medium Priority', 'Medium Priority'),
-        ('Low Priority','Low Prioirty')
+        ('Low Priority','Low Priority'),
+        ('No Priority','No Priority')
     ])
 
     def __str__(self):
@@ -95,7 +99,37 @@ class Project(models.Model):
     ws = models.ForeignKey(workspace, on_delete=models.CASCADE, related_name='projects')
     priority = models.ForeignKey(priority, on_delete=models.SET_NULL, null=True, blank=True, related_name='projects')
     status = models.ForeignKey(status, on_delete=models.SET_NULL, null=True, blank=True, related_name='projects')
+    team=models.ManyToManyField(customUser,through='project_member_bridge')
+    def __str__(self):
+        return self.name
+    
+class project_member_bridge(models.Model):
+    team_member=models.ForeignKey(customUser,on_delete=models.CASCADE)
+    project=models.ForeignKey(Project,on_delete=models.CASCADE)
+    role=models.CharField(max_length=12, choices=[
+        ('Lead', 'Lead'),
+        ('Team member', 'Team member')
+    ])
+    joined_on=models.DateTimeField(auto_now_add=True)
+    active=models.BooleanField(default=True)
 
+class issue(models.Model):
+    issue_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    name = models.CharField(max_length=255)
+    description = models.TextField()
+    deadline = models.DateField(null=True, blank=True)
+    created_on = models.DateTimeField(auto_now_add=True)
+    completed = models.BooleanField(default=False)
+    project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name='issues')
+    priority = models.ForeignKey(priority, on_delete=models.SET_NULL, null=True, blank=True, related_name='issues')
+    status = models.ForeignKey(status, on_delete=models.SET_NULL, null=True, blank=True, related_name='issues')
+    assignee=models.ManyToManyField(customUser,through='issue_assignee_bridge')
+    parent_task=models.ForeignKey('self', on_delete=models.CASCADE,null=True)
     def __str__(self):
         return self.name
 
+class issue_assignee_bridge(models.Model):
+    assignee=models.ForeignKey(customUser,on_delete=models.CASCADE)
+    issue=models.ForeignKey(issue,on_delete=models.CASCADE)
+    assigned_on=models.DateTimeField(auto_now_add=True)
+    active=models.BooleanField(default=True)
