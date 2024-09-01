@@ -18,11 +18,12 @@
                             </div>
                             <div class="modal-body form-box">
                                 <form method="POST">
+                                    {% csrf_token %}
                                     <div class="">
                     
                                         <div class="form-row">
                                             <div class="input-data">
-                                                <input type="text" required>
+                                                <input type="text" value="{{project.name}}">
                                                 <div class="underline"></div>
                                                 <label for="name">Project Name</label>
                                             </div>
@@ -31,7 +32,7 @@
                     
                                         <div class="form-row">
                                             <div class="input-data textarea">
-                                                <textarea rows="8" cols="80" ></textarea>
+                                                <textarea rows="8" cols="80" value="{{project.desc}}"></textarea>
                                                 <br />
                                                 <div class="underline"></div>
                                                 <label for="">Add description</label>
@@ -43,76 +44,77 @@
                                             
                                               
                                               <div class="dropdown rounded-pill me-2">
-                                                <button class="btn  dropdown-toggle rounded-pill" type="button" data-bs-toggle="dropdown" aria-expanded="false" fdprocessedid="5bab4i">
-                                                  Priority
-                                                </button>
-                                                <ul class="dropdown-menu" >
-                                                  <li><a class="dropdown-item" href="#"><i class="fa-solid fa-triangle-exclamation fa-l"></i> Urgent</a></li>
-                                                  <li><a class="dropdown-item " href="#"><i class="fa-solid fa-exclamation fa-l p-1 "></i> High</a></li>
-                                                  <li><a class="dropdown-item" href="#"><i class="fa-solid fa-ellipsis fa-lg p-1" style="color: #fafafa;"></i>Moderate</a></li>
-                                                  <li><a class="dropdown-item" href="#"><i class="fa-solid fa-angles-down fa-lg p-1" style="color: #fafafa;"></i>Low</a></li>
-                                                  <li><a class="dropdown-item" href="#">No Priority</a></li>
-                                                </ul>
+                                                <select  class=" form-select custom-select rounded-pill" type="button" name="status" data-bs-toggle="dropdown"  aria-expanded="false" >
+                                                    {% for prior in priority %}
+                                                    {% if project.priority.id|stringformat:"s" == prior.id|stringformat:"s" %}
+                        
+                                                    <option value="{{prior.id}}"  class="dropdown-item" selected>{{prior.name}}</option>
+                                                    {% else %}
+                        
+                                                    <option class="dropdown-item" value="{{prior.id}}"><i class="fa-regular fa-circle fa-l"></i> {{prior.name}}</option>
+                                                    {% endif %}
+                                                {% endfor %}
+                                                </select>
                                               </div>
                                               <div class="dropdown rounded-pill me-2">
-                                                <button class="btn dropdown-toggle rounded-pill" type="button" data-bs-toggle="dropdown" aria-expanded="false" fdprocessedid="5bab4i">
-                                                  Status
-                                                </button>
-                                                <ul class="dropdown-menu">
-                                                    <li><a class="dropdown-item" href="#"><i class="fa-regular fa-circle fa-l"></i> Open</a></li>
-                                                    <li><a class="dropdown-item" href="#"><i class="fa-solid fa-circle-half-stroke fa-l"></i> In progress</a></li>
-                                                    <li><a class="dropdown-item" href="#"><i class="fa-solid fa-circle-pause fa-l"></i> Paused</a></li>
-                    
-                                                    <li><a class="dropdown-item" href="#"><i class="fa-solid fa-circle-check fa-l"></i> Closed</a></li>
-                                                    
+                                                <select  class="  form-select custom-select rounded-pill" type="button" name="status" data-bs-toggle="dropdown"  aria-expanded="false" data-project-id="{{project.project_id}}">
+                                                    {% for stat in status %}
+                                                    {% if project.status.id|stringformat:"s" == stat.id|stringformat:"s" %}
+                        
+                                                    <option value="{{stat.id}}"  class="dropdown-item" selected>{{stat.name}}</option>
+                                                    {% else %}
+                        
+                                                    <option class="dropdown-item" value="{{stat.id}}"><i class="fa-regular fa-circle fa-l"></i> {{stat.name}}</option>
+                                                    {% endif %}
+                                                {% endfor %}
+                                                </select>
+                                                              
                                               </div>
                                               <div class="col-sm-4">
                                               <div class="input-group input-daterange " style="color:white;">
                                                 
-                                                <input type="text" id="end" class="form-control   rounded-pill  w-25 me-2"  placeholder="Start" style="color:#ffff; background-color: #85586F; ">
+                                                <input type="text" id="end" class="form-control   rounded-pill  w-25 me-2"  placeholder="Start" value="{{project.created_on}}" style="color:#ffff; background-color: #85586F; ">
                                                 <label class="ml-3 form-control-placeholder" id="end-p" for="end" ></label>
                                                 <!-- <span class="fa fa-calendar fa-xs" id="fa-2"></span> -->
-                                                <input type="text" id="start" class="form-control rounded-pill w-25" placeholder="Target" style="background-color: #85586F;border-color: #85586F;color:white;">
+                                                <input type="text" id="start" class="form-control rounded-pill w-25" placeholder="Target" value="{{project.deadline}}" style="background-color: #85586F;border-color: #85586F;color:white;">
                                                 <label class=" form-control-placeholder" id="start-p" for="start"></label>
                                                 <!-- <span class="fa fa-calendar" id="fa-1" ></span> -->
                                               </div>
                                             </div>
                                               
                                         </div>
+                                        <div class="col-sm-4 w-25 rounded-pill m-1">
+                                            <div class="rounded-pill">
+                                                <select id="choices-multiple-remove-button" placeholder="Select Lead"
+                                                    class="rounded-pill" multiple>
+                                                    {% for user in workspace_memb %}
+                                                    <option value="{{ user.custom_id }}" 
+                                                        {% if user in lead %}selected{% endif %}>
+                                                        {{ user.user.first_name }} {{ user.user.last_name }}
+                                                        
+                                                    </option>
+                                                    {% endfor %}
+                
+                                                </select>
+                                            </div>
+                                        </div>
                                         <div class="form-row justify-content-center">
-                                            <div class="col-sm-4 w-25 rounded-pill m-1  ">
-                                                <div class="rounded-pill  ">
-                                                    <select id="choices-multiple-remove-button" placeholder="Select lead"
-                                                        class="rounded-pill" multiple>
-                                                        <option value="HTML ">HTML</option>
-                                                        <option value="Jquery">Jquery</option>
-                                                        <option value="CSS">CSS</option>
-                                                        <option value="Bootstrap 3">Bootstrap 3</option>
-                                                        <option value="Bootstrap 4">Bootstrap 4</option>
-                                                        <option value="Java">Java</option>
-                                                        <option value="Javascript">Javascript</option>
-                    
+                                            <div class="col-sm-5 w-50 rounded-pill m-1  ">
+                                                <div class="rounded-pill  " >
+                                                    <select id="choices-multiple-remove-button" class="rounded-pill" multiple>
+                                                        {% for user in workspace_memb %}
+                                                            <option value="{{ user.custom_id }}" 
+                                                                {% if user in lead_user_ids %}selected{% endif %}>
+                                                                {{ user.user.first_name }} {{ user.user.last_name }}
+                                                                                                                            </option>
+                                                        {% endfor %}
                                                     </select>
                                                 </div>
                                             </div>
                     
                                             
                                         
-                                            <div class="col-sm-4 w-25 rounded-pill m-1">
-                                                <div class="rounded-pill">
-                                                    <select id="choices-multiple-remove-button" placeholder="Select members"
-                                                        class="rounded-pill" multiple>
-                                                        <option value="HTML">HTML</option>
-                                                        <option value="Jquery">Jquery</option>
-                                                        <option value="CSS">CSS</option>
-                                                        <option value="Bootstrap 3">Bootstrap 3</option>
-                                                        <option value="Bootstrap 4">Bootstrap 4</option>
-                                                        <option value="Java">Java</option>
-                                                        <option value="Javascript">Javascript</option>
-                    
-                                                    </select>
-                                                </div>
-                                            </div>
+                                            
                     
                                             
                                         </div>
@@ -149,12 +151,15 @@
                       </div>
                 </div>
                 <!-- modal end -->
+
+
+
                 <div class="row ms-2">
                    
                     <div class="col-sm-2 mb-2">
-                        <select id="status-dropdown" class="form-select custom-select rounded-pill" type="button" name="status" data-bs-toggle="dropdown"  aria-expanded="false">
+                        <select  class=" project-priority-dropdown form-select custom-select rounded-pill" type="button" name="status" data-bs-toggle="dropdown"  aria-expanded="false" data-project-id="{{project.project_id}}">
                             {% for prior in priority %}
-                            {% if project.prior.id|stringformat:"s" == prior.id|stringformat:"s" %}
+                            {% if project.priority.id|stringformat:"s" == prior.id|stringformat:"s" %}
 
                             <option value="{{prior.id}}"  class="dropdown-item" selected>{{prior.name}}</option>
                             {% else %}
@@ -167,7 +172,7 @@
                     </div>  
                     <div class="col-sm-2 mb-2 ">
                         <div class="dropdown rounded-pill me-2">
-                            <select id="status-dropdown" class="form-select custom-select rounded-pill" type="button" name="status" data-bs-toggle="dropdown"  aria-expanded="false">
+                            <select  class=" project-status-dropdown form-select custom-select rounded-pill" type="button" name="status" data-bs-toggle="dropdown"  aria-expanded="false" data-project-id="{{project.project_id}}">
                                 {% for stat in status %}
                                 {% if project.status.id|stringformat:"s" == stat.id|stringformat:"s" %}
     
@@ -225,88 +230,162 @@
 
             <!-- issues here -->
              <div class="container">
-                
-                <div class="row p-1 row-issues " >
-                    <div class="col-sm-1 dropdown rounded-pill me-2">
-                        <select id="status-dropdown" class="form-select custom-select rounded-pill" type="button" name="status" data-bs-toggle="dropdown"  aria-expanded="false">
-                            {% for stat in statuses %}
-                            {% if project.status.id|stringformat:"s" == stat.id|stringformat:"s" %}
-
-                            <option value="{{stat.id}}"  class="dropdown-item" selected>{{stat.name}}</option>
-                            {% else %}
-
-                            <option class="dropdown-item" value="{{stat.id}}"><i class="fa-regular fa-circle fa-l"></i> {{stat.name}}</option>
+                <table class="table table-dark table-hover">
+                    <thead>
+                      <tr>
+                        <th scope="col-sm-1">Status</th>
+                        <th scope="col-sm-6">Issue</th>
+                        <th scope="col-sm-1">Priority</th>
+                        <th scope="col-sm-1">Assignee</th>
+                        <th scope="col-sm-1">Deadline</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                        {% for issue in issues %}
+                      <tr>
+                        <th scope="row">
+                           <div class="w-50 dropdown rounded-pill ">
+                               <select  class="status-dropdown form-select custom-select rounded-pill btn btn-sm" type="button" name="status" data-bs-toggle="dropdown"  aria-expanded="false" data-issue-id="{{issue.issue_id}}">
+                                   {% for stat in status %}
+                                   {% if issue.status.id|stringformat:"s" == stat.id|stringformat:"s" %}
+       
+                                   <option value="{{stat.id}}"  class="dropdown-item" selected>{{stat.name}}</option>
+                                   {% else %}
+                                   <option class="dropdown-item" value="{{stat.id}}"><i class="fa-regular fa-circle fa-l"></i> {{stat.name}}</option>
+                                   {% endif %}
+                                   {% endfor %}
+                               
+                                </select>
+                            </div>
+                        </th>
+                        <td style="cursor: pointer;" class="col-sm-3">{{issue}}
+                            {% if issue.subissue_count > 0 %}
+                            <small>({{ issue.subissue_count }})</small>
                             {% endif %}
-                        {% endfor %}
-                        </select>
-                        
-                      </div>
-                    <div class="col-sm-8 pt-1"  style="cursor: pointer;" id="issue1">
-                        issue (completed subissue/total subisue)
-                    </div>
-                    
-                    <div class="col-sm-2">
-                        <span class="btn btn-sm dropdown  rounded-pill align-contents-end" type="button" data-bs-toggle="dropdown" aria-expanded="false" fdprocessedid="5bab4i">
-                            Lead name w/ icon
-                        </span>
-                    </div>
-                    <div class="col-sm-1">
-                        <span class="btn btn-sm dropdown dropdown-toggle rounded-pill align-contents-end" type="button" data-bs-toggle="dropdown" aria-expanded="false" fdprocessedid="5bab4i">
-                            
-                        </span>
-                          <select id="status-dropdown" >
-                            
-                            <li><a class="dropdown-item" href="#"><i class="fa-solid fa-triangle-exclamation fa-l"></i> Urgent</a></li>
-                            <li><a class="dropdown-item " href="#"><i class="fa-solid fa-exclamation fa-l p-1 "></i> High</a></li>
-                            <li><a class="dropdown-item" href="#"><i class="fa-solid fa-ellipsis fa-lg p-1" style="color: #fafafa;"></i>Moderate</a></li>
-                            <li><a class="dropdown-item" href="#"><i class="fa-solid fa-angles-down fa-lg p-1" style="color: #fafafa;"></i>Low</a></li>
-                            <li><a class="dropdown-item" href="#">No Priority</a></li>
-                          </ul>
-                    </div>
-
-
-
-                </div>
-            </div>
+                        </td>
+                            <td >
+                                <div class=" dropdown rounded-pill" >
+                                    <select  class="priority-dropdown form-select custom-select rounded-pill btn btn-sm" type="button" name="status" data-bs-toggle="dropdown"  aria-expanded="false" data-issue-id="{{ issue.issue_id }}">
+                                        {% for prior in priority %}
+                                        {% if issue.priority.id|stringformat:"s" == prior.id|stringformat:"s" %}
             
-           
+                                        <option value="{{prior.id}}"  class="dropdown-item" selected>{{prior.name}}</option>
+                                        {% else %}
+                                        <option class="dropdown-item" value="{{prior.id}}"><i class="fa-regular fa-circle fa-l"></i> {{prior.name}}</option>
+                                        {% endif %}
+                                        {% endfor %}
+                                   </select>
+                                </div>
+                            </td>
+                        
+                        <td> <select class="assignee-dropdown" data-issue-id="{{issue.issue_id}}">
+                            <option value="" {% if issue.assignee.count == 0 %}selected{% endif %}>-- Select Assignee --</option>
+                            {% for user in team %}
+                                <option value="{{ user.team_member.custom_id }}" 
+                                    {% if user.team_member in issue.assignee.all %}selected{% endif %}>
+                                    {{ user.team_member.user.first_name }} {{ user.team_member.user.last_name }}
+                                    
+                                </option>
+                            {% endfor %}    
+                        </select></td>
+                        <td>{{issue.deadline}}</td>
+                      </tr>
+                      {% empty %}
+                      <tr><td colspan="4">No issues found.</td></tr>
+                     
+                      
+                      {% endfor %}
+                    
+                    </tbody>
+                  </table>
+  
         </div>
     </div>
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.js"></script>
+
 <script>
-   document.getElementById('issue1').onclick=function() {
-    window.location.href = "{% url 'issue_view' %}"; 
-};
-</script>
-<script>
-    $(document).ready(function() {
-        // Trigger AJAX request when dropdown value changes
-        $('#status-dropdown').change(function() {
-            var selectedStatus = $(this).val();
-            
-            // Send AJAX request
+     // Function to send AJAX request to update a field
+     function updateIssueField(issueId, fieldName, value) {
             $.ajax({
-                url: "{% url 'update_status' project_id=project.project_id %}",
+                url: "{% url 'update_issue_field' %}",
                 method: "POST",
                 data: {
-                    'status_id': selectedStatus,
+                    'issue_id': issueId,
+                    'field_name': fieldName,
+                    'value': value,
                     'csrfmiddlewaretoken': '{{ csrf_token }}'
                 },
                 success: function(response) {
-                    if (response.success) {
-                        alert('Status updated to ' + response.new_status);
-                    } else {
-                        alert('Error updating status: ' + response.error);
-                    }
+            if (response.success) {
+                alert('Field updated successfully!');
+            } else {
+                alert('Error: ' + (response.error || 'An error occurred while updating the field.'));
+            }
+        },
+        error: function(xhr, status, error) {
+            console.error("AJAX Error:", status, error);
+            alert('An error occurred while updating the field.');}
+            });
+        }
+
+        // Status Change
+        $(document).on('change', '.status-dropdown', function() {
+    var issueId = $(this).data('issue-id');
+    var newStatus = $(this).val();
+    updateIssueField(issueId, 'status', newStatus);});
+        // Priority Change
+        $(document).on('change', '.priority-dropdown', function() {
+    var issueId = $(this).data('issue-id');
+    var newPriority = $(this).val();
+    updateIssueField(issueId, 'priority', newPriority);
+});
+
+        // Assignee Change
+        $(document).on('change', '.assignee-dropdown', function() {
+    var issueId = $(this).data('issue-id');
+    var newAssignee = $(this).val();
+    console.log("Issue ID:", issueId);
+    console.log("New Assignee ID:", newAssignee);
+
+    updateIssueField(issueId, 'assignee', newAssignee);
+});
+</script>
+<script>
+     function updateProjectField(projectId, fieldName, value) {
+            $.ajax({
+                url: "{% url 'update_project_field' %}",
+                method: "POST",
+                data: {
+                    'project_id': projectId,
+                    'field_name': fieldName,
+                    'value': value,
+                    'csrfmiddlewaretoken': '{{ csrf_token }}'
+                },
+                success: function(response) {
+                    alert('Field updated successfully!');
                 },
                 error: function() {
-                    alert('An error occurred. Please try again.');
+                    alert('An error occurred while updating the field.');
                 }
             });
+        }
+
+        // Status Change
+        $('.project-status-dropdown').change(function() {
+            var projectId = $(this).data('project-id');
+            var newStatus = $(this).val();
+            updateProjectField(projectId, 'status', newStatus);
         });
-    });
+
+        // Priority Change
+        $('.project-priority-dropdown').change(function() {
+            var projectId = $(this).data('project-id');
+            var newPriority = $(this).val();
+            updateProjectField(projectId, 'priority', newPriority);
+        });
+
 </script>
 
 

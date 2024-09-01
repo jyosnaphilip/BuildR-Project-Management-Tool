@@ -124,7 +124,7 @@ class issue(models.Model):
     priority = models.ForeignKey(priority, on_delete=models.SET_NULL, null=True, blank=True, related_name='issues')
     status = models.ForeignKey(status, on_delete=models.SET_NULL, null=True, blank=True, related_name='issues')
     assignee=models.ManyToManyField(customUser,through='issue_assignee_bridge')
-    parent_task=models.ForeignKey('self', on_delete=models.CASCADE,null=True)
+    parent_task=models.ForeignKey('self', on_delete=models.CASCADE,null=True,related_name='child')
     def __str__(self):
         return self.name
 

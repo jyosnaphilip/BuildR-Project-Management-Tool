@@ -20,15 +20,15 @@ from users.views import *
 from django.contrib.auth import views as auth_views
 from users.views import register,logout,join_workspace,new_workspace
 
-from users.views import home,add_project,project_view,issue_view,add_issue,add_subIssue,user_login,first_signin,change_ws,update_status
+from users.views import home,add_project,project_view,issue_view,add_issue,add_subIssue,user_login,first_signin,change_ws,update_status,update_issue_field,update_project_field
 urlpatterns = [
     path('admin/', admin.site.urls),
    
     path('add-project',add_project,name='add_project'),
-    path('project_view/<str:project_id>',project_view,name="project_view"),
-    path('issue_view',issue_view,name="issue_view"),
+    path('project_view/<str:project_id>/<str:custom_id>',project_view,name="project_view"),
+    path('issue_view/<str:issue_id>/<str:project_id>',issue_view,name="issue_view"),
     path('add_issue/<str:project_id>',add_issue,name="add_issue"),
-    path('add_subIssue',add_subIssue,name='add_subIssue'),
+    path('add_subIssue/<str:project_id>/<str:issue_id>',add_subIssue,name='add_subIssue'),
     path('update_status/<str:project_id>',update_status,name="update_status"),
     path('home/<str:custom_id>/',home,name='home'),
     path('register/',register,name='register'),
@@ -38,5 +38,7 @@ urlpatterns = [
     path('new-workspace/<str:custom_id>',new_workspace,name='new_workspace'),
    path('new-signin/<str:customUser_id>',first_signin,name='first-signin'),
    path('switch_ws/',change_ws,name='switch_ws'),
+     path('update-issue-field/', update_issue_field, name='update_issue_field'),
+     path('update-project-field/', update_project_field, name='update_project_field'),
 
 ]
