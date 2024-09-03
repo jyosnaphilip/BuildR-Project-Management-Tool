@@ -13,7 +13,7 @@
 
             <form method="POST">
                 {% csrf_token %}
-                <div class="form-box p-3">
+                <div class="form-box ">
                     <div class="text">
                         New Project
                     </div>
@@ -28,12 +28,8 @@
                     </div>
 
                     <div class="form-row">
-                        <div class="input-data textarea">
-                            <textarea rows="8" cols="80" id="desc" name="desc" ></textarea>
-                            <br />
-                            <div class="underline"></div>
-                            <label for="desc">Add description</label>
-                            <textarea id="description" name="description">
+                        <div class="texteditor">
+                            <textarea id="description" name="desc">
                             </textarea>
                             <br />
                         </div>

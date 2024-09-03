@@ -30,7 +30,7 @@ body {
   
 }
 .theme1 {
-    background-color: #F8EDE3;
+    background-color: #e8d2bf;
 
 }
 
@@ -117,6 +117,7 @@ form .form-row .textarea{
 .form-box{
     box-shadow: 0px 0px 10px rgba(0,0,0,0.1);
     background-color: #F8EDE3;
+    padding-bottom: 2px;
 }
 
 .input-data input:focus ~ label, .textarea textarea:focus ~ label,
@@ -443,4 +444,13 @@ tfoot tr:nth-child(2) th {
 /*issue*/
 .table {
   background: #836373;
+}
+
+.container form{
+  padding-top: 1px;
+}
+
+.texteditor {
+  width: 900px;
+  margin-left: 25px;
 }
