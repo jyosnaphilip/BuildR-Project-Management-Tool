@@ -31,6 +31,8 @@
                             <br />
                             <div class="underline"></div>
                             <label for="desc">Add description</label>
+                            <textarea id="description" name="description">
+                            </textarea>
                             <br />
                         </div>
                     </div>
@@ -102,6 +104,8 @@
 </div>
 
 
-
+<script>
+    var editor1 = new RichTextEditor("#description");
+</script>
 
 {% endblock content %}

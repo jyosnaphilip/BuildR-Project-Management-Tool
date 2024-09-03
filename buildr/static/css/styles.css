@@ -440,3 +440,7 @@ tfoot tr:nth-child(2) th {
 
 }
   
+/*issue*/
+.table {
+  background: #836373;
+}
