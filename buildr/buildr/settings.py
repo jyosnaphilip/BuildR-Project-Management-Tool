@@ -142,3 +142,7 @@ COMPRESS_PRECOMPILERS = (
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 LOGIN_REDIECT_URL = 'home'
+
+#Email verification
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+# EMAIL_HOST =

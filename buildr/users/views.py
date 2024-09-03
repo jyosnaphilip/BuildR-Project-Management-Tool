@@ -10,7 +10,9 @@ import json
 from datetime import datetime
 from django.http import JsonResponse
 from django.db.models import Count
-
+from django.core.mail import send_mail
+import random
+from .models import EmailVerification
 
 def check_code(ws_code):
     ws_code = workspaceCode.objects.get(code=ws_code[0]['code'], is_active=True)
@@ -88,6 +90,7 @@ def register(request):
                 user.save()
                 custom_User=customUser(user_id=user.id) #automatically create a row in customUser table- profile pic  & gamemode can be changed
                 custom_User.save()
+                # activationEmail(request, user, email)
                 messages.success(request,'Account Created Successfully ')
                 return redirect('login')
                 
@@ -97,8 +100,12 @@ def register(request):
     else:
         return render(request, 'login/register.html')
 
-# register end----------------------------------------------
-
+# register end---------------------------------------------- 
+#auth ends-----------------
+def chk_workspace(user_id):
+    check=workspaceMember.objects.filter(customUser=user_id).exists()
+    
+    return check
 
 def get_ws(user_id,ws_id=None):
     if ws_id:

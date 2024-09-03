@@ -1,0 +1,10 @@
+<form method="POST" action="{% 'verify_email' %}">
+    {% csrf_token %}
+    {% if error %}
+    <div class="alert alert-danger">
+        {{ error }}
+    </div>
+    {% endif %}
+    <input type="text" name="code" placeholder="Enter the code sent to your email" required pattern="^[0-9]{6}$">
+    <button type="submit">Submit</button>
+</form>

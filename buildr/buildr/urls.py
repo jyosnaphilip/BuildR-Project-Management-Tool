@@ -40,5 +40,6 @@ urlpatterns = [
    path('switch_ws/',change_ws,name='switch_ws'),
      path('update-issue-field/', update_issue_field, name='update_issue_field'),
      path('update-project-field/', update_project_field, name='update_project_field'),
+    #  path('verify_email/',verify_email,name='verify_email'),
 
 ]

@@ -133,3 +133,16 @@ class issue_assignee_bridge(models.Model):
     issue=models.ForeignKey(issue,on_delete=models.CASCADE)
     assigned_on=models.DateTimeField(auto_now_add=True)
     active=models.BooleanField(default=True)
+
+class EmailVerification(models.Model):
+    email = models.EmailField(unique=True)
+    verification_code = models.CharField(max_length=6)
+    session_id = models.UUIDField(default=uuid.uuid4, editable=False, unique=False)
+    is_verified = models.BooleanField(default=False)
+    created_At = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.email
+    
+    def generate_unique_code(self):
+        return uuid.uuid4().hex[:8].upper()
