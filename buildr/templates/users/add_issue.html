@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
-
+{% load static %}
 {% block content %}
-<!-- Include jQuery -->
+
 
 
 <div id="content" class="expanded">
@@ -71,6 +71,7 @@
                             <div class="rounded-pill">
                                 <select id="choices-multiple-remove-button" placeholder="Assign to"
                                     class="rounded-pill" name="assignees" multiple>
+                                    
                                     {% for member in team_members %}
 
                                     <option value="{{member.team_member.custom_id}}">{{member.team_member.user.first_name}} {{member.team_member.user.last_name}}</option>

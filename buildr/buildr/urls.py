@@ -24,10 +24,10 @@ from users.views import home,add_project,project_view,issue_view,add_issue,add_s
 urlpatterns = [
     path('admin/', admin.site.urls),
    
-    path('add-project',add_project,name='add_project'),
+    path('add-project/<str:custom_id>',add_project,name='add_project'),
     path('project_view/<str:project_id>/<str:custom_id>',project_view,name="project_view"),
     path('issue_view/<str:issue_id>/<str:project_id>',issue_view,name="issue_view"),
-    path('add_issue/<str:project_id>',add_issue,name="add_issue"),
+    path('add_issue/<str:custom_id>/<str:project_id>/',add_issue,name="add_issue"),
     path('add_subIssue/<str:project_id>/<str:issue_id>',add_subIssue,name='add_subIssue'),
     path('update_status/<str:project_id>',update_status,name="update_status"),
     path('home/<str:custom_id>/',home,name='home'),

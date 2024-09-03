@@ -65,15 +65,15 @@ def change_ws(request):
 #auth-----------------------------------------------
 # register---------------------------------------
 def register(request):
-    if request.method == 'POST':
-        first_name = request.POST.get('FirstName')
-        last_name = request.POST.get('LastName')
-        username = request.POST.get('Username')
-        email = request.POST.get('Email')
-        password1 = request.POST.get('Password1')
-        password2 = request.POST.get('Password2')
+    if request.method=='POST':
+        first_name=request.POST.get('FirstName')
+        last_name=request.POST.get('LastName')
+        username=request.POST.get('Username')
+        email=request.POST.get('Email')
+        password1=request.POST.get('Password1')
+        password2=request.POST.get('Password2')
 
-        if password1 == password2:
+        if password1==password2:
             if User.objects.filter(username=username).exists():
                 messages.error(request,"Username Already Exists!")
                 return redirect('register')
@@ -83,7 +83,7 @@ def register(request):
                 return redirect('register')
                 
             else:
-                user = User.objects.create_user(username=username,password=password1,email=email,first_name=first_name,last_name=last_name)
+                user=User.objects.create_user(username=username,password=password1,email=email,first_name=first_name,last_name=last_name)
                 user.set_password(password1)
                 user.save()
                 custom_User=customUser(user_id=user.id) #automatically create a row in customUser table- profile pic  & gamemode can be changed
@@ -114,10 +114,10 @@ def get_ws(user_id,ws_id=None):
 
 
 def user_login(request):
-    if request.method == "POST":
-        username = request.POST.get('username')
-        password = request.POST.get('password')
-        user = authenticate(username=username,password=password)
+    if request.method=="POST":
+        username=request.POST.get('username')
+        password=request.POST.get('password')
+        user=authenticate(username=username,password=password)
         if user is not None:
             login(request,user)
             custom_user=customUser.objects.get(user=user)
@@ -125,7 +125,7 @@ def user_login(request):
             if custom_user.last_ws:
                 request.session['current_ws']=str(custom_user.last_ws.ws_id)
             else:
-                first_workspace = workspaceMember.objects.filter(customUser=custom_user).first()
+                first_workspace=workspaceMember.objects.filter(customUser=custom_user).first()
                 if first_workspace:
                     request.session['current_ws'] = str(first_workspace.workspace.ws_id)
                     return redirect('home',customUser_id)
@@ -219,11 +219,10 @@ def new_workspace(request,custom_id):
     return render(request,'partials/new_workspace.html',{'custom_id':custom_id})
 
 
-def add_project(request): #need to check again
-    ws_id=request.session['current_ws']
-    ws_id = get_object_or_404(workspace, ws_id=ws_id)  # Assuming ws_id is in POST
-        
-    ws_members=workspaceMember.objects.filter(workspace=ws_id,active=True)
+def add_project(request,custom_id): #need to check again
+    current_ws_id=request.session.get('current_ws', None)
+    ws,current_ws,projects,flag,code=req_for_navbar(custom_id,current_ws_id) #use whenevr navbar is needed in a page      
+    ws_members=workspaceMember.objects.filter(workspace=current_ws,active=True)
     if request.method=="POST":
         project_name=request.POST.get('project_name')
         desc=request.POST.get('desc')
@@ -235,27 +234,30 @@ def add_project(request): #need to check again
         members=request.POST.getlist('members')
         priority_obj = get_object_or_404(priority, id=int(prior))
         status_obj = get_object_or_404(status, id=int(stat))
-        project=Project(name=project_name,description=desc,deadline=deadline,ws=ws_id)
+        project=Project(name=project_name,description=desc,deadline=deadline,ws=current_ws)
 
         if prior!=None:
-            priority_obj = get_object_or_404(priority, id=int(prior))
+            priority_obj=get_object_or_404(priority, id=int(prior))
             project.priority=priority_obj
         if stat!=None:
-            status_obj = get_object_or_404(status, id=int(stat))
+            status_obj=get_object_or_404(status, id=int(stat))
             project.status=status_obj
         project.save()
         for lead_id in lead:          
             project_member_bridge.objects.create(project=Project.objects.get(project_id=project.project_id),team_member=customUser.objects.get(custom_id=lead_id),role='Lead')
         for member_id in members:
             
-            member = get_object_or_404(customUser,custom_id=member_id)
+            member=get_object_or_404(customUser,custom_id=member_id)
             project_member_bridge.objects.create(
                 project=project,
                 team_member=member,
                 role='Team member'
             )
-        return redirect('project_view')
-    return render(request, 'users/add_project.html',{'ws_members':ws_members})
+        return redirect('project_view',project.project_id,custom_id)
+    return render(request, 'users/add_project.html',
+                  {'ws_members':ws_members,'custom_id':custom_id,
+                   'workspaces': ws,'current_ws': current_ws,
+             'flag':flag,'ws_code':code,'projects':projects})
 
 def get_priority_status_list():
     statuses=status.objects.all()
@@ -265,7 +267,7 @@ def get_priority_status_list():
 
 def project_view(request,project_id,custom_id):
     #stuff for navbar
-    current_ws_id = request.session.get('current_ws', None)
+    current_ws_id=request.session.get('current_ws', None)
     ws,current_ws,projects,flag,code=req_for_navbar(custom_id,current_ws_id) #use whenevr navbar is needed in a page
 
     project=Project.objects.get(project_id=project_id)
@@ -353,8 +355,11 @@ def issue_view(request,issue_id,project_id):
     
     return render(request,'users\issue_view.html',{'issue_id':issue_id,"project_id":project_id})
 
-def add_issue(request,project_id):
+def add_issue(request,custom_id,project_id):
     team_members=project_member_bridge.objects.filter(project=project_id,active=True)
+    current_ws_id=request.session.get('current_ws', None)
+    ws,current_ws,projects,flag,code=req_for_navbar(custom_id,current_ws_id) #use whenevr navbar is needed in a page
+
     if request.method=="POST":
         title=request.POST.get('title')
         desc=request.POST.get('desc')
@@ -380,8 +385,13 @@ def add_issue(request,project_id):
             issue_assignee_bridge.objects.create(
                 issue=issue_instance,
                 assignee=assignee)
-        return redirect('project_view',project_id)
-    return render(request,'users/add_issue.html',{'team_members':team_members})
+            
+        return redirect('project_view',project_id,custom_id)
+    print(project_id)
+    print(team_members)
+    context={'workspaces': ws,'current_ws': current_ws,'project_id':project_id,
+             'flag':flag,'ws_code':code,'projects':projects,'custom_id':custom_id,'team_members':team_members}
+    return render(request,'users/add_issue.html',context)
 
 def add_subIssue(request,issue_id,project_id):
     team_members=project_member_bridge.objects.filter(project=project_id,active=True)
