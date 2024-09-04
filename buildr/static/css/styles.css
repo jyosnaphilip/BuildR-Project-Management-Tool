@@ -27,7 +27,9 @@ body {
 }
 .font{
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  
+input::placeholder{
+  color:white;
+}
 }
 .theme1 {
     background-color: #e8d2bf;

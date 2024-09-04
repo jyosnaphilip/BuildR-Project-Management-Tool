@@ -1,15 +1,12 @@
 {% extends 'base.html' %}
 {% load static %}
 {% block content %}
-
-
-
 <div id="content" class="expanded">
     <div class="container">
         <div class="row justify-content-center">
             <div class="">
                 <div class="d-flex justify-content-between   ">
-                    <span class="text">Issue Name</span>
+                    <span class="text">{{issue}}</span>
                     <button type="button" class="btn" data-bs-toggle="modal" data-bs-target="#editIssue" data-bs-whatever="@mdo"><i class="fa-solid fa-pen pt-4" style="color: #85586f;"></i></button>
                     <!-- modal -->
                     <div class="modal fade" id="editIssue" tabindex="-1" aria-labelledby="editIssueLabel" aria-hidden="true">
@@ -20,12 +17,13 @@
                               <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" style="color:white;"></button>
                             </div>
                             <div class="modal-body form-box">
-                                <form method="POST">
+                                <form method="POST" action="{% url 'edit_issue' issue.issue_id custom_id %}">
+                                    {% csrf_token %}
                                     <div class="">
                     
                                         <div class="form-row">
                                             <div class="input-data">
-                                                <input type="text" required>
+                                                <input type="text" name="name" value="{{issue.name}}">
                                                 <div class="underline"></div>
                                                 <label for="name">Issue Name</label>
                                             </div>
@@ -34,7 +32,7 @@
                     
                                         <div class="form-row">
                                             <div class="input-data textarea">
-                                                <textarea rows="8" cols="80" ></textarea>
+                                                <textarea rows="8" cols="80" name="desc" value="{{issue.desc}}"></textarea>
                                                 <br />
                                                 <div class="underline"></div>
                                                 <label for="">Add description</label>
@@ -46,73 +44,61 @@
                                             
                                               
                                               <div class="dropdown rounded-pill me-2">
-                                                <button class="btn  dropdown-toggle rounded-pill" type="button" data-bs-toggle="dropdown" aria-expanded="false" fdprocessedid="5bab4i">
-                                                  Priority
-                                                </button>
-                                                <ul class="dropdown-menu" >
-                                                  <li><a class="dropdown-item" href="#"><i class="fa-solid fa-triangle-exclamation fa-l"></i> Urgent</a></li>
-                                                  <li><a class="dropdown-item " href="#"><i class="fa-solid fa-exclamation fa-l p-1 "></i> High</a></li>
-                                                  <li><a class="dropdown-item" href="#"><i class="fa-solid fa-ellipsis fa-lg p-1" style="color: #fafafa;"></i>Moderate</a></li>
-                                                  <li><a class="dropdown-item" href="#"><i class="fa-solid fa-angles-down fa-lg p-1" style="color: #fafafa;"></i>Low</a></li>
-                                                  <li><a class="dropdown-item" href="#">No Priority</a></li>
-                                                </ul>
+                                                <select  class=" form-select custom-select rounded-pill" type="button" name="priority" data-bs-toggle="dropdown"  aria-expanded="false" data-issue-id="{{issue.issue_id}}">
+                                                    {% for prior in priority %}
+                                                    {% if issue.priority.id|stringformat:"s" == prior.id|stringformat:"s" %}
+                        
+                                                    <option value="{{prior.id}}"  class="dropdown-item" selected>{{prior.name}}</option>
+                                                    {% else %}
+                        
+                                                    <option class="dropdown-item" value="{{prior.id}}"><i class="fa-regular fa-circle fa-l"></i> {{prior.name}}</option>
+                                                    {% endif %}
+                                                {% endfor %}
+                                                </select>
                                               </div>
                                               <div class="dropdown rounded-pill me-2">
-                                                <button class="btn dropdown-toggle rounded-pill" type="button" data-bs-toggle="dropdown" aria-expanded="false" fdprocessedid="5bab4i">
-                                                  Status
-                                                </button>
-                                                <ul class="dropdown-menu">
-                                                    <li><a class="dropdown-item" href="#"><i class="fa-regular fa-circle fa-l"></i> Open</a></li>
-                                                    <li><a class="dropdown-item" href="#"><i class="fa-solid fa-circle-half-stroke fa-l"></i> In progress</a></li>
-                                                    <li><a class="dropdown-item" href="#"><i class="fa-solid fa-circle-pause fa-l"></i> Paused</a></li>
-                    
-                                                    <li><a class="dropdown-item" href="#"><i class="fa-solid fa-circle-check fa-l"></i> Closed</a></li>
-                                                    
+                                                <select  class="  form-select custom-select rounded-pill" type="button" name="status" data-bs-toggle="dropdown"  aria-expanded="false" data-issue-id="{{issue.issue_id}}">
+                                                    {% for stat in status %}
+                                                    {% if project.status.id|stringformat:"s" == stat.id|stringformat:"s" %}
+                        
+                                                    <option value="{{stat.id}}"  class="dropdown-item" selected>{{stat.name}}</option>
+                                                    {% else %}
+                        
+                                                    <option class="dropdown-item" value="{{stat.id}}"><i class="fa-regular fa-circle fa-l"></i> {{stat.name}}</option>
+                                                    {% endif %}
+                                                {% endfor %}
+                                                </select>
+                                                              
                                               </div>
                                               <div class="col-sm-4">
                                               <div class="input-group input-daterange " style="color:white;">
                                                 
-                                                <input type="text" id="end" class="form-control   rounded-pill  w-25 me-2"  placeholder="Start" style="color:#ffff; background-color: #85586F; ">
+                                                <input type="text" id="end" class="form-control   rounded-pill  w-25 me-2" name="start" placeholder="Start" value="{{issue.created_on}}" style="color:#ffff; background-color: #85586F; ">
                                                 <label class="ml-3 form-control-placeholder" id="end-p" for="end" ></label>
                                                 <!-- <span class="fa fa-calendar fa-xs" id="fa-2"></span> -->
-                                                <input type="text" id="start" class="form-control rounded-pill w-25" placeholder="Target" style="background-color: #85586F;border-color: #85586F;color:white;">
+                                                <input type="text" id="start" class="form-control rounded-pill w-25" placeholder="Target"  name="deadline" value="{{issue.deadline}}" style="background-color: #85586F;border-color: #85586F;color:white;">
                                                 <label class=" form-control-placeholder" id="start-p" for="start"></label>
                                                 <!-- <span class="fa fa-calendar" id="fa-1" ></span> -->
                                               </div>
                                             </div>
                                               
                                         </div>
+                                        
                                         <div class="form-row justify-content-center">
-                                            <div class="col-sm-4 w-25 rounded-pill m-1">
-                                                <div class="rounded-pill">
-                                                    <select id="choices-multiple-remove-button" placeholder="Assign to"
-                                                        class="rounded-pill" multiple>
-                                                        <option value="HTML">HTML</option>
-                                                        <option value="Jquery">Jquery</option>
-                                                        <option value="CSS">CSS</option>
-                                                        <option value="Bootstrap 3">Bootstrap 3</option>
-                                                        <option value="Bootstrap 4">Bootstrap 4</option>
-                                                        <option value="Java">Java</option>
-                                                        <option value="Javascript">Javascript</option>
-                    
+                                            <div class="col-sm-5 w-50 rounded-pill m-1  ">
+                                                <div class="rounded-pill  " >
+                                                    <select id="choices-multiple-remove-button" name="assignee" class="rounded-pill" multiple>
+                                                        {% for member in the_issue.project.team_member_set.all %}
+                                                            <option value="{{ member.team_member.custom_id }}" 
+                                                                {% if member.team_member.custom_id in project_members %}selected{% endif %}>
+                                                                {{ member.team_member.user.first_name }} {{ member.team_member.user.last_name }}
+                                                                                                                            </option>
+                                                        {% endfor %}
                                                     </select>
                                                 </div>
                                             </div>
                     
                                             
-                                        </div>
-                    
-                                        
-                    
-                                        
-                                        <div class="form-row">
-                    
-                                            <div class="input-data textarea">
-                                                <textarea rows="8" cols="80" required></textarea>
-                                                <br />
-                                                <div class="underline"></div>
-                                                <label for="">Ideas</label>
-                                            </div>
                                         </div>
                                         <div class="form-row submit-btn justify-content-center">
                                             <div class="input-data rounded-pill">
@@ -135,63 +121,66 @@
                 </div>
                 <!-- modal end -->
 
-                <div class="row  ms-2">
+
+
+                <div class="row ms-2">
                    
-                    <div class="col-sm-1 mb-2">
-                    
-                        <button class="btn btn-sm dropdown dropdown-toggle rounded-pill" type="button" data-bs-toggle="dropdown" aria-expanded="false" fdprocessedid="5bab4i">
-                          Priority
-                        </button>
-                        <ul class="dropdown-menu" >
-                          <li><a class="dropdown-item" href="#"><i class="fa-solid fa-triangle-exclamation fa-l"></i> Urgent</a></li>
-                          <li><a class="dropdown-item " href="#"><i class="fa-solid fa-exclamation fa-l p-1 "></i> High</a></li>
-                          <li><a class="dropdown-item" href="#"><i class="fa-solid fa-ellipsis fa-lg p-1" style="color: #fafafa;"></i>Moderate</a></li>
-                          <li><a class="dropdown-item" href="#"><i class="fa-solid fa-angles-down fa-lg p-1" style="color: #fafafa;"></i>Low</a></li>
-                          <li><a class="dropdown-item" href="#">No Priority</a></li>
-                        </ul>
+                    <div class="col-sm-2 mb-2">
+                        <select  class=" priority-dropdown form-select custom-select rounded-pill" type="button" name="status" data-bs-toggle="dropdown"  aria-expanded="false" data-issue-id="{{issue.issue_id}}">
+                            {% for prior in priority %}
+                            {% if issue.priority.id|stringformat:"s" == prior.id|stringformat:"s" %}
+
+                            <option value="{{prior.id}}"  class="dropdown-item" selected>{{prior.name}}</option>
+                            {% else %}
+
+                            <option class="dropdown-item" value="{{prior.id}}"><i class="fa-regular fa-circle fa-l"></i> {{prior.name}}</option>
+                            {% endif %}
+                        {% endfor %}
+                        </select>
+                        
                     </div>  
                     <div class="col-sm-2 mb-2 ">
-                        <button class="btn btn-sm dropdown dropdown-toggle rounded-pill" type="button" data-bs-toggle="dropdown" aria-expanded="false" fdprocessedid="5bab4i">
-                            Status
-                        </button>
-                        <ul class="dropdown-menu" >
-                            <li><a class="dropdown-item" href="#"><i class="fa-regular fa-circle fa-l"></i> Open</a></li>
-                            <li><a class="dropdown-item" href="#"><i class="fa-solid fa-circle-half-stroke fa-l"></i> In progress</a></li>
-                            <li><a class="dropdown-item" href="#"><i class="fa-solid fa-circle-pause fa-l"></i> Paused</a></li>
+                        <div class="dropdown rounded-pill me-2">
+                            <select  class=" status-dropdown form-select custom-select rounded-pill" type="button" name="status" data-bs-toggle="dropdown"  aria-expanded="false" data-issue-id="{{issue.issue_id}}">
+                                {% for stat in status %}
+                                {% if issue.status.id|stringformat:"s" == stat.id|stringformat:"s" %}
     
-                            <li><a class="dropdown-item" href="#"><i class="fa-solid fa-circle-check fa-l"></i> Closed</a></li>
-                        </ul>   
+                                <option value="{{stat.id}}"  class="dropdown-item" selected>{{stat.name}}</option>
+                                {% else %}
+    
+                                <option class="dropdown-item" value="{{stat.id}}"><i class="fa-regular fa-circle fa-l"></i> {{stat.name}}</option>
+                                {% endif %}
+                            {% endfor %}
+                            </select>
+                            
+                          </div>
                     </div>
                     
                        
                     
-                    <div class="col-sm-2 mb-2 offset-sm-2">
+                    <div class="col-sm-3 mb-2">
                             <span class="input-group input-daterange  " style="color:white;">
                                                         
-                                <input type="text" id="end" class="form-control btn btn-sm  rounded-pill   me-2"  placeholder="Start" style="color:#ffff; background-color: #85586F; ">
-                                <label class="ml-3 form-control-placeholder" id="end-p" for="end" ></label>
+                                <button type="text" id="end" class="form-control btn btn-sm  rounded-pill   me-2"  placeholder="Start" style="color:#ffff; background-color: #85586F; ">{{issue.created_on}}</button>
                                 <!-- <span class="fa fa-calendar fa-xs" id="fa-2"></span> -->
-                                <input type="text" id="start" class="form-control rounded-pill btn btn-sm " placeholder="Target" style="background-color: #85586F;border-color: #85586F;color:white;">
-                                <label class=" form-control-placeholder" id="start-p" for="start"></label>
+                                <button type="text" id="start" class="form-control rounded-pill btn btn-sm " style="background-color: #85586F;border-color: #85586F;color:white;">{{issue.deadline}}</button>
                                 <!-- <span class="fa fa-calendar" id="fa-1" ></span> -->
                             </span>
                     </div>
                     
-                    <div class="col-sm-1  mb-2 ms-1 me-2">
+                    <div class="col-sm-1 mb-2 ms-0">
                         <button class="btn btn-sm dropdown dropdown-toggle rounded-pill" type="button" data-bs-toggle="dropdown" aria-expanded="false" fdprocessedid="5bab4i">
-                            <i class="fa-solid fa-user-group " style="color: #e7eaee;"></i>Assigned to
+                            <i class="fa-solid fa-user-group " style="color: #e7eaee;"></i> Members
                         </button>
                         <ul class="dropdown-menu" >
-                            <li><a class="dropdown-item" href="#"><i class="fa-regular fa-circle fa-l"></i> Open</a></li>
-                            <li><a class="dropdown-item" href="#"><i class="fa-solid fa-circle-half-stroke fa-l"></i> In progress</a></li>
-                            <li><a class="dropdown-item" href="#"><i class="fa-solid fa-circle-pause fa-l"></i> Paused</a></li>
-    
-                            <li><a class="dropdown-item" href="#"><i class="fa-solid fa-circle-check fa-l"></i> Closed</a></li>
+                            {% for member in team %}
+                            <li><a class="dropdown-item" href="#"><i class="fa-regular fa-circle fa-l"></i> {{member.team_member.user.first_name}} {{member.team_member.user.last_name}}</a></li>
+                            {% endfor %}
                         </ul>
                     </div>
-                    <div class=" col-sm-2 ms-1 ms-4 mb-2 ">    
-                        <a class="rounded-pill btn btn-sm " href="{% url 'add_subIssue' project_id  issue_id %}" style="background-color: #85586f; color:#f5f7fa;"><i
-                                class="fa-solid fa-plus" style="color: #f5f7fa;"></i> Add sub-issue</a>
+                    <div class=" col-sm-2 offset-sm-2 ms-4 mb-2 ">    
+                        <a class="rounded-pill btn btn-sm " href="{% url 'add_subIssue' issue.issue_id custom_id  %}" style="background-color: #85586f; color:#f5f7fa;"><i
+                                class="fa-solid fa-plus" style="color: #f5f7fa;"></i> Add sub-Issue</a>
                     </div>
                 </div>
                 </div>
@@ -199,68 +188,215 @@
             </div>
 
 
-            <!-- subissues here -->
+            <!-- issues here -->
              <div class="container">
-                
-                <div class="row p-1 row-issues "   >
-                    <div class="col-sm-1">
-                        <span class="btn btn-sm dropdown dropdown-toggle rounded-pill"  type="button" data-bs-toggle="dropdown" aria-expanded="false" fdprocessedid="5bab4i">
-                            Status
-                        </span>
-                        <ul class="dropdown-menu" >
-                            <li><a class="dropdown-item" href="#"><i class="fa-regular fa-circle fa-l"></i> Open</a></li>
-                            <li><a class="dropdown-item" href="#"><i class="fa-solid fa-circle-half-stroke fa-l"></i> In progress</a></li>
-                            <li><a class="dropdown-item" href="#"><i class="fa-solid fa-circle-pause fa-l"></i> Paused</a></li>
-                            <li><a class="dropdown-item" href="#"><i class="fa-solid fa-circle-check fa-l"></i> Closed</a></li>
-                        </ul> 
-                    </div>
-                    <div class="col-sm-8 pt-1" style="cursor: pointer;" id="subissue1">
-                        subissue (completed subissue/total subisue)
-                    </div>
-                    
-                    
-                    <div class="col-sm-1">
-                        <span class="btn btn-sm dropdown dropdown-toggle rounded-pill align-contents-end" type="button" data-bs-toggle="dropdown" aria-expanded="false" fdprocessedid="5bab4i">
-                            Priority
-                        </span>
-                          <ul class="dropdown-menu" >
-                            <li><a class="dropdown-item" href="#"><i class="fa-solid fa-triangle-exclamation fa-l"></i> Urgent</a></li>
-                            <li><a class="dropdown-item " href="#"><i class="fa-solid fa-exclamation fa-l p-1 "></i> High</a></li>
-                            <li><a class="dropdown-item" href="#"><i class="fa-solid fa-ellipsis fa-lg p-1" style="color: #fafafa;"></i>Moderate</a></li>
-                            <li><a class="dropdown-item" href="#"><i class="fa-solid fa-angles-down fa-lg p-1" style="color: #fafafa;"></i>Low</a></li>
-                            <li><a class="dropdown-item" href="#">No Priority</a></li>
-                          </ul>
-                    </div>
-                    <div class="col-sm-1">
-                        <span class="btn btn-sm dropdown dropdown-toggle rounded-pill align-contents-end" type="button" data-bs-toggle="dropdown" aria-expanded="false" fdprocessedid="5bab4i">
-                            assigned
-                        </span>
-                          <ul class="dropdown-menu" >
-                            <li><a class="dropdown-item" href="#"><i class="fa-solid fa-triangle-exclamation fa-l"></i> Urgent</a></li>
-                            <li><a class="dropdown-item " href="#"><i class="fa-solid fa-exclamation fa-l p-1 "></i> High</a></li>
-                            <li><a class="dropdown-item" href="#"><i class="fa-solid fa-ellipsis fa-lg p-1" style="color: #fafafa;"></i>Moderate</a></li>
-                            <li><a class="dropdown-item" href="#"><i class="fa-solid fa-angles-down fa-lg p-1" style="color: #fafafa;"></i>Low</a></li>
-                            <li><a class="dropdown-item" href="#">No Priority</a></li>
-                          </ul>
-                    </div>
-
-
-
-                </div>
-            </div>
+                <table class="table  table-hover shadow-sm">
+                    <thead>
+                      <tr>
+                        <th scope="col-sm-1" class="text-center">Status</th>
+                        <th scope="col-sm-6"  class="text-center">Issue</th>
+                        <th scope="col-sm-1"  class="text-center">Priority</th>
+                        <th scope="col-sm-1"  class="text-center">Assignee</th>
+                        <th scope="col-sm-1"  class="text-center">Deadline</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                        {% for issue in subIssues %}
+                      <tr>
+                        <th scope="row">
+                           <div class="w-50 dropdown rounded-pill ">
+                               <select  class="subissue-status-dropdown form-select custom-select rounded-pill btn btn-sm" type="button" name="status" data-bs-toggle="dropdown"  aria-expanded="false" data-subissue-id="{{issue.issue_id}}">
+                                   {% for stat in status %}
+                                   {% if issue.status.id|stringformat:"s" == stat.id|stringformat:"s" %}
+       
+                                   <option value="{{stat.id}}"  class="dropdown-item" selected>{{stat.name}}</option>
+                                   {% else %}
+                                   <option class="dropdown-item" value="{{stat.id}}"><i class="fa-regular fa-circle fa-l"></i> {{stat.name}}</option>
+                                   {% endif %}
+                                   {% endfor %}
+                               
+                                </select>
+                            </div>
+                        </th>
+                        <td style="cursor: pointer;" class="col-sm-3">
+                            <a href="{% url 'issue_view' issue.issue_id  custom_id %}" class="link-light link-underline link-underline-opacity-0">{{issue}}
+                            
+                            </a>
+                        </td>
+                            <td >
+                                <div class=" dropdown rounded-pill" >
+                                    <select  class="subissue-priority-dropdown form-select custom-select rounded-pill btn btn-sm" type="button" name="status" data-bs-toggle="dropdown"  aria-expanded="false" data-subissue-id="{{ issue.issue_id }}">
+                                        {% for prior in priority %}
+                                        {% if issue.priority.id|stringformat:"s" == prior.id|stringformat:"s" %}
             
-           
-
+                                        <option value="{{prior.id}}"  class="dropdown-item" selected>{{prior.name}}</option>
+                                        {% else %}
+                                        <option class="dropdown-item" value="{{prior.id}}"><i class="fa-regular fa-circle fa-l"></i> {{prior.name}}</option>
+                                        {% endif %}
+                                        {% endfor %}
+                                   </select>
+                                </div>
+                            </td>
+                        
+                        <td> 
+                            <div class="col-sm-7 mb-2 ms-0">
+                                {% if issue.assignee.count > 0 %}
+                                <button class="btn btn-sm dropdown dropdown-toggle rounded-pill" type="button" data-bs-toggle="dropdown" aria-expanded="false" fdprocessedid="5bab4i">
+                                    <i class="fa-solid fa-user-group " style="color: #e7eaee;"></i>Assignees
+                                </button>
+                                <ul class="dropdown-menu" >
+                                    {% for assignee in issue.assignee.all %}
+                                    <li><a class="dropdown-item" href="#"><i class="fa-regular fa-circle fa-l"></i> {{assignee.user.first_name}} {{assignee.user.last_name}}</a></li>
+                                    {% endfor %}
+                                </ul>
+                                {% else %}
+                                <button class="btn btn-sm  rounded-pill" type="button"  fdprocessedid="5bab4i">
+                                    <i class="fa-solid fa-user-group " style="color: #e7eaee;"></i>Not assigned
+                                </button>
+                                {% endif %}
+                            </div>
+                            
+                      </td>
+                        <td>{% if issue.deadline %}{{issue.deadline}}{% endif %}</td>
+                      </tr>
+                      {% empty %}
+                      <tr><td colspan="5">No subIssues found.</td></tr>
+                      
+                      
+                      {% endfor %}
+                      <tr id="new-subissue">
+                        <td colspan="5">
+                            <input type="text" class="form-control " placeholder="Enter subIssue and press Enter" style="color:white;border-color: rgb(244, 240, 240);" id="new-subissue-input" placeholder="Add new subissue">
+                        </td>
+                    </tr>
+                    </tbody>
+                  </table>
+  
         </div>
     </div>
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.js"></script>
-<script>
-    document.getElementById('issue1').onclick=function() {
-     window.location.href = "{% url 'issue_view' %}"; // Replace 'https://www.example.com' with the URL of your desired page
- };
- </script>
 
+<script>
+     // Function to send AJAX request to update a field
+    //  #for issue related at the top
+     function updateIssueField(issueId, fieldName, value) { 
+            $.ajax({
+                url: "{% url 'update_issue_field' %}",
+                method: "POST",
+                data: {
+                    'issue_id': issueId,
+                    'field_name': fieldName,
+                    'value': value,
+                    'csrfmiddlewaretoken': '{{ csrf_token }}'
+                },
+                success: function(response) {
+            if (response.success) {
+                alert('Field updated successfully!');
+                if (fieldName === 'status') {
+                        $('#editIssue select[name="status"]').val(value);
+                    } else if (fieldName === 'priority') {
+                        $('#editIssue select[name="priority"]').val(value);
+                    }
+            } else {
+                alert('Error: ' + (response.error || 'An error occurred while updating the field.'));
+            }
+        },
+        error: function(xhr, status, error) {
+            console.error("AJAX Error:", status, error);
+            alert('An error occurred while updating the field.');}
+            });
+        }
+
+        // Status Change
+        $(document).on('change', '.status-dropdown', function() {
+    var issueId = $(this).data('issue-id');
+    var newStatus = $(this).val();
+    updateIssueField(issueId, 'status', newStatus);});
+        // Priority Change
+        $(document).on('change', '.priority-dropdown', function() {
+    var issueId = $(this).data('issue-id');
+    var newPriority = $(this).val();
+    updateIssueField(issueId, 'priority', newPriority);
+});
+
+      
+</script>
+<script>
+     function updatesubIssueField(issueId, fieldName, value) {
+            $.ajax({
+                url: "{% url 'update_issue_field' %}",
+                method: "POST",
+                data: {
+                    'issue_id': issueId,
+                    'field_name': fieldName,
+                    'value': value,
+                    'csrfmiddlewaretoken': '{{ csrf_token }}'
+                },
+                success: function(response) {
+            if (response.success) {
+                alert('Field updated successfully!');
+            } else {
+                alert('Error: ' + (response.error || 'An error occurred while updating the field.'));
+            }
+        },
+        error: function(xhr, status, error) {
+            console.error("AJAX Error:", status, error);
+            alert('An error occurred while updating the field.');}
+            });
+        }
+         // sub issueStatus Change
+         $(document).on('change', '.subissue-status-dropdown', function() {
+    var issueId = $(this).data('subissue-id');
+    var newStatus = $(this).val();
+    updatesubIssueField(issueId, 'status', newStatus);});
+        // Priority Change
+        $(document).on('change', '.subissue-priority-dropdown', function() {
+    var issueId = $(this).data('subissue-id');
+    var newPriority = $(this).val();
+    updatesubIssueField(issueId, 'priority', newPriority);
+        })
+</script>
+<script>
+    // will run only after html is loaded
+    document.addEventListener('DOMContentLoaded', function() {
+    var inputField=document.getElementById('new-subissue-input');
+    inputField.addEventListener('keypress',function(e){
+        if(e.key==='Enter'){
+            e.preventDefault();
+            var newSubIssue=inputField.value.trim();
+            if (newSubIssue!=="") {
+                fetch("{% url 'add_subIssue'  custom_id issue.issue_id %}", {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': '{{ csrf_token }}'
+                    },
+                    body: JSON.stringify({
+                        subissue: newSubissue
+                    })
+                })
+                .then(response=>response.json())
+                .then(data=>{
+                    if (data.success) {
+                        // If success,add new subissue to the table
+                        var newRow=document.createElement('tr');
+                        newRow.innerHTML=`<td>${data.subissue.name}</td><td>${data.subissue.deadline}</td>`;
+                        document.querySelector('tbody').insertBefore(newRow, document.getElementById('new-subissue'));
+                        
+                        // Clear input 
+                        inputField.value='';
+                    } else {
+                        // Handle error
+                        alert('Error adding subissue');
+                    }
+                })
+                .catch(error=>console.error('Error:', error));
+            }
+        }
+    });
+});
+</script>
 
 {% endblock content %}

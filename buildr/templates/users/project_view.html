@@ -6,7 +6,8 @@
         <div class="row justify-content-center">
             <div class="">
                 <div class="d-flex justify-content-between   ">
-                    <span class="text">{{project}}</span>
+                    <div class="text">{{project}}</div>
+                    {% if flag_edit %}
                     <button type="button" class="btn" data-bs-toggle="modal" data-bs-target="#editProject" data-bs-whatever="@mdo"><i class="fa-solid fa-pen pt-4" style="color: #85586f;"></i></button>
                     <!-- modal -->
                     <div class="modal fade" id="editProject" tabindex="-1" aria-labelledby="editProjectLabel" aria-hidden="true">
@@ -17,13 +18,13 @@
                               <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" style="color:white;"></button>
                             </div>
                             <div class="modal-body form-box">
-                                <form method="POST">
+                                <form method="POST" action="{% url 'edit_project'  project.project_id custom_id %}">
                                     {% csrf_token %}
                                     <div class="">
                     
                                         <div class="form-row">
                                             <div class="input-data">
-                                                <input type="text" value="{{project.name}}">
+                                                <input type="text" name="name" id="name" value="{{project.name}}">
                                                 <div class="underline"></div>
                                                 <label for="name">Project Name</label>
                                             </div>
@@ -32,10 +33,10 @@
                     
                                         <div class="form-row">
                                             <div class="input-data textarea">
-                                                <textarea rows="8" cols="80" value="{{project.desc}}"></textarea>
+                                                <textarea rows="8" cols="80" name="desc" value="{{project.desc}}"></textarea>
                                                 <br />
                                                 <div class="underline"></div>
-                                                <label for="">Add description</label>
+                                                <label for="desc">Add description</label>
                                                 <br />
                                             </div>
                                         </div>
@@ -44,7 +45,7 @@
                                             
                                               
                                               <div class="dropdown rounded-pill me-2">
-                                                <select  class=" form-select custom-select rounded-pill" type="button" name="status" data-bs-toggle="dropdown"  aria-expanded="false" >
+                                                <select  class=" form-select custom-select rounded-pill" type="button" name="priority" data-bs-toggle="dropdown"  aria-expanded="false" data-project-id="{{project.project_id}}">
                                                     {% for prior in priority %}
                                                     {% if project.priority.id|stringformat:"s" == prior.id|stringformat:"s" %}
                         
@@ -76,7 +77,7 @@
                                                 <input type="text" id="end" class="form-control   rounded-pill  w-25 me-2"  placeholder="Start" value="{{project.created_on}}" style="color:#ffff; background-color: #85586F; ">
                                                 <label class="ml-3 form-control-placeholder" id="end-p" for="end" ></label>
                                                 <!-- <span class="fa fa-calendar fa-xs" id="fa-2"></span> -->
-                                                <input type="text" id="start" class="form-control rounded-pill w-25" placeholder="Target" value="{{project.deadline}}" style="background-color: #85586F;border-color: #85586F;color:white;">
+                                                <input type="text" id="start" name="deadline" class="form-control rounded-pill w-25" placeholder="Target" value="{{project.deadline}}" style="background-color: #85586F;border-color: #85586F;color:white;">
                                                 <label class=" form-control-placeholder" id="start-p" for="start"></label>
                                                 <!-- <span class="fa fa-calendar" id="fa-1" ></span> -->
                                               </div>
@@ -85,11 +86,11 @@
                                         </div>
                                         <div class="col-sm-4 w-25 rounded-pill m-1">
                                             <div class="rounded-pill">
-                                                <select id="choices-multiple-remove-button" placeholder="Select Lead"
+                                                <select id="choices-multiple-remove-button" name="lead" placeholder="Select Lead"
                                                     class="rounded-pill" multiple>
                                                     {% for user in workspace_memb %}
                                                     <option value="{{ user.custom_id }}" 
-                                                        {% if user in lead %}selected{% endif %}>
+                                                        {% if user.custom_id in lead_user_ids %}selected{% endif %}>
                                                         {{ user.user.first_name }} {{ user.user.last_name }}
                                                         
                                                     </option>
@@ -101,10 +102,10 @@
                                         <div class="form-row justify-content-center">
                                             <div class="col-sm-5 w-50 rounded-pill m-1  ">
                                                 <div class="rounded-pill  " >
-                                                    <select id="choices-multiple-remove-button" class="rounded-pill" multiple>
+                                                    <select id="choices-multiple-remove-button" name="team" class="rounded-pill" multiple>
                                                         {% for user in workspace_memb %}
                                                             <option value="{{ user.custom_id }}" 
-                                                                {% if user in lead_user_ids %}selected{% endif %}>
+                                                                {% if user.custom_id in team_ids %}selected{% endif %}>
                                                                 {{ user.user.first_name }} {{ user.user.last_name }}
                                                                                                                             </option>
                                                         {% endfor %}
@@ -122,15 +123,7 @@
                                         
                     
                                         
-                                        <div class="form-row">
-                    
-                                            <div class="input-data textarea">
-                                                <textarea rows="8" cols="80" required></textarea>
-                                                <br />
-                                                <div class="underline"></div>
-                                                <label for="">Ideas</label>
-                                            </div>
-                                        </div>
+                                        
                                         <div class="form-row submit-btn justify-content-center">
                                             <div class="input-data rounded-pill">
                                                 <div class="inner"></div>
@@ -146,10 +139,13 @@
                             <div class="modal-footer" style="background-color: #85586f;color:#fafafa;">
                               <button type="button" class="btn btn-outline-light rounded-pill">Save</button>
                             </div>
+
                           </div>
                         </div>
+                        {% endif %}
                       </div>
                 </div>
+               
                 <!-- modal end -->
 
 
@@ -258,10 +254,12 @@
                                 </select>
                             </div>
                         </th>
-                        <td style="cursor: pointer;" class="col-sm-3">{{issue}}
+                        <td style="cursor: pointer;" class="col-sm-3">
+                            <a href="{% url 'issue_view' issue.issue_id  custom_id %}" class="link-light link-underline link-underline-opacity-0">{{issue}}
                             {% if issue.subissue_count > 0 %}
                             <small>({{ issue.subissue_count }})</small>
                             {% endif %}
+                            </a>
                         </td>
                             <td >
                                 <div class=" dropdown rounded-pill" >
@@ -278,20 +276,29 @@
                                 </div>
                             </td>
                         
-                        <td> <select class="assignee-dropdown" data-issue-id="{{issue.issue_id}}">
-                            <option value="" {% if issue.assignee.count == 0 %}selected{% endif %}>-- Select Assignee --</option>
-                            {% for user in team %}
-                                <option value="{{ user.team_member.custom_id }}" 
-                                    {% if user.team_member in issue.assignee.all %}selected{% endif %}>
-                                    {{ user.team_member.user.first_name }} {{ user.team_member.user.last_name }}
-                                    
-                                </option>
-                            {% endfor %}    
-                        </select></td>
+                        <td> 
+                            <div class="col-sm-7 mb-2 ms-0">
+                                {% if issue.assignee.count > 0 %}
+                                <button class="btn btn-sm dropdown dropdown-toggle rounded-pill" type="button" data-bs-toggle="dropdown" aria-expanded="false" fdprocessedid="5bab4i">
+                                    <i class="fa-solid fa-user-group " style="color: #e7eaee;"></i>Assignees
+                                </button>
+                                <ul class="dropdown-menu" >
+                                    {% for assignee in issue.assignee.all %}
+                                    <li><a class="dropdown-item" href="#"><i class="fa-regular fa-circle fa-l"></i> {{assignee.user.first_name}} {{assignee.user.last_name}}</a></li>
+                                    {% endfor %}
+                                </ul>
+                                {% else %}
+                                <button class="btn btn-sm  rounded-pill" type="button"  fdprocessedid="5bab4i">
+                                    <i class="fa-solid fa-user-group " style="color: #e7eaee;"></i>Not assigned
+                                </button>
+                                {% endif %}
+                            </div>
+                            
+                      </td>
                         <td>{{issue.deadline}}</td>
                       </tr>
                       {% empty %}
-                      <tr><td colspan="4">No issues found.</td></tr>
+                      <tr><td colspan="5">No issues found.</td></tr>
                      
                       
                       {% endfor %}
@@ -342,15 +349,7 @@
     updateIssueField(issueId, 'priority', newPriority);
 });
 
-        // Assignee Change
-        $(document).on('change', '.assignee-dropdown', function() {
-    var issueId = $(this).data('issue-id');
-    var newAssignee = $(this).val();
-    console.log("Issue ID:", issueId);
-    console.log("New Assignee ID:", newAssignee);
-
-    updateIssueField(issueId, 'assignee', newAssignee);
-});
+      
 </script>
 <script>
      function updateProjectField(projectId, fieldName, value) {
@@ -365,7 +364,13 @@
                 },
                 success: function(response) {
                     alert('Field updated successfully!');
+                    if (fieldName === 'status') {
+                        $('#editProject select[name="status"]').val(value);
+                    } else if (fieldName === 'priority') {
+                        $('#editProject select[name="priority"]').val(value);
+                    }
                 },
+               
                 error: function() {
                     alert('An error occurred while updating the field.');
                 }

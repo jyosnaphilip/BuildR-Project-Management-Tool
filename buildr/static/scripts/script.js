@@ -42,3 +42,10 @@ $(document).ready(function(){
     
     });
 
+
+$(document).ready(function(){
+    $('#start').datepicker({
+        format: 'dd-mm-yyyy',  // Set format to match the backend expectation
+        autoclose: true
+    });
+});
