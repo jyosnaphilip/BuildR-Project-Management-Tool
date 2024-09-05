@@ -269,6 +269,7 @@ def add_project(request,custom_id): #need to check again
 def get_priority_status_list():
     statuses=status.objects.all()
     priorities=priority.objects.all()
+
     return statuses, priorities
 
 

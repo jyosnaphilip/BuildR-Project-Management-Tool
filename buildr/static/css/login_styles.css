@@ -67,10 +67,13 @@ body {
     margin-top: 0;
     padding: 12px;
     width: fit-content;
+    color:white; 
+    background-color: rgb(118 3 87);
+    
 }
 
-.btn.btn-style :hover{  
-    background-color: #f0dfe6;
+.btn.btn-style:hover{  
+    background: #7e0048e4;
     color: #000;
 }
 
