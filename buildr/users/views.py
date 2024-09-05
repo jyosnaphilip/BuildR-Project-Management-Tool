@@ -28,14 +28,14 @@ def create_code(ws_id):
     return ws_code.code 
 # Create your views here.
 
-def get_projects(custom_id,ws_id):
-    projects=Project.objects.filter(ws=ws_id.ws_id, project_member_bridge__team_member=custom_id)
+def get_projects(ws_id):
+    projects=Project.objects.filter(ws=ws_id.ws_id).distinct()
     return projects
 
 def req_for_navbar(custom_id,current_ws_id):
     ws=get_ws(custom_id,current_ws_id) #all ws #nav
     current_ws=workspace.objects.get(ws_id=current_ws_id)
-    projects=get_projects(custom_id,current_ws) #nav
+    projects=get_projects(current_ws) #nav
     if str(current_ws.admin.custom_id)==custom_id: #nav
         flag=True
         ws_code=workspaceCode.objects.filter(ws=current_ws_id,is_active=True).values('code','ws_id')
@@ -236,13 +236,14 @@ def add_project(request,custom_id): #need to check again
         prior=request.POST.get('priority')
         stat=request.POST.get('status')
         deadline=request.POST.get('deadline')
-        deadline=datetime.strptime(deadline,'%d-%m-%Y').date()
+        
         lead=request.POST.getlist('lead')
         members=request.POST.getlist('members')
-        priority_obj = get_object_or_404(priority, id=int(prior))
-        status_obj = get_object_or_404(status, id=int(stat))
-        project=Project(name=project_name,description=desc,deadline=deadline,ws=current_ws)
-
+        
+        project=Project(name=project_name,description=desc,ws=current_ws)
+        if deadline!=None:
+            deadline=datetime.strptime(deadline,'%d-%m-%Y').date()
+            project.deadline=deadline
         if prior!=None:
             priority_obj=get_object_or_404(priority, id=int(prior))
             project.priority=priority_obj
@@ -272,26 +273,119 @@ def get_priority_status_list():
 
     return statuses, priorities
 
+def access_control(lead,custom_id,current_ws):
+     #access control for editing things
+    flag_edit=False
+    for _ in lead:
+        if str(custom_id)==str(_.team_member.custom_id) or str(custom_id)==str(current_ws.admin.custom_id):
+            flag_edit=True
+            break
+    return flag_edit
 
 def project_view(request,project_id,custom_id):
     #stuff for navbar
     current_ws_id=request.session.get('current_ws', None)
     ws,current_ws,projects,flag,code=req_for_navbar(custom_id,current_ws_id) #use whenevr navbar is needed in a page
-
+   
     project=Project.objects.get(project_id=project_id)
     team=project_member_bridge.objects.filter(project_id=project_id,role="Team member")
     lead=project_member_bridge.objects.filter(project_id=project_id,role="Lead")
+     #access control for editing project
+    flag_edit=access_control(lead,custom_id,current_ws)
+    
+    
     statuses,priorities=get_priority_status_list()
     lead_user_ids = lead.values_list('team_member__custom_id', flat=True)
+    team_ids = team.values_list('team_member__custom_id', flat=True)
     # Get all users in the workspace
     workspace_members = customUser.objects.filter(workspace=current_ws)
     issues=issue.objects.filter(project_id=project_id,parent_task__isnull=True).annotate(subissue_count=Count('child'))
     context={'project':project,'lead':lead,'team':team,'status':statuses,
              'priority':priorities,'issues':issues,'workspace_memb':workspace_members,
-             'lead_user_ids':lead_user_ids,'workspaces': ws,'current_ws': current_ws,
-             'flag':flag,'ws_code':code,'projects':projects,'custom_id':custom_id}
+             'lead_user_ids':lead_user_ids,'team_ids':team_ids,'workspaces': ws,'current_ws': current_ws,
+             'flag':flag,'ws_code':code,'projects':projects,'custom_id':custom_id,'flag_edit':flag_edit}
     
     return render(request,'users\project_view.html',context)
+
+def edit_project(request,project_id,custom_id):
+    project=get_object_or_404(Project,project_id=project_id)
+    if request.method=='POST':
+        name=request.POST.get('name')
+        desc=request.POST.get('desc')
+        prior_id=request.POST.get('priority')
+        status_id=request.POST.get('status')
+        deadline=request.POST.get('deadline').strip()
+        lead_ids=request.POST.getlist('lead')
+        team_ids=request.POST.getlist('team')
+# Update
+        project.name=name
+        project.desc=desc
+        if prior_id!=None:
+            project.priority=get_object_or_404(priority, id=prior_id)
+        if status_id!=None:
+            project.status=get_object_or_404(status, id=status_id)
+        if deadline!=None and deadline!="":
+            deadline=datetime.strptime(deadline,'%d-%m-%Y').date()
+            project.deadline=deadline
+        project.save()
+        
+    # update lead
+        project_member_bridge.objects.filter(project=project, role='Lead').update(active=False)  #Remove current leads
+        for lead_id in lead_ids:
+            lead=get_object_or_404(customUser, custom_id=lead_id)
+            if lead!=None:
+                lead,created=project_member_bridge.objects.get_or_create(team_member=customUser.objects.get(custom_id=lead_id), project=project)
+                #get or create returns a tuple with object and creation status
+                lead.role='Lead'
+                lead.active=True
+                lead.save()
+        #Update team members
+        project_member_bridge.objects.filter(project=project, role='Team member').update(active=False)  #Remove current team members
+        for team_id in team_ids:
+            team_memb = get_object_or_404(customUser, custom_id=team_id)
+            if team_memb!=None:
+                team_,create=project_member_bridge.objects.get_or_create(team_member=team_memb, project=project)
+                team_.role='Team member'
+                team_.active=True
+                team_.save()
+        messages.success(request, 'Project updated successfully!')
+        return redirect('project_view',project_id,custom_id)
+
+def edit_issue(request,issue_id,custom_id):
+    _issue=get_object_or_404(issue,issue_id=issue_id)
+    if request.method=='POST':
+        name=request.POST.get('name')
+        desc=request.POST.get('desc')
+        prior_id=request.POST.get('priority')
+        status_id=request.POST.get('status')
+        deadline=request.POST.get('deadline').strip()
+        assignee=request.POST.getlist('assignee')
+
+# Update
+        _issue.name=name
+        _issue.description=desc
+        if prior_id!=None:
+             _issue.priority=get_object_or_404(priority, id=prior_id)
+        if status_id!=None:
+             _issue.status=get_object_or_404(status, id=status_id)
+        if deadline!=None and deadline!="":
+            deadline=datetime.strptime(deadline,'%d-%m-%Y').date()
+            _issue.deadline=deadline
+        _issue.save()
+        
+    # update lead
+        issue_assignee_bridge.objects.filter(issue=_issue).update(active=False)  #Remove current leads
+        for _assignee in assignee:
+            new_assignee=get_object_or_404(customUser, custom_id=_assignee)
+            if new_assignee!=None:
+                assigned,create=issue_assignee_bridge.objects.get_or_create(team_member=new_assignee, issue=_issue)
+                assigned.active=True
+                assigned.save()
+
+        messages.success(request, 'Issue updated successfully!')
+        return redirect('issue_view',issue_id,custom_id)
+
+  
 
 def update_issue_field(request):
     if request.method == "POST":
@@ -303,15 +397,13 @@ def update_issue_field(request):
         except issue.DoesNotExist:
             return JsonResponse({'success': False, 'error': 'Issue not found'}, status=404)
 
-        # Update the appropriate field
         if field_name == 'status':
             the_issue.status_id = value
         elif field_name == 'priority':
             the_issue.priority_id = value
         elif field_name == 'assignee':
             try:
-            # Assuming assignee is a ForeignKey to CustomUser
-                the_assignee = issue_assignee_bridge.objects.get(custom_id=value)
+                the_assignee = customUser.objects.filter(custom_id__in=value)
                 the_issue.assignee = the_assignee
             except customUser.DoesNotExist:
                 return JsonResponse({'success': False, 'error': 'Assignee not found'}, status=404)
@@ -339,8 +431,8 @@ def update_project_field(request):
             the_project.status_id = value
         elif field_name == 'priority':
             the_project.priority_id = value
-        elif field_name == 'assignee':
-            the_project.assignee_id = value
+        else:
+            pass
 
         # Save the issue
         the_project.save()
@@ -359,9 +451,19 @@ def update_status(request,project_id):
         return JsonResponse({'success':True,'new_status':new_status.name})
     return JsonResponse({'success':False,'error':'invalid_status'})
 
-def issue_view(request,issue_id,project_id):
-    
-    return render(request,'users\issue_view.html',{'issue_id':issue_id,"project_id":project_id})
+def issue_view(request,issue_id,custom_id):
+    the_issue=issue.objects.select_related('project').prefetch_related('project__project_member_bridge_set').get(issue_id=issue_id)
+    #if we dont put project__ as prefix in prefetch related, project member bridge instances for issue objects are searched, which doesnt exist
+    current_ws_id=request.session.get('current_ws', None)
+
+    ws,current_ws,projects,flag,code=req_for_navbar(custom_id,current_ws_id) #use whenevr navbar is needed in a page
+    project_members=project_member_bridge.objects.filter(active=True,project=the_issue.project)
+    subIssues=issue.objects.filter(parent_task=issue_id)
+    statuses,priorities=get_priority_status_list()
+    context={'subIssues':subIssues,'issue':the_issue,'issue_id':issue_id,
+             "custom_id":custom_id,'priority':priorities,'status':statuses,'workspaces': ws,'current_ws': current_ws,
+             'flag':flag,'ws_code':code,'projects':projects,'project_members':project_members}
+    return render(request,'users\issue_view.html',context)
 
 def add_issue(request,custom_id,project_id):
     team_members=project_member_bridge.objects.filter(project=project_id,active=True)
@@ -395,24 +497,29 @@ def add_issue(request,custom_id,project_id):
                 assignee=assignee)
             
         return redirect('project_view',project_id,custom_id)
-    print(project_id)
-    print(team_members)
+
     context={'workspaces': ws,'current_ws': current_ws,'project_id':project_id,
              'flag':flag,'ws_code':code,'projects':projects,'custom_id':custom_id,'team_members':team_members}
     return render(request,'users/add_issue.html',context)
 
-def add_subIssue(request,issue_id,project_id):
-    team_members=project_member_bridge.objects.filter(project=project_id,active=True)
+def add_subIssue(request,issue_id,custom_id):
+    subIssue=issue.objects.get(issue_id=issue_id)
+    team_members=project_member_bridge.objects.filter(project=subIssue.project,active=True)
+    current_ws_id=request.session.get('current_ws', None)
+    ws,current_ws,projects,flag,code=req_for_navbar(custom_id,current_ws_id) #use whenevr navbar is needed in a page
+
     if request.method=="POST":
         title=request.POST.get('title')
         desc=request.POST.get('desc')
         prior=request.POST.get('priority')
         stat=request.POST.get('status')
-        deadline=request.POST.get('deadline')
-        deadline=datetime.strptime(deadline,'%d-%m-%Y').date()
+        deadline=request.POST.get('deadline').strip()
         assignees=request.POST.getlist('assignees')
-        issue_instance=issue(name=title,description=desc,deadline=deadline,project=Project.objects.get(project_id=project_id),parent_task=issue.objects.get(issue_id=issue_id))
-
+        issue_instance=issue(name=title,description=desc,project=Project.objects.get(project_id=subIssue.project.project_id),parent_task=issue.objects.get(issue_id=issue_id))
+        print('deadline' ,deadline)
+        if deadline!=None and deadline!="":
+            deadline=datetime.strptime(deadline,'%d-%m-%Y').date()
+            issue_instance.deadline=deadline
         if prior!=None:
             priority_obj = get_object_or_404(priority, id=int(prior))
             issue_instance.priority=priority_obj
@@ -427,7 +534,9 @@ def add_subIssue(request,issue_id,project_id):
             issue_assignee_bridge.objects.create(
                 issue=issue_instance,
                 assignee=assignee)
-        return redirect('issue_view',issue_id,project_id)
-    return render(request,'users/add_subissue.html',{'team_members':team_members,'issue_id':issue_id,'project_id':project_id})
+        return redirect('issue_view',issue_id,custom_id)
+    context={'workspaces': ws,'current_ws': current_ws,'issue_id':issue_id,
+             'flag':flag,'ws_code':code,'projects':projects,'custom_id':custom_id,'team_members':team_members}
+    return render(request,'users/add_subissue.html',context)
 
 
