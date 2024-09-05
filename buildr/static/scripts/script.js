@@ -1,3 +1,4 @@
+
 function toggleSidebar() {
     const sidebar = document.getElementById('sidebar');
     const content = document.getElementById('content');
@@ -41,3 +42,16 @@ $(document).ready(function(){
     
     });
 
+
+$(document).ready(function(){
+    $('#start').datepicker({
+        format: 'dd-mm-yyyy',  // Set format to match the backend expectation
+        autoclose: true
+    });
+});
+$(document).ready(function(){
+    $('#end').datepicker({
+        format: 'dd-mm-yyyy',  // Set format to match the backend expectation
+        autoclose: true
+    });
+});

@@ -1,3 +1,14 @@
+body {
+    min-height: 100vh;
+    margin: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: linear-gradient(55deg,#7c0c6c  0%, #025c45 100%);
+    color: #ffffff;
+}
+/* #6a11cb */
 /* --------------------------------------------navbar----------------------------- */
 
 .join-workspace {
@@ -14,13 +25,12 @@
     text-align: center;
     padding-top: 44px;
     padding-bottom: 36px;
-    margin-top: 110px;
     padding-left: 50px;
 }
 
 .row {
-    padding-top: 25px;
-    padding-bottom: 20px;
+    padding-top: 15px;
+    padding-bottom: 15px;
     width: 100%;
     margin: 0 auto;
 }
@@ -31,13 +41,9 @@
     font-style: normal;
     padding-bottom: 0;
     margin-left: 0;
-    margin-top: 15px;
+    margin-top: 10px;
 } 
 
-.form-control {
-    max-width: 300px;
-    margin: 0 auto 20px auto;
-}
 
 .form-floating .form-control {
     border-radius: 0.25rem;
@@ -53,18 +59,22 @@
     color: #2a0314;
 }
 
-.btn.btn-style{
-    margin-top: 0;
-    background-color:#993a63;
+.btn.btn-style {
+    /* background-color:#993a63; */
     /* margin-left: 1px; */
+    /* color: wheat; */
+    /* border-color:#993a63 ; */
+    margin-top: 0;
     padding: 12px;
-    color: wheat;
-    border-color:#993a63 ;
     width: fit-content;
+    color:white; 
+    background-color: rgb(118 3 87);
+    
 }
 
-.btn.btn-style:hover {  
-    background-color: #cd3275;
+.btn.btn-style:hover{  
+    background: #7e0048e4;
+    color: #000;
 }
 
 .col-md-8{
@@ -78,7 +88,6 @@
     margin-right: 75px;
     max-width: 150%;
 }
-
 
 /* -------------------------------------sign in page -------------------------- */
 
@@ -98,17 +107,20 @@
 
 /* ----------------------------------workspace------------------------- */
 
-
-.workspace-name {
-    margin-top: 25px; 
+.form-control{
+    max-width: 300px;
+    margin: 0 auto 20px auto;
 }
-.workspace-url {
-    margin-top: 50px;
+.form-control:focus {
+    border-color: #702670 ;
+    box-shadow: 0 0 0 0.2rem rgba(112, 38, 112, 0.25);
+    
+} 
+
+.success{
+    color:green;
 }
 
-.input-group {
-    align-items: center;
-    text-align: center;
-    margin-left: 600px;
-    margin-top: 45px;
+.error{
+    color:red;
 }

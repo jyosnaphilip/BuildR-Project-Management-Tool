@@ -1,7 +1,41 @@
 {% extends 'login_base.html' %}
 
 {% block content %}
+<div class="container mt-0">
+    <div class="row justify-content-center">
+        <div class="col-sm-5 border rounded bg-light p-5 shadow">
+            <span class="border-start">
+                <h3 class="form-heading">Create Workspace</h3>
+            {% if messages %}
+                {% for message in messages %}
+                    <p {% if message.tags %} class="{{ message.tags }}" {% endif %}>{{ message }}</p>
+                {% endfor %}
+            
+            {% endif %}
 
+            <form class=" g-3 form-floating" method="POST">
+
+                {% csrf_token %}
+                <div class="row justify-content-left p-3">
+               
+                    <input type="text" class="form-control" id="workspace-name" placeholder="Workspace name" name="ws_name" required>
+
+                </div>
+                   
+                <div class="col-sm-12 text-center">
+                    <button class="btn btn-style" type="submit" href="{% url 'new_workspace' custom_id %}" style="color:white;">Create workspace</button>
+                </div>
+
+
+                
+
+
+            </form>
+        </span>
+    </div>
+    </div>
+</div>
+<!-- 
 <div class="workspace-container">
     <div class="row ">
 
@@ -21,10 +55,10 @@
         </div>
 
         <div class="col-12 text-center">
-            <button class="btn btn-style" type="submit" href="{% url 'home' %}">Create</button>
+            <button class="btn btn-style" type="submit" href="">Create</button>
         </div>
 
     </div>
-</div>
+</div> -->
 
 {% endblock content %}

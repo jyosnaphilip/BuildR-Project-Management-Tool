@@ -1,24 +1,33 @@
 {% extends 'login_base.html' %}
 
 {% block content %}
+<div class="container mt-0">
+    <div class="row justify-content-center">
+        <div class="col-sm-4 border rounded bg-light p-5 shadow">
+        <span class="border-start">
+            <h3 class="form-heading">Join Workspace</h3>
+            {% if messages %}
+                {% for message in messages %}
+                    <p {% if message.tags %} class="{{ message.tags }}" {% endif %}>{{ message }}</p>
+                {% endfor %}
+            
+            {% endif %}
+            <form class="row g-3 form-floating" method="POST">
+                {% csrf_token %}
+                <div class="col-sm-12">
+                    <!-- <label for="validationDefaultUsername" class="form-label">Username</label> -->
+                    <input type="text" class="form-control" id="ws-code" placeholder="Workspace code"
+                        aria-describedby="ws-code" name="ws-code" required>
+                </div>
 
-<div class="container workspace-container">
-    <div class="row workspace-row">
-
-        <div class="col-md-8 text-center form-heading">
-            Enter your workspace id
-        </div>
-
-        <div class="mb-3 workspace-div text-center">
-            <textarea class="form-control" id="exampleFormControlTextarea1" rows="3" placeholder="workspace id" required
-                style="height: fit-content;"></textarea>
-        </div>
-
-        <div class="col-12 text-center">
-            <button class="btn btn-style" type="submit" href="{% url 'home' %}">Submit</button>
-        </div>
-
+                <div class="col-sm-12 text-center">
+                    <button class="btn btn-style" type="submit" href="{% url 'join-workspace' custom_id %}" style="color:white;">Join</button>
+                </div>
+            </form>
+        </span>
+    </div>
     </div>
 </div>
+
 
 {% endblock content %}

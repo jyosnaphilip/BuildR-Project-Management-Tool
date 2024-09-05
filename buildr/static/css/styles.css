@@ -1,3 +1,4 @@
+
 @media (max-width: 700px) {
   .container .text{
     font-size: 30px;
@@ -15,8 +16,23 @@
     width: 40%!important;
   }
 }
+
+body {
+  min-height: 100vh;
+  margin: 0;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  /* background: linear-gradient(55deg,#7c0c6c  0%, #025c45 100%); */
+  background: white;
+  color: #ffffff;
+}
+.font{
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+input::placeholder{
+  color:white;
+}
+}
 .theme1 {
-    background-color: #F8EDE3;
+    background-color: #e8d2bf;
 
 }
 
@@ -72,7 +88,7 @@
   font-weight: 600;
   font-family: 'Poppins', sans-serif;
   -webkit-background-clip: text;
-  -webkit-text-fill-color: #85586F;
+  color: rgb(2, 62, 99);
 }
 .container form{
   padding: 30px 0 0 0;
@@ -102,7 +118,8 @@ form .form-row .textarea{
 }
 .form-box{
     box-shadow: 0px 0px 10px rgba(0,0,0,0.1);
-    background-color: #F8EDE3;
+    background-color:#8b8001;
+    padding-bottom: 2px;
 }
 
 .input-data input:focus ~ label, .textarea textarea:focus ~ label,
@@ -251,7 +268,10 @@ body {
   .choices[data-type*=select-one]:after {
     right: 1.5rem;
   }
-  
+  select {
+    font-family: 'FontAwesome', 'Second Font name'
+    }
+   
   .shadow {
     box-shadow: 0.3rem 0.3rem 1rem rgba(178, 200, 244, 0.23);
   }
@@ -426,4 +446,49 @@ tfoot tr:nth-child(2) th {
 
 }
   
-  
+/*issue*/
+
+.container form{
+  padding-top: 1px;
+}
+
+.texteditor {
+  width: 900px;
+  margin-left: 25px;
+}
+
+#content.text {
+  color: rgb(6, 26, 38);
+}
+
+/*navbar*/
+
+.offcanvas-header {
+  background-color:#004a7a
+}
+.offcanvas-body p {
+  color: #bb8d00;
+  font-family: "Gothic A1", sans-serif;
+  font-weight: 400;
+  font-style: normal;
+  font-size: bold;
+
+}
+
+.offcanvas-body {
+  background-color:#004a7a;
+  text-decoration: none;
+  color: bisque;
+}
+
+.current-workspace {
+  color: #a40052;
+  text-decoration: none;
+
+}
+
+.join-workspace {
+  background-color:#004a7a;
+  text-decoration: none;
+  color: bisque;
+}
