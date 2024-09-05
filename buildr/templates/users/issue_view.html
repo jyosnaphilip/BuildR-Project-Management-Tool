@@ -73,10 +73,10 @@
                                               <div class="col-sm-4">
                                               <div class="input-group input-daterange " style="color:white;">
                                                 
-                                                <input type="text" id="end" class="form-control   rounded-pill  w-25 me-2" name="start" placeholder="Start" value="{{issue.created_on}}" style="color:#ffff; background-color: #85586F; ">
+                                                <input type="text" id="end" class="form-control   rounded-pill  w-25 me-2" name="start" placeholder="Start" value="{{issue.created_on|date:'d-m-Y'}}" style="color:#ffff; background-color: #85586F; ">
                                                 <label class="ml-3 form-control-placeholder" id="end-p" for="end" ></label>
                                                 <!-- <span class="fa fa-calendar fa-xs" id="fa-2"></span> -->
-                                                <input type="text" id="start" class="form-control rounded-pill w-25" placeholder="Target"  name="deadline" value="{{issue.deadline}}" style="background-color: #85586F;border-color: #85586F;color:white;">
+                                                <input type="text" id="start" class="form-control rounded-pill w-25" placeholder="Target"  name="deadline" value="{{issue.deadline|date:'d-m-Y'}}" style="background-color: #85586F;border-color: #85586F;color:white;">
                                                 <label class=" form-control-placeholder" id="start-p" for="start"></label>
                                                 <!-- <span class="fa fa-calendar" id="fa-1" ></span> -->
                                               </div>
@@ -87,10 +87,10 @@
                                         <div class="form-row justify-content-center">
                                             <div class="col-sm-5 w-50 rounded-pill m-1  ">
                                                 <div class="rounded-pill  " >
-                                                    <select id="choices-multiple-remove-button" name="assignee" class="rounded-pill" multiple>
-                                                        {% for member in the_issue.project.team_member_set.all %}
+                                                    <select id="choices-multiple-remove-button" name="assignee" class="rounded-pill" multiple placeholder="assignee">
+                                                        {% for member in project_members %}
                                                             <option value="{{ member.team_member.custom_id }}" 
-                                                                {% if member.team_member.custom_id in project_members %}selected{% endif %}>
+                                                                {% if member.team_member.custom_id in assignee_ids %}selected{% endif %}>
                                                                 {{ member.team_member.user.first_name }} {{ member.team_member.user.last_name }}
                                                                                                                             </option>
                                                         {% endfor %}
@@ -113,7 +113,6 @@
                     
                             </div>
                             <div class="modal-footer" style="background-color: #85586f;color:#fafafa;">
-                              <button type="button" class="btn btn-outline-light rounded-pill">Save</button>
                             </div>
                           </div>
                         </div>
@@ -170,11 +169,11 @@
                     
                     <div class="col-sm-1 mb-2 ms-0">
                         <button class="btn btn-sm dropdown dropdown-toggle rounded-pill" type="button" data-bs-toggle="dropdown" aria-expanded="false" fdprocessedid="5bab4i">
-                            <i class="fa-solid fa-user-group " style="color: #e7eaee;"></i> Members
+                            <i class="fa-solid fa-user-group " style="color: #e7eaee;"></i>Assignee
                         </button>
                         <ul class="dropdown-menu" >
-                            {% for member in team %}
-                            <li><a class="dropdown-item" href="#"><i class="fa-regular fa-circle fa-l"></i> {{member.team_member.user.first_name}} {{member.team_member.user.last_name}}</a></li>
+                            {% for assignee in assignees %}
+                            <li><a class="dropdown-item" href="#"><i class="fa-regular fa-circle fa-l"></i> {{assignee.assignee.user.first_name}} {{assignee.assignee.user.last_name}}</a></li>
                             {% endfor %}
                         </ul>
                     </div>

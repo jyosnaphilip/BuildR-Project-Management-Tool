@@ -28,7 +28,8 @@ class workspaceMember(models.Model):
 
     def __str__(self):
         return self.customUser.user.first_name+ " ("+self.workspace.ws_name+")"
-    
+    class Meta:
+        unique_together = ('workspace', 'customUser')
     
 class workspaceCode(models.Model):
     ws=models.ForeignKey(workspace,on_delete=models.CASCADE)
@@ -114,7 +115,8 @@ class project_member_bridge(models.Model):
     ])
     joined_on=models.DateTimeField(auto_now_add=True)
     active=models.BooleanField(default=True)
-
+    class Meta:
+        unique_together = ('team_member', 'project')
 class issue(models.Model):
     issue_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     name = models.CharField(max_length=255)
@@ -136,6 +138,8 @@ class issue_assignee_bridge(models.Model):
     assigned_on=models.DateTimeField(auto_now_add=True)
     active=models.BooleanField(default=True)
 
+    class Meta:
+        unique_together = ('assignee', 'issue')
 class EmailVerification(models.Model):
     email = models.EmailField(unique=True)
     verification_code = models.CharField(max_length=6)

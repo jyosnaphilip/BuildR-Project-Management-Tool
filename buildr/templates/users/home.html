@@ -7,105 +7,91 @@
         <div class="row justify-content-center">
             <div class="">
                 <h2 class="p-3"> Your issues</h2>
-                <!-- project accordion
-                <div class="accordion" id="accordionPanels">
-                    <div class="accordion-item"> -->
-                      <!-- <h2 class="accordion-header">
-                        <button class="accordion-button" type="button"  data-bs-target="#One" data-bs-toggle="collapse" aria-expanded="true" aria-controls="One">
-                          
-                          <div class="row w-100">
-                            <div class="col">
-                                Project #1
-                            </div>
-                            <div class="col-sm-1">
-                                <i class="fa-solid fa-pen-to-square fa-xl" style="color: #85586f;"></i>
-                            </div>
-                            <div class="col-sm-1">
-                                <i class="fa-solid fa-triangle-exclamation fa-xl"></i>
-
-                            </div>
-                            <div class="col-sm-1">
-                                <i class="fa-solid fa-exclamation fa-xl"></i>
-                            </div>
+               <!-- issues here -->
+             <div class="container">
+              <table class="table  table-hover shadow-sm">
+                  <thead>
+                    <tr>
+                      <th scope="col-sm-1" class="text-center">Status</th>
+                      <th scope="col-sm-6"  class="text-center">Issue</th>
+                      <th scope="col-sm-1"  class="text-center">Priority</th>
+                      <th scope="col-sm-1"  class="text-center">Assignee</th>
+                      <th scope="col-sm-1"  class="text-center">Deadline</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                      {% for issue in user_issues %}
+                    <tr>
+                      <th scope="row">
+                         <div class="w-50 dropdown rounded-pill ">
+                             <select  class="issue-status-dropdown form-select custom-select rounded-pill btn btn-sm" type="button" name="status" data-bs-toggle="dropdown"  aria-expanded="false" data-issue-id="{{issue.issue_id}}">
+                                 {% for stat in status %}
+                                 {% if issue.status.id|stringformat:"s" == stat.id|stringformat:"s" %}
+     
+                                 <option value="{{stat.id}}"  class="dropdown-item" selected>{{stat.name}}</option>
+                                 {% else %}
+                                 <option class="dropdown-item" value="{{stat.id}}"><i class="fa-regular fa-circle fa-l"></i> {{stat.name}}</option>
+                                 {% endif %}
+                                 {% endfor %}
+                             
+                              </select>
                           </div>
-                         
-                        </button>
-                      </h2>
-                      <div id="One" class="accordion-collapse collapse show">
-                        <div class="accordion-body">
-                            issues accordion
-                            <div class="accordion" id="accordionPanelsIssues">
-                                <div class="accordion-item">
-                                  <h2 class="accordion-header">
-                                    <button class="accordion-button" type="button"  data-bs-target="#issueOne" data-bs-toggle="collapse" aria-expanded="true" aria-controls="issueOne">
-                                      
-                                      <div class="row w-100">
-                                        <div class="col">
-                                            Project #1
-                                        </div>
-                                        <div class="col-sm-1"> -->
-                                            <!-- <i class="fa-solid fa-pen-to-square fa-xl" style="color: #85586f;"></i>
-                                        </div>
-                                        <div class="col-sm-1">
-                                            <i class="fa-solid fa-triangle-exclamation fa-xl"></i>
-            
-                                        </div>
-                                        <div class="col-sm-1">
-                                            <i class="fa-solid fa-exclamation fa-xl"></i>
-                                        </div>
-                                        <div class="col-sm-1 rounded-pill">
-                                            <a class="dropdown-toggle p-1 " style="color:#85586f;" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                                <i class="fa-regular fa-circle fa-l" style="color:#85586f;"></i></a>
-                                                <ul class="dropdown-menu">
-                                                    <li><a class="dropdown-item" href="#"><i class="fa-regular fa-circle fa-l"></i> Open</a></li>
-                                                    <li><a class="dropdown-item" href="#"><i class="fa-solid fa-circle-half-stroke fa-l"></i> In progress</a></li>
-                                                    <li><a class="dropdown-item" href="#"><i class="fa-solid fa-circle-pause fa-l"></i> Paused</a></li>
-
-                                                    <li><a class="dropdown-item" href="#"><i class="fa-solid fa-circle-check fa-l"></i> Closed</a></li>
-                                                  </ul>
-                                        </div>
-                                      </div>
-                                     
-                                    </button>
-                                  </h2>
-                                  <div id="issueOne" class="accordion-collapse collapse show">
-                                    <div class="accordion-body">
-                                      <strong>This is the first item's accordion body.</strong> It is shown by default, until the collapse plugin adds the appropriate classes that we use to style each element. These classes control the overall appearance, as well as the showing and hiding via CSS transitions. You can modify any of this with custom CSS or overriding our default variables. It's also worth noting that just about any HTML can go within the <code>.accordion-body</code>, though the transition does limit overflow.
-                                    </div>
-                                  </div>
-                                </div>
-                                <div class="accordion-item">
-                                  <h2 class="accordion-header">
-                                    <button class="accordion-button " type="button" data-bs-toggle="collapse" data-bs-target="#issueTwo" aria-expanded="true" aria-controls="issueTwo">
-                                      Project #2
-                                    </button>
-                                  </h2>
-                                  <div id="issueTwo" class="accordion-collapse collapse">
-                                    <div class="accordion-body">
-                                      <strong>This is the second item's accordion body.</strong> It is hidden by default, until the collapse plugin adds the appropriate classes that we use to style each element. These classes control the overall appearance, as well as the showing and hiding via CSS transitions. You can modify any of this with custom CSS or overriding our default variables. It's also worth noting that just about any HTML can go within the <code>.accordion-body</code>, though the transition does limit overflow.
-                                    </div>
-                                  </div>
-                                </div>
-                                
+                      </th>
+                      <td style="cursor: pointer;" class="col-sm-3">
+                          <a href="{% url 'issue_view' issue.issue_id  custom_id %}" class="link-light link-underline link-underline-opacity-0">{{issue}}
+                          
+                          </a>
+                      </td>
+                          <td >
+                              <div class=" dropdown rounded-pill" >
+                                  <select  class="issue-priority-dropdown form-select custom-select rounded-pill btn btn-sm" type="button" name="status" data-bs-toggle="dropdown"  aria-expanded="false" data-issue-id="{{ issue.issue_id }}">
+                                      {% for prior in priority %}
+                                      {% if issue.priority.id|stringformat:"s" == prior.id|stringformat:"s" %}
+          
+                                      <option value="{{prior.id}}"  class="dropdown-item" selected>{{prior.name}}</option>
+                                      {% else %}
+                                      <option class="dropdown-item" value="{{prior.id}}"><i class="fa-regular fa-circle fa-l"></i> {{prior.name}}</option>
+                                      {% endif %}
+                                      {% endfor %}
+                                 </select>
                               </div>
-                            </div> -->
-                            <!-- issue end -->
-                      <!-- </div>
-                    </div>
-                    <div class="accordion-item">
-                      <h2 class="accordion-header">
-                        <button class="accordion-button " type="button" data-bs-toggle="collapse" data-bs-target="#Two" aria-expanded="true" aria-controls="Two">
-                          Project #2
-                        </button>
-                      </h2>
-                      <div id="Two" class="accordion-collapse collapse">
-                        <div class="accordion-body">
-                          <strong>This is the second item's accordion body.</strong> It is hidden by default, until the collapse plugin adds the appropriate classes that we use to style each element. These classes control the overall appearance, as well as the showing and hiding via CSS transitions. You can modify any of this with custom CSS or overriding our default variables. It's also worth noting that just about any HTML can go within the <code>.accordion-body</code>, though the transition does limit overflow.
-                        </div>
-                      </div>
-                    </div>
+                          </td>
+                      
+                      <td> 
+                          <div class="col-sm-7 mb-2 ms-0">
+                              {% if issue.assignee.count > 0 %}
+                              <button class="btn btn-sm dropdown dropdown-toggle rounded-pill" type="button" data-bs-toggle="dropdown" aria-expanded="false" fdprocessedid="5bab4i">
+                                  <i class="fa-solid fa-user-group " style="color: #e7eaee;"></i>Assignees
+                              </button>
+                              <ul class="dropdown-menu" >
+                                  {% for assignee in issue.assignee.all %}
+                                  <li><a class="dropdown-item" href="#"><i class="fa-regular fa-circle fa-l"></i> {{assignee.user.first_name}} {{assignee.user.last_name}}</a></li>
+                                  {% endfor %}
+                              </ul>
+                              {% else %}
+                              <button class="btn btn-sm  rounded-pill" type="button"  fdprocessedid="5bab4i">
+                                  <i class="fa-solid fa-user-group " style="color: #e7eaee;"></i>Not assigned
+                              </button>
+                              {% endif %}
+                          </div>
+                          
+                    </td>
+                      <td>{% if issue.deadline %}{{issue.deadline}}{% endif %}</td>
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="5">No Issues found.</td></tr>
                     
-                  </div> -->
+                    
+                    {% endfor %}
+                    <tr id="new-subissue">
+                      <td colspan="5">
+                          <input type="text" class="form-control " placeholder="Enter subIssue and press Enter" style="color:white;border-color: rgb(244, 240, 240);" id="new-subissue-input" placeholder="Add new subissue">
+                      </td>
+                  </tr>
+                  </tbody>
+                </table>
+
+      </div>
 
 
             </div>

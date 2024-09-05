@@ -52,7 +52,9 @@ def req_for_navbar(custom_id,current_ws_id):
 def home(request,custom_id):
     current_ws_id = request.session.get('current_ws', None) #nav
     ws,current_ws,projects,flag,code=req_for_navbar(custom_id,current_ws_id) #use whenevr navbar is needed in a page
-    return render(request, 'users\home.html', {'custom_id':custom_id,'workspaces': ws,'current_ws': current_ws,'flag':flag,'ws_code':code,'projects':projects})
+    user_issues=issue.objects.filter(project__ws__ws_id=current_ws_id,issue_assignee_bridge__assignee=custom_id)
+    print(user_issues)
+    return render(request, 'users\home.html', {'custom_id':custom_id,'workspaces': ws,'current_ws': current_ws,'flag':flag,'ws_code':code,'projects':projects,'user_issues':user_issues})
 
 def change_ws(request):
     if request.method == 'POST' and request.user.is_authenticated:
@@ -288,8 +290,8 @@ def project_view(request,project_id,custom_id):
     ws,current_ws,projects,flag,code=req_for_navbar(custom_id,current_ws_id) #use whenevr navbar is needed in a page
    
     project=Project.objects.get(project_id=project_id)
-    team=project_member_bridge.objects.filter(project_id=project_id,role="Team member")
-    lead=project_member_bridge.objects.filter(project_id=project_id,role="Lead")
+    team=project_member_bridge.objects.filter(project_id=project_id,role="Team member",active=True)
+    lead=project_member_bridge.objects.filter(project_id=project_id,role="Lead",active=True)
      #access control for editing project
     flag_edit=access_control(lead,custom_id,current_ws)
     
@@ -298,7 +300,8 @@ def project_view(request,project_id,custom_id):
     lead_user_ids = lead.values_list('team_member__custom_id', flat=True)
     team_ids = team.values_list('team_member__custom_id', flat=True)
     # Get all users in the workspace
-    workspace_members = customUser.objects.filter(workspace=current_ws)
+    workspace_members = workspaceMember.objects.filter(workspace=current_ws)
+    
     issues=issue.objects.filter(project_id=project_id,parent_task__isnull=True).annotate(subissue_count=Count('child'))
     context={'project':project,'lead':lead,'team':team,'status':statuses,
              'priority':priorities,'issues':issues,'workspace_memb':workspace_members,
@@ -378,7 +381,7 @@ def edit_issue(request,issue_id,custom_id):
         for _assignee in assignee:
             new_assignee=get_object_or_404(customUser, custom_id=_assignee)
             if new_assignee!=None:
-                assigned,create=issue_assignee_bridge.objects.get_or_create(team_member=new_assignee, issue=_issue)
+                assigned,create=issue_assignee_bridge.objects.get_or_create(assignee =new_assignee, issue=_issue)
                 assigned.active=True
                 assigned.save()
 
@@ -407,7 +410,8 @@ def update_issue_field(request):
                 the_issue.assignee = the_assignee
             except customUser.DoesNotExist:
                 return JsonResponse({'success': False, 'error': 'Assignee not found'}, status=404)
-
+        else:
+            pass
         # Save the issue
         try:
             the_issue.save()
@@ -458,11 +462,14 @@ def issue_view(request,issue_id,custom_id):
 
     ws,current_ws,projects,flag,code=req_for_navbar(custom_id,current_ws_id) #use whenevr navbar is needed in a page
     project_members=project_member_bridge.objects.filter(active=True,project=the_issue.project)
+    assignees=issue_assignee_bridge.objects.filter(active=True,issue=the_issue)
+    assignee_ids = assignees.values_list('assignee__custom_id', flat=True)
+
     subIssues=issue.objects.filter(parent_task=issue_id)
     statuses,priorities=get_priority_status_list()
     context={'subIssues':subIssues,'issue':the_issue,'issue_id':issue_id,
              "custom_id":custom_id,'priority':priorities,'status':statuses,'workspaces': ws,'current_ws': current_ws,
-             'flag':flag,'ws_code':code,'projects':projects,'project_members':project_members}
+             'flag':flag,'ws_code':code,'projects':projects,'project_members':project_members,'assignee_id':assignee_ids,'assignees':assignees}
     return render(request,'users\issue_view.html',context)
 
 def add_issue(request,custom_id,project_id):

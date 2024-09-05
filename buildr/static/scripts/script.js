@@ -49,3 +49,9 @@ $(document).ready(function(){
         autoclose: true
     });
 });
+$(document).ready(function(){
+    $('#end').datepicker({
+        format: 'dd-mm-yyyy',  // Set format to match the backend expectation
+        autoclose: true
+    });
+});

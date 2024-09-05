@@ -74,10 +74,10 @@
                                               <div class="col-sm-4">
                                               <div class="input-group input-daterange " style="color:white;">
                                                 
-                                                <input type="text" id="end" class="form-control   rounded-pill  w-25 me-2"  placeholder="Start" value="{{project.created_on}}" style="color:#ffff; background-color: #85586F; ">
+                                                <input type="text" id="end" class="form-control   rounded-pill  w-25 me-2"  placeholder="Start" value="{{project.created_on|date:'d-m-Y'}}" style="color:#ffff; background-color: #85586F; ">
                                                 <label class="ml-3 form-control-placeholder" id="end-p" for="end" ></label>
                                                 <!-- <span class="fa fa-calendar fa-xs" id="fa-2"></span> -->
-                                                <input type="text" id="start" name="deadline" class="form-control rounded-pill w-25" placeholder="Target" value="{{project.deadline}}" style="background-color: #85586F;border-color: #85586F;color:white;">
+                                                <input type="text" id="start" name="deadline" class="form-control rounded-pill w-25" placeholder="Target" value="{{project.deadline|date:'d-m-Y'}}" style="background-color: #85586F;border-color: #85586F;color:white;">
                                                 <label class=" form-control-placeholder" id="start-p" for="start"></label>
                                                 <!-- <span class="fa fa-calendar" id="fa-1" ></span> -->
                                               </div>
@@ -89,9 +89,10 @@
                                                 <select id="choices-multiple-remove-button" name="lead" placeholder="Select Lead"
                                                     class="rounded-pill" multiple>
                                                     {% for user in workspace_memb %}
-                                                    <option value="{{ user.custom_id }}" 
-                                                        {% if user.custom_id in lead_user_ids %}selected{% endif %}>
-                                                        {{ user.user.first_name }} {{ user.user.last_name }}
+
+                                                    <option value="{{ user.customUser.custom_id }}" 
+                                                        {% if user.customUser.custom_id in lead_user_ids %}selected{% endif %}>
+                                                        {{ user.customUser.user.first_name }} {{ user.customUser.user.last_name }}
                                                         
                                                     </option>
                                                     {% endfor %}
@@ -104,9 +105,9 @@
                                                 <div class="rounded-pill  " >
                                                     <select id="choices-multiple-remove-button" name="team" class="rounded-pill" multiple>
                                                         {% for user in workspace_memb %}
-                                                            <option value="{{ user.custom_id }}" 
-                                                                {% if user.custom_id in team_ids %}selected{% endif %}>
-                                                                {{ user.user.first_name }} {{ user.user.last_name }}
+                                                            <option value="{{ user.customUser.custom_id }}" 
+                                                                {% if user.customUser.custom_id in team_ids %}selected{% endif %}>
+                                                                {{ user.customUser.user.first_name }} {{ user.customUser.user.last_name }}
                                                                                                                             </option>
                                                         {% endfor %}
                                                     </select>
@@ -137,7 +138,6 @@
                     
                             </div>
                             <div class="modal-footer" style="background-color: #85586f;color:#fafafa;">
-                              <button type="button" class="btn btn-outline-light rounded-pill">Save</button>
                             </div>
 
                           </div>
@@ -168,7 +168,7 @@
                     </div>  
                     <div class="col-sm-2 mb-2 ">
                         <div class="dropdown rounded-pill me-2">
-                            <select  class=" project-status-dropdown form-select custom-select rounded-pill" type="button" name="status" data-bs-toggle="dropdown"  aria-expanded="false" data-project-id="{{project.project_id}}">
+                            <select  class=" project-status-dropdown dropdown dropdown-toggle form-select custom-select rounded-pill" type="button" name="status" data-bs-toggle="dropdown"  aria-expanded="false" data-project-id="{{project.project_id}}">
                                 {% for stat in status %}
                                 {% if project.status.id|stringformat:"s" == stat.id|stringformat:"s" %}
     
@@ -296,7 +296,7 @@
                             </div>
                             
                       </td>
-                        <td>{{issue.deadline}}</td>
+                        <td>{{issue.deadline|date:"d-m-Y"}}</td>
                       </tr>
                       {% empty %}
                       <tr><td colspan="5">No issues found.</td></tr>

@@ -30,7 +30,7 @@
         aria-label="Close"></button>
     </div>
     <div class="offcanvas-body">
-      <p>My tasks</p>
+      <p><a href="{% url 'home' custom_id %}">My tasks</a></p>
       
       {% for project in projects %}
       <p><a href="{% url 'project_view' project.project_id custom_id %}" class="current-workspace">{{project.name}}</a></p>
