@@ -66,6 +66,16 @@ input::placeholder{
     transition: margin-left 0.3s;
 }
 
+.expanded_comments {
+  margin-right: 0;
+  transition: margin-right 0.3s;
+}
+
+.compressed_comments {
+  margin-right: 450px; /* Adjust to the width of your sidebar */
+  transition: margin-right 0.3s;
+}
+
 /* Sidebar visible state */
 .visible {
     display: block;
@@ -491,4 +501,193 @@ tfoot tr:nth-child(2) th {
   background-color:#004a7a;
   text-decoration: none;
   color: bisque;
+}
+
+
+.replies-toggle {
+  cursor: pointer;
+  color: #007BFF;
+  font-size: 0.9em;
+  margin-top: 10px;
+}
+
+.replies-toggle:hover {
+  text-decoration: underline;
+}
+
+/* Reply button */
+
+
+.reply-button:hover {
+  text-decoration: underline;
+}
+
+/* Reply Form */
+.reply-form {
+  margin-top: 10px;
+}
+
+.reply-form textarea {
+  width: 100%;
+  height: 80px;  /* Adjust the height as needed */
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  padding: 10px;
+  font-size: 14px;
+  resize: none;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+  transition: border-color 0.3s ease;
+}
+
+.submit-reply {
+  background-color: #28a745;
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  cursor: pointer;
+  font-size: 12px;
+  margin-top: 5px;
+  border-radius: 5px;
+}
+
+.submit-reply:hover {
+  background-color: #218838;
+}
+/* General styling */
+.comments-section {
+  width: 350px;
+  background-color: #f4f6f9;
+  padding: 15px;
+  border-left: 1px solid #ddd;
+  overflow-y: auto;
+  font-family: Arial, sans-serif;
+}
+
+.comments-header {
+  text-align: center;
+  font-size: 1.2em;
+  margin-bottom: 15px;
+  color: #333;
+}
+
+/* Comment Styling */
+.comment {
+  margin-bottom: 20px;
+  background-color: white;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  padding: 15px;
+}
+
+.comment-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.user-avatar {
+  margin-right: 10px;
+}
+
+.user-avatar img {
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+}
+
+.user-details {
+  font-size: 0.9em;
+}
+
+.user-details strong {
+  display: block;
+  font-weight: 600;
+}
+
+.comment-time {
+  color: #777;
+  font-size: 0.85em;
+}
+
+.comment-body {
+  font-size: 0.95em;
+  color: #444;
+  margin-bottom: 10px;
+}
+
+/* Replies toggle */
+.replies-toggle {
+  cursor: pointer;
+  color: #007BFF;
+  font-size: 0.9em;
+  margin-top: 10px;
+}
+
+.replies-toggle:hover {
+  text-decoration: underline;
+}
+
+/* Nested Replies */
+.comment-replies {
+  margin-left: 30px;
+  padding-left: 10px;
+  border-left: 2px solid #eee;
+  display: none;
+}
+
+/* Styling for the textarea in the "no comments" section */
+.no-comments-message textarea {
+  width: 100%;
+  height: 80px;  /* Adjust the height as needed */
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  padding: 10px;
+  font-size: 14px;
+  resize: none;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+  transition: border-color 0.3s ease; /* Add transition for a smoother effect */
+}
+
+.no-comments-message textarea:focus {
+  border-color: #007BFF; /* Border color change on focus */
+  outline: none;         /* Remove the default blue outline */
+}
+
+/* Submit button styling */
+.submit-comment {
+  background-color: #28a745;
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  cursor: pointer;
+  font-size: 14px;
+  margin-top: 10px;
+  border-radius: 5px;
+  display: inline-block;
+  transition: background-color 0.3s ease; /* Add a smooth hover effect */
+}
+
+.submit-comment:hover {
+  background-color: #218838;
+}
+
+/* General layout improvements for the no-comments message */
+.no-comments-message {
+  margin-top: 20px;
+  padding: 15px;
+  background-color: #f9f9f9;
+  border-radius: 5px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Add shadow for a cleaner look */
+}
+
+.add_comm {
+  width: 100%;
+  height: 80px;  /* Adjust the height as needed */
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  padding: 10px;
+  font-size: 14px;
+  resize: none;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+  transition: border-color 0.3s ease; 
 }

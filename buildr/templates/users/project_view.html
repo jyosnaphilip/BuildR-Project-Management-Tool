@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% load static %}
 {% block content %}
-<div id="content" class="expanded">
+<div id="content" class="expanded_comments">
     <div class="container">
         <div class="row justify-content-center">
             <div class="">
@@ -112,13 +112,14 @@
                                                         {% endfor %}
                                                     </select>
                                                 </div>
+                                                
                                             </div>
                     
                                             
                                         
                                             
                     
-                                            
+                                           
                                         </div>
                     
                                         
@@ -235,6 +236,8 @@
                         <th scope="col-sm-1">Priority</th>
                         <th scope="col-sm-1">Assignee</th>
                         <th scope="col-sm-1">Deadline</th>
+                        <th scope="col-sm-1"></th>
+                        
                       </tr>
                     </thead>
                     <tbody>
@@ -246,7 +249,7 @@
                                    {% for stat in status %}
                                    {% if issue.status.id|stringformat:"s" == stat.id|stringformat:"s" %}
        
-                                   <option value="{{stat.id}}"  style = "background-color: {% if stat.id == 1%}green{% elif stat.id == 2%}orange{% elif stat.id == 3%}##FF5733{% else %}rgb(191,87,0){% endif%};" class="dropdown-item" selected>{{stat.name}}</option>
+                                   <option value="{{stat.id}}"  style = "background-color: {% if stat.id == 1%} green {% elif stat.id == 2%}orange{% elif stat.id == 3%}##FF5733{% else %}rgb(191,87,0){% endif%};" class="dropdown-item" selected>{{stat.name}}</option>
                                    {% else %}
                                    <option class="dropdown-item" value="{{stat.id}}" style = "background-color: {% if stat.id == 1%}green{% elif stat.id == 2%}orange{% elif stat.id == 3%}##FF5733{% else %}rgb(191,87,0){% endif%};"><i class="fa-regular fa-circle fa-l"></i> {{stat.name}}</option>
                                    {% endif %}
@@ -296,10 +299,13 @@
                             </div>
                             
                       </td>
-                        <td>{{issue.deadline|date:"d-m-Y"}}</td>
-                      </tr>
+                        <td>{{issue.deadline|date:"d-m-Y"}}  </td>
+                        <td><button class="btn " type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasExample" aria-controls="offcanvasExample" onclick="get_issueComments('{{issue.issue_id}}')">
+                            <i class="fa-regular fa-comment"></i>
+                          </button></td>
+                    </tr>
                       {% empty %}
-                      <tr><td colspan="5">No issues found.</td></tr>
+                      <tr><td colspan="6">No issues found.</td></tr>
                      
                       
                       {% endfor %}

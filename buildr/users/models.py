@@ -152,3 +152,20 @@ class EmailVerification(models.Model):
     
     def generate_unique_code(self):
         return uuid.uuid4().hex[:8].upper()
+    
+class Comments(models.Model):
+
+    comment = models.CharField(max_length = 500, null = True, blank = True)
+    author = models.ForeignKey(customUser, on_delete = models.CASCADE)
+    parent_comment = models.ForeignKey('self', null = True, blank = True, related_name = 'replies',
+                                        on_delete = models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
+    issue = models.ForeignKey(issue, related_name = 'comments', on_delete = models.CASCADE)
+
+    def __str__(self):
+        return 'Comment by ' + self.author + 'about' + self.issue.name
+    
+    @property
+    def is_reply(self):
+        return self.parent is not None
+    

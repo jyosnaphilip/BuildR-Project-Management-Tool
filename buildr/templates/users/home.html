@@ -17,6 +17,7 @@
                       <th scope="col-sm-1"  class="text-center">Priority</th>
                       <th scope="col-sm-1"  class="text-center">Assignee</th>
                       <th scope="col-sm-1"  class="text-center">Deadline</th>
+                      <th scope="col-sm-1"></th>
                     </tr>
                   </thead>
                   <tbody>
@@ -77,14 +78,17 @@
                           
                     </td>
                       <td>{% if issue.deadline %}{{issue.deadline}}{% endif %}</td>
+                      <td><button class="btn " type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasExample" aria-controls="offcanvasExample" onclick="get_issueComments('{{issue.issue_id}}')">
+                        <i class="fa-regular fa-comment"></i>
+                      </button></td>
                     </tr>
                     {% empty %}
-                    <tr><td colspan="5">No Issues found.</td></tr>
+                    <tr><td colspan="6">No Issues found.</td></tr>
                     
                     
                     {% endfor %}
                     <tr id="new-subissue">
-                      <td colspan="5">
+                      <td colspan="6">
                           <input type="text" class="form-control " placeholder="Enter subIssue and press Enter" style="color:white;border-color: rgb(244, 240, 240);" id="new-subissue-input" placeholder="Add new subissue">
                       </td>
                   </tr>
