@@ -4,6 +4,8 @@ function toggleSidebar() {
     const content = document.getElementById('content');
     const sidebarToggle = document.getElementById('sidebar-toggle');
     
+  
+    
     if (sidebar.classList.contains('hidden')) {
         // Show the sidebar and adjust content
         sidebar.classList.remove('hidden');
@@ -20,6 +22,42 @@ function toggleSidebar() {
         sidebarToggle.style.display = 'block'; // Show the toggle button
     }
 }
+// for comments sidebar
+function toggleComments() {
+    const commentsSidebar = document.getElementById('commentsSidebar');
+    const content = document.getElementById('content');
+    const commentsToggle = document.getElementById('commentsToggle');
+    // const sidebar=document.getElementById('sidebar'); //the navbar
+    // const sidebarToggle = document.getElementById('sidebar-toggle');
+    // if (sidebar.classList.contains('visible')) {
+    //     sidebar.classList.remove('visible');
+    //     sidebar.classList.add('hidden');
+    //     content.classList.remove('compressed');
+    //     content.classList.add('expanded');
+    //     sidebarToggle.style.display = 'block';
+    // }
+    if (commentsSidebar.classList.contains('hidden')) {
+        // Show the sidebar and adjust content
+        commentsSidebar.classList.remove('hidden');
+        commentsSidebar.classList.add('visible');
+        content.classList.remove('expanded_comments');
+        content.classList.add('compressed_comments');
+        commentsToggle.style.display = 'none'; 
+    } 
+  
+    else {
+        // Hide the sidebar and adjust content
+        commentsSidebar.classList.remove('visible');
+        commentsSidebar.classList.add('hidden');
+        content.classList.remove('compressed_comments');
+        content.classList.add('expanded_comments');
+        commentsToggle.style.display = 'block';// Show the toggle button
+        // sidebar.classList.remove('hiddeen');
+        // sidebar.classList.add('visible');
+    }
+}
+
+
 $(document).ready(function(){
     
     var multipleCancelButton = new Choices('#choices-multiple-remove-button', {
@@ -55,3 +93,6 @@ $(document).ready(function(){
         autoclose: true
     });
 });
+
+
+// for loading comments
