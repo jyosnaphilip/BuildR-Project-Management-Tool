@@ -237,16 +237,16 @@ body {
   color:white;
 }
 .dropdown-menu{
-  background-color:#836373;
+  background-color:#004a7a;
 
 }
 .dropdown-menu > li > a:hover {
   
-  background-color:#836373;
+  background-color:#004a7a;
   color:white
 }
 .dropdown-menu > li > a{
-  background-color:#85586F;
+  background-color:#004a7a;
   color:white;
 }
 
@@ -263,7 +263,7 @@ body {
   .choices .choices__inner .choices__list--multiple .choices__item--selectable {
     background-color: #004a7a;  
     color: white;
-    border-color: #85586F;
+    border-color:#004a7a;
     border-radius: 50px;
     font-weight: 200;
 }
@@ -339,11 +339,11 @@ body {
   
   .datepicker-dropdown.datepicker-orient-left:after {
     left: calc(50% - 5px) !important;
-    border-bottom-color: #85586F;
+    border-bottom-color: #004a7a;
   }
   
   .datepicker-dropdown.datepicker-orient-right:after {
-    border-bottom-color: #85586F;
+    border-bottom-color:#004a7a;
   }
 
   .datepicker table tr td.today, span.focused {
@@ -448,17 +448,17 @@ tfoot tr:nth-child(2) th {
 
 
 .btn-outline-light:hover{
-  color:#85586F;
+  color:#004a7a;
 }
 
 .row-issues{
-  background-color: #85586F;
+  background-color:#004a7a;
   color:#ffff;
   border-color: #BDBDBD;
 
 }
 .row-issues:hover{
-  background-color: #895d74;
+  background-color:#004a7a;
 
 }
   
