@@ -18,12 +18,15 @@ from django.contrib import admin
 from django.urls import path
 from users.views import *
 from django.contrib.auth import views as auth_views
+from django.urls import include
 from users.views import register,logout,join_workspace,new_workspace
 
-from users.views import home,add_project,project_view,issue_view,add_issue,add_subIssue,user_login,first_signin,change_ws,update_status,update_issue_field,update_project_field,edit_project,edit_issue
+from users.views import home,add_project,project_view,issue_view,add_issue,add_subIssue,user_login,first_signin,change_ws,update_status,update_issue_field,update_project_field,edit_project,edit_issue, get_issueComments,submit_comment,submit_replies
 urlpatterns = [
     path('admin/', admin.site.urls),
-   
+    # path("accounts/",include('allauth.urls')),
+
+
     path('add-project/<str:custom_id>',add_project,name='add_project'),
     path('project_view/<str:project_id>/<str:custom_id>',project_view,name="project_view"),
     path('issue_view/<str:issue_id>/<str:custom_id>',issue_view,name="issue_view"),
@@ -43,4 +46,8 @@ urlpatterns = [
     #  path('verify_email/',verify_email,name='verify_email'),
     path('edit_project/<str:project_id>/<str:custom_id>',edit_project,name='edit_project'),
     path('edit_issue/<str:issue_id>/<str:custom_id>',edit_issue,name='edit_issue'),
+    path('dashboard/',dashboard, name='dashboard'),
+    path('get_issueComments/<str:issue_id>',get_issueComments,name='get_issueComments'),
+    path('submit_comment/',submit_comment,name="submit_comment"),
+    path('submit_reply/',submit_replies,name='submit_reply'),
 ]

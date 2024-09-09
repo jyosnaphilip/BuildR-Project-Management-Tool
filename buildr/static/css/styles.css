@@ -49,7 +49,6 @@ input::placeholder{
 }
 
 
-
 .hidden {
     display: none;
 }
@@ -64,6 +63,16 @@ input::placeholder{
 .compressed {
     margin-left: 250px; /* Adjust to the width of your sidebar */
     transition: margin-left 0.3s;
+}
+
+.expanded_comments {
+  margin-right: 0;
+  transition: margin-right 0.3s;
+}
+
+.compressed_comments {
+  margin-right: 450px; /* Adjust to the width of your sidebar */
+  transition: margin-right 0.3s;
 }
 
 /* Sidebar visible state */
@@ -88,7 +97,7 @@ input::placeholder{
   font-weight: 600;
   font-family: 'Poppins', sans-serif;
   -webkit-background-clip: text;
-  color: rgb(2, 62, 99);
+  color: #004032;
 }
 .container form{
   padding: 30px 0 0 0;
@@ -114,20 +123,23 @@ form .form-row .textarea{
   border: none;
   font-size: 17px;
   border-bottom: 2px solid rgba(0,0,0, 0.12);
-  background-color: #F8EDE3;
+  background-color: #fff;
+  color: #004a7a;
 }
 .form-box{
-    box-shadow: 0px 0px 10px rgba(0,0,0,0.1);
-    background-color:#8b8001;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
     padding-bottom: 2px;
+    margin: auto;
+    background-color: #fff;
+    border-radius: 10px;
 }
 
 .input-data input:focus ~ label, .textarea textarea:focus ~ label,
 .input-data input:valid ~ label, .textarea textarea:valid ~ label{
   transform: translateY(-20px);
   font-size: 14px;
-  color: #85586F;
-  background-color: #F8EDE3;
+  color: #004a7a;
+  background-color: #fff;
 }
 .textarea textarea{
   resize: none;
@@ -139,13 +151,13 @@ form .form-row .textarea{
   bottom: 10px;
   font-size: 16px;
   transition: all 0.3s ease;
-  color:#85586F;
-  background-color: #F8EDE3;
+  color:#004a7a;
+  background-color: #fff;
 }
 .textarea label{
   width: 100%;
   bottom: 40px;
-  background: #F8EDE3;
+  background: #590066;
   color:#85586F;
 }
 textarea .underline{
@@ -198,11 +210,15 @@ textarea .underline:before{
 
 .submit-btn .input-data input{
  
-  background-color: #85586F;
+  background-color: #004a7a;
   color:white;
   
 }
 
+
+label {
+  color: #004a7a;
+}
 
 body {
     margin: 0;
@@ -221,16 +237,16 @@ body {
   color:white;
 }
 .dropdown-menu{
-  background-color:#836373;
+  background-color:#004a7a;
 
 }
 .dropdown-menu > li > a:hover {
   
-  background-color:#836373;
+  background-color:#004a7a;
   color:white
 }
 .dropdown-menu > li > a{
-  background-color:#85586F;
+  background-color:#004a7a;
   color:white;
 }
 
@@ -240,19 +256,19 @@ body {
   
   .choices__list--dropdown .choices__item--selectable {
     padding-right: 1rem;
-    background-color: #85586F;
+    background-color: #004a7a;
     color: white;
 
   }
   .choices .choices__inner .choices__list--multiple .choices__item--selectable {
-    background-color: #85586F;  
+    background-color: #004a7a;  
     color: white;
-    border-color: #85586F;
+    border-color:#004a7a;
     border-radius: 50px;
     font-weight: 200;
 }
 .choices .choices__list .choices__item--choice:hover {
-  background-color: #836373;  /* Example: lighter orange on hover */
+  background-color: #00233a;  /* Example: lighter orange on hover */
   color: white; 
 }
 
@@ -310,8 +326,8 @@ body {
   .datepicker-dropdown {
     top: 180px !important;
     left: calc(50% - 173.5px) !important;
-    border-right: #85586F;
-    border-left: #85586F;
+    border-right: #004a7a;
+    border-left: #004a7a;
     
       width: 312px; /* Set this to your desired smaller width */
   
@@ -323,11 +339,11 @@ body {
   
   .datepicker-dropdown.datepicker-orient-left:after {
     left: calc(50% - 5px) !important;
-    border-bottom-color: #85586F;
+    border-bottom-color: #004a7a;
   }
   
   .datepicker-dropdown.datepicker-orient-right:after {
-    border-bottom-color: #85586F;
+    border-bottom-color:#004a7a;
   }
 
   .datepicker table tr td.today, span.focused {
@@ -337,7 +353,7 @@ body {
   }
   
   thead tr:nth-child(2) {
-    background-color: #85586F !important;
+    background-color: #004a7a !important;
 
   }
   
@@ -392,13 +408,13 @@ tfoot tr:nth-child(2) th {
 
 .active {
   border-radius: 50% !important;
-  background-image: linear-gradient(#85586F,#85586F) !important;
+  background-image: linear-gradient(#004a7a,#004a7a) !important;
   color: #fff !important;
 }
 
 .range-start, .range-end {
   border-radius: 50% !important;
-  background-image: linear-gradient(#85586F,#85586F) !important;
+  background-image: linear-gradient(#004a7a,#004a7a) !important;
 }
 
 .range {
@@ -432,17 +448,17 @@ tfoot tr:nth-child(2) th {
 
 
 .btn-outline-light:hover{
-  color:#85586F;
+  color:#004a7a;
 }
 
 .row-issues{
-  background-color: #85586F;
+  background-color:#004a7a;
   color:#ffff;
   border-color: #BDBDBD;
 
 }
 .row-issues:hover{
-  background-color: #895d74;
+  background-color:#004a7a;
 
 }
   
@@ -478,17 +494,219 @@ tfoot tr:nth-child(2) th {
 .offcanvas-body {
   background-color:#004a7a;
   text-decoration: none;
-  color: bisque;
+  color: #e8f1ac;
+}
+
+.offcanvas-body .my-task {
+  text-decoration: none;
+  color: white;
 }
 
 .current-workspace {
-  color: #a40052;
+  color: #fff;
   text-decoration: none;
 
 }
 
-.join-workspace {
+.offcanvas-body .join-workspace {
   background-color:#004a7a;
   text-decoration: none;
-  color: bisque;
+  color: white;
+}
+
+/*drop down on add project*/
+
+.choices__list--dropdown .choices__list {
+  background-color: #004a7a;
+}
+
+
+
+
+.replies-toggle {
+  cursor: pointer;
+  color: #007BFF;
+  font-size: 0.9em;
+  margin-top: 10px;
+}
+
+.replies-toggle:hover {
+  text-decoration: underline;
+}
+
+/* Reply button */
+
+
+.reply-button:hover {
+  text-decoration: underline;
+}
+
+/* Reply Form */
+.reply-form {
+  margin-top: 10px;
+}
+
+.reply-form textarea {
+  width: 100%;
+  height: 80px;  /* Adjust the height as needed */
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  padding: 10px;
+  font-size: 14px;
+  resize: none;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+  transition: border-color 0.3s ease;
+}
+
+.submit-reply {
+  background-color: #28a745;
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  cursor: pointer;
+  font-size: 12px;
+  margin-top: 5px;
+  border-radius: 5px;
+}
+
+.submit-reply:hover {
+  background-color: #218838;
+}
+/* General styling */
+.comments-section {
+  width: 350px;
+  background-color: #f4f6f9;
+  padding: 15px;
+  border-left: 1px solid #ddd;
+  overflow-y: auto;
+  font-family: Arial, sans-serif;
+}
+
+.comments-header {
+  text-align: center;
+  font-size: 1.2em;
+  margin-bottom: 15px;
+  color: #333;
+}
+
+/* Comment Styling */
+.comment {
+  margin-bottom: 20px;
+  background-color: white;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  padding: 15px;
+}
+
+.comment-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.user-avatar {
+  margin-right: 10px;
+}
+
+.user-avatar img {
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+}
+
+.user-details {
+  font-size: 0.9em;
+}
+
+.user-details strong {
+  display: block;
+  font-weight: 600;
+}
+
+.comment-time {
+  color: #777;
+  font-size: 0.85em;
+}
+
+.comment-body {
+  font-size: 0.95em;
+  color: #444;
+  margin-bottom: 10px;
+}
+
+/* Replies toggle */
+.replies-toggle {
+  cursor: pointer;
+  color: #007BFF;
+  font-size: 0.9em;
+  margin-top: 10px;
+}
+
+.replies-toggle:hover {
+  text-decoration: underline;
+}
+
+/* Nested Replies */
+.comment-replies {
+  margin-left: 30px;
+  padding-left: 10px;
+  border-left: 2px solid #eee;
+  display: none;
+}
+
+/* Styling for the textarea in the "no comments" section */
+.no-comments-message textarea {
+  width: 100%;
+  height: 80px;  /* Adjust the height as needed */
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  padding: 10px;
+  font-size: 14px;
+  resize: none;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+  transition: border-color 0.3s ease; /* Add transition for a smoother effect */
+}
+
+.no-comments-message textarea:focus {
+  border-color: #007BFF; /* Border color change on focus */
+  outline: none;         /* Remove the default blue outline */
+}
+
+/* Submit button styling */
+.submit-comment {
+  background-color: #28a745;
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  cursor: pointer;
+  font-size: 14px;
+  margin-top: 10px;
+  border-radius: 5px;
+  display: inline-block;
+  transition: background-color 0.3s ease; /* Add a smooth hover effect */
+}
+
+.submit-comment:hover {
+  background-color: #218838;
+}
+
+/* General layout improvements for the no-comments message */
+.no-comments-message {
+  margin-top: 20px;
+  padding: 15px;
+  background-color: #f9f9f9;
+  border-radius: 5px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Add shadow for a cleaner look */
+}
+
+.add_comm {
+  width: 100%;
+  height: 80px;  /* Adjust the height as needed */
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  padding: 10px;
+  font-size: 14px;
+  resize: none;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+  transition: border-color 0.3s ease; 
 }

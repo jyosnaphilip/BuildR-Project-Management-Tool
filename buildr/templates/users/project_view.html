@@ -1,19 +1,19 @@
 {% extends 'base.html' %}
 {% load static %}
 {% block content %}
-<div id="content" class="expanded">
+<div id="content" class="expanded_comments">
     <div class="container">
         <div class="row justify-content-center">
             <div class="">
                 <div class="d-flex justify-content-between   ">
                     <div class="text">{{project}}</div>
                     {% if flag_edit %}
-                    <button type="button" class="btn" data-bs-toggle="modal" data-bs-target="#editProject" data-bs-whatever="@mdo"><i class="fa-solid fa-pen pt-4" style="color: #85586f;"></i></button>
+                    <button type="button" class="btn" data-bs-toggle="modal" data-bs-target="#editProject" data-bs-whatever="@mdo"><i class="fa-solid fa-pen pt-4" style="color: #004a7a;"></i></button>
                     <!-- modal -->
                     <div class="modal fade" id="editProject" tabindex="-1" aria-labelledby="editProjectLabel" aria-hidden="true">
                         <div class="modal-dialog">
                           <div class="modal-content">
-                            <div class="modal-header" style="background-color: #85586f;color:#fafafa;">
+                            <div class="modal-header" style="background-color: #004a7a;color:#fafafa;">
                               <h1 class="modal-title fs-5" id="editProjectLabel">Edit Project</h1>
                               <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" style="color:white;"></button>
                             </div>
@@ -74,10 +74,10 @@
                                               <div class="col-sm-4">
                                               <div class="input-group input-daterange " style="color:white;">
                                                 
-                                                <input type="text" id="end" class="form-control   rounded-pill  w-25 me-2"  placeholder="Start" value="{{project.created_on|date:'d-m-Y'}}" style="color:#ffff; background-color: #85586F; ">
+                                                <input type="text" id="end" class="form-control   rounded-pill  w-25 me-2"  placeholder="Start" value="{{project.created_on|date:'d-m-Y'}}" style="color:#ffff; background-color: #004a7a; ">
                                                 <label class="ml-3 form-control-placeholder" id="end-p" for="end" ></label>
                                                 <!-- <span class="fa fa-calendar fa-xs" id="fa-2"></span> -->
-                                                <input type="text" id="start" name="deadline" class="form-control rounded-pill w-25" placeholder="Target" value="{{project.deadline|date:'d-m-Y'}}" style="background-color: #85586F;border-color: #85586F;color:white;">
+                                                <input type="text" id="start" name="deadline" class="form-control rounded-pill w-25" placeholder="Target" value="{{project.deadline|date:'d-m-Y'}}" style="background-color: #004a7a;border-color: #004a7a;color:white;">
                                                 <label class=" form-control-placeholder" id="start-p" for="start"></label>
                                                 <!-- <span class="fa fa-calendar" id="fa-1" ></span> -->
                                               </div>
@@ -112,13 +112,14 @@
                                                         {% endfor %}
                                                     </select>
                                                 </div>
+                                                
                                             </div>
                     
                                             
                                         
                                             
                     
-                                            
+                                           
                                         </div>
                     
                                         
@@ -137,7 +138,7 @@
                                 </form>
                     
                             </div>
-                            <div class="modal-footer" style="background-color: #85586f;color:#fafafa;">
+                            <div class="modal-footer" style="background-color: #004a7a;color:#fafafa;">
                             </div>
 
                           </div>
@@ -235,6 +236,8 @@
                         <th scope="col-sm-1">Priority</th>
                         <th scope="col-sm-1">Assignee</th>
                         <th scope="col-sm-1">Deadline</th>
+                        <th scope="col-sm-1"></th>
+                        
                       </tr>
                     </thead>
                     <tbody>
@@ -246,9 +249,9 @@
                                    {% for stat in status %}
                                    {% if issue.status.id|stringformat:"s" == stat.id|stringformat:"s" %}
        
-                                   <option value="{{stat.id}}"  style = "background-color: {% if stat.id == 1%}green{% elif stat.id == 2%}orange{% elif stat.id == 3%}##FF5733{% else %}rgb(191,87,0){% endif%};" class="dropdown-item" selected>{{stat.name}}</option>
+                                   <option value="{{stat.id}}"  style = "background-color: {% if stat.id == 1%}green{% elif stat.id == 2%}orange{% elif stat.id == 3%}#FF5733{% else %}rgb(191,87,0){% endif%};" class="dropdown-item" selected>{{stat.name}}</option>
                                    {% else %}
-                                   <option class="dropdown-item" value="{{stat.id}}" style = "background-color: {% if stat.id == 1%}green{% elif stat.id == 2%}orange{% elif stat.id == 3%}##FF5733{% else %}rgb(191,87,0){% endif%};"><i class="fa-regular fa-circle fa-l"></i> {{stat.name}}</option>
+                                   <option class="dropdown-item" value="{{stat.id}}" style = "background-color: {% if stat.id == 1%}green{% elif stat.id == 2%}orange{% elif stat.id == 3%}#FF5733{% else %}rgb(191,87,0){% endif%};"><i class="fa-regular fa-circle fa-l"></i> {{stat.name}}</option>
                                    {% endif %}
                                    {% endfor %}
                                
@@ -256,7 +259,7 @@
                             </div>
                         </th>
                         <td style="cursor: pointer;" class="col-sm-3">
-                            <a href="{% url 'issue_view' issue.issue_id  custom_id %}" class="link-light link-underline link-underline-opacity-0">{{issue}}
+                            <a href="{% url 'issue_view' issue.issue_id  custom_id %}" class="link-dark link-underline link-underline-opacity-0">{{issue}}
                             {% if issue.subissue_count > 0 %}
                             <small>({{ issue.subissue_count }})</small>
                             {% endif %}
@@ -285,7 +288,7 @@
                                 </button>
                                 <ul class="dropdown-menu" >
                                     {% for assignee in issue.assignee.all %}
-                                    <li><a class="dropdown-item" href="#"><i class="fa-regular fa-circle fa-l"></i> {{assignee.user.first_name}} {{assignee.user.last_name}}</a></li>
+                                    <li><a class="dropdown-item" href="#" style="background-color: #004a7a;"><i class="fa-regular fa-circle fa-l"></i> {{assignee.user.first_name}} {{assignee.user.last_name}}</a></li>
                                     {% endfor %}
                                 </ul>
                                 {% else %}
@@ -296,10 +299,13 @@
                             </div>
                             
                       </td>
-                        <td>{{issue.deadline|date:"d-m-Y"}}</td>
-                      </tr>
+                        <td>{{issue.deadline|date:"d-m-Y"}}  </td>
+                        <td><button class="btn " type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasExample" aria-controls="offcanvasExample" onclick="get_issueComments('{{issue.issue_id}}')">
+                            <i class="fa-regular fa-comment"></i>
+                          </button></td>
+                    </tr>
                       {% empty %}
-                      <tr><td colspan="5">No issues found.</td></tr>
+                      <tr><td colspan="6">No issues found.</td></tr>
                      
                       
                       {% endfor %}

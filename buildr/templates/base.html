@@ -31,9 +31,9 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/bbbootstrap/libraries@main/choices.min.css">
 
     <!--Rich text editor-->
-    <link rel="stylesheet" href="{% static 'richtexteditor/rte_theme_default.css' %}" />
-    <script type="text/javascript" src="{% static 'richtexteditor/rte.js' %}"></script>
-    <script type="text/javascript" src="{% static 'richtexteditor/all_plugins.js' %}"></script>
+    <link rel="stylesheet" href="{% static 'richtexteditor\rte_theme_default.css' %}" />
+    <script type="text/javascript" src="{% static 'richtexteditor\rte.js' %}"></script>
+    <script type="text/javascript" src="{% static 'richtexteditor\all_plugins.js' %}"></script>
 
     <!----------------------google fonts---------------------->
     <!--My task font-->
@@ -47,7 +47,7 @@
 <body style="background-color: rgb(231, 242, 249);">
 
     {% include 'partials\navbar.html' %}
-
+    {% include 'partials\comments_bar.html' %}
 
     {% block content %}
 

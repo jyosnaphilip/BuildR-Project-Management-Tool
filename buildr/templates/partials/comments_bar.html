@@ -1,0 +1,221 @@
+
+
+
+<div class="offcanvas offcanvas-end m-0" tabindex="-1" id="offcanvasExample" aria-labelledby="offcanvasExampleLabel">
+
+  <div class="offcanvas-body m-0 w-100 comments-section" id="commentSection" >
+    
+      
+  
+  
+    
+  </div>
+</div>
+<script>
+  function get_issueComments(issueId) {
+      const commentSection = document.getElementById('commentSection');
+      commentSection.innerHTML = `
+      <div class="comments-header m-0">
+          <span>Loading Comments ...</span>
+          <button class="btn-close" type="button" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+      </div>`;
+  
+      fetch(`/get_issueComments/${issueId}`)
+          .then(response => response.json())
+          .then(data => {
+              if (!data.hasOwnProperty('comments')) {
+                  throw new Error("Response does not contain 'comments'");
+              }
+  
+              if (data.comments.length === 0) {
+                  commentSection.innerHTML = `
+                  <div class="comments-header m-0">
+                      <span>Comments</span>
+                      <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+                  </div>
+                  <div class="no-comments-message">
+                      <p>There are no comments yet. Be the first to comment!</p>
+                      <textarea id="newComment" placeholder="Write a comment..."></textarea>
+                      <button class="submit-comment" onclick="submitComment('${issueId}')">Submit</button>
+                  </div>`;
+              } else {
+                  commentSection.innerHTML = `
+                  <div class="comments-header m-0">
+                      <span>Comments</span>
+                      <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+                  </div>
+                  <div class="comments-list w-100"></div>
+                  <textarea id="newComment" class="add_comm" placeholder="Write a comment..."></textarea>
+                  <button class="submit-comment" onclick="submitComment('${issueId}')">Submit</button>`;
+  
+                  const commentsList = commentSection.querySelector('.comments-list');
+                  data.comments.forEach(comment => appendComment(commentsList, comment, issueId));
+              }
+          })
+          .catch(error => {
+              console.error('Error fetching comments:', error);
+              commentSection.innerHTML = '<p>Error loading comments</p>';
+          });
+  }
+  
+  function appendComment(container, comment, issueId) {
+    const commentHTML = `
+        <div class="comment w-100" id="comment${comment.id}">
+            <div class="comment-header w-100">
+                <div class="user-avatar">
+                    <img src="https://via.placeholder.com/40" alt="User Avatar">
+                </div>
+                <div class="user-details">
+                    <strong>${comment.author}</strong>
+                    <span class="comment-time">${comment.created_at}</span>
+                </div>
+            </div>
+            <div class="comment-body">${comment.text}</div>
+            <button class="reply-button btn btn-sm" onclick="toggleReplyForm('replyForm${comment.id}')"><strong>Add Reply</strong></button>
+            <div id="replyForm${comment.id}" class="reply-form" style="display:none;">
+                <textarea id="replyInput${comment.id}" placeholder="Write a reply..."></textarea>
+                <button class="submit-reply" onclick="submitReply('replies${comment.id}', 'replyInput${comment.id}', '${comment.id}', '${issueId}')">Submit</button>
+            </div>
+            <span class="replies-toggle" onclick="toggleReplies('replies${comment.id}')">
+                <strong>Replies (${comment.replies ? comment.replies.length : 0})</strong>
+            </span>
+            <div id="replies${comment.id}" class="comment-replies" style="display: none;"></div>
+        </div>`;
+
+    container.innerHTML += commentHTML;
+
+    const repliesContainer = document.getElementById(`replies${comment.id}`);
+    (comment.replies || []).forEach(reply => appendReply(repliesContainer, reply, issueId));  
+}
+
+function appendReply(repliesSection, reply,issueId) {
+    const replyHTML = `
+        <div class="comment">
+            <div class="comment-header">
+                <div class="user-avatar">
+                    <img src="https://via.placeholder.com/40" alt="User Avatar">
+                </div>
+                <div class="user-details">
+                    <strong>${reply.author}</strong>
+                    <span class="comment-time">${reply.created_at}</span>
+                </div>
+            </div>
+            <div class="comment-body">${reply.text}</div>
+            <button class="reply-button btn btn-sm" onclick="toggleReplyForm('replyForm${reply.id}')"><strong>Add Reply</strong></button>
+            <div id="replyForm${reply.id}" class="reply-form" style="display:none;">
+                <textarea id="replyInput${reply.id}" placeholder="Write a reply..."></textarea>
+                <button class="submit-reply" onclick="submitReply('replies${reply.id}', 'replyInput${reply.id}', '${reply.id}', '${issueId}')">Submit</button>
+            </div>
+            <span class="replies-toggle" onclick="toggleReplies('replies${reply.id}')">
+                <strong>Replies (${reply.replies ? reply.replies.length : 0})</strong>
+            </span>
+            <div id="replies${reply.id}" class="comment-replies" style="display: none;">
+                <!-- Replies to this reply will be appended here -->
+            </div>
+        </div>
+    `;
+    
+    repliesSection.innerHTML += replyHTML;
+}
+  
+function submitComment(issueId) {
+    const newComment = document.getElementById('newComment').value.trim();
+    if (!newComment) {
+        alert('Please enter a comment before submitting.');
+        return;
+    }
+
+    fetch('/submit_comment/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken'),
+        },
+        body: JSON.stringify({
+            'comment': newComment,
+            'issue_id': issueId
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            const commentSection = document.querySelector('.comments-list');
+            appendComment(commentSection, data.comment, issueId); // Directly append the new comment to the DOM
+            document.getElementById('newComment').value = ''; // Clear the input field
+        } else {
+            alert('Error submitting comment');
+        }
+    })
+    .catch(error => {
+        console.error('Error submitting comment: ', error);
+    });
+}
+  
+function submitReply(repliesId, inputId, commentId, issueId) {
+    const replyInput = document.getElementById(inputId);
+    const replyText = replyInput.value.trim();
+    console.log(issueId);
+    if (replyText === '') {
+        alert('Please enter a reply!');
+        return;
+    }
+
+    // Send reply to the backend
+    fetch(`/submit_reply/`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken'),  
+        },
+        body: JSON.stringify({
+            'reply': replyText,
+            'comment_id': commentId,
+            'issueId': issueId  
+        })
+    }).then(response => {
+        if (response.ok) {
+            return response.json();
+        }
+        throw new Error('Network response was not ok.');
+    }).then(data => {
+        if (data.success) {
+            const repliesSection = document.getElementById(repliesId);
+            appendReply(repliesSection, data.reply);  // Pass the new reply data
+        } else {
+            alert('Error submitting reply');
+        }
+    }).catch(error => {
+        console.error('Error:', error);
+    }).finally(() => {
+        // Clear input and hide form
+        replyInput.value = '';
+        replyInput.parentElement.style.display = 'none';
+    });
+}
+
+  
+  function toggleReplyForm(replyFormId) {
+      const form = document.getElementById(replyFormId);
+      form.style.display = form.style.display === 'none' ? 'block' : 'none';
+  }
+  
+  function toggleReplies(repliesId) {
+      const repliesSection = document.getElementById(repliesId);
+      repliesSection.style.display = repliesSection.style.display === 'none' ? 'block' : 'none';
+  }
+  
+  function getCookie(name) {
+      let cookieValue = null;
+      if (document.cookie && document.cookie !== '') {
+          const cookies = document.cookie.split(';');
+          for (let i = 0; i < cookies.length; i++) {
+              const cookie = cookies[i].trim();
+              if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                  cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                  break;
+              }
+          }
+      }
+      return cookieValue;
+  }
+  </script>
