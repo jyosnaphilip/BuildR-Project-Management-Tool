@@ -49,7 +49,6 @@ input::placeholder{
 }
 
 
-
 .hidden {
     display: none;
 }
@@ -88,7 +87,7 @@ input::placeholder{
   font-weight: 600;
   font-family: 'Poppins', sans-serif;
   -webkit-background-clip: text;
-  color: rgb(2, 62, 99);
+  color: #004032;
 }
 .container form{
   padding: 30px 0 0 0;
@@ -114,20 +113,23 @@ form .form-row .textarea{
   border: none;
   font-size: 17px;
   border-bottom: 2px solid rgba(0,0,0, 0.12);
-  background-color: #F8EDE3;
+  background-color: #fff;
+  color: #004a7a;
 }
 .form-box{
-    box-shadow: 0px 0px 10px rgba(0,0,0,0.1);
-    background-color:#8b8001;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
     padding-bottom: 2px;
+    margin: auto;
+    background-color: #fff;
+    border-radius: 10px;
 }
 
 .input-data input:focus ~ label, .textarea textarea:focus ~ label,
 .input-data input:valid ~ label, .textarea textarea:valid ~ label{
   transform: translateY(-20px);
   font-size: 14px;
-  color: #85586F;
-  background-color: #F8EDE3;
+  color: #004a7a;
+  background-color: #fff;
 }
 .textarea textarea{
   resize: none;
@@ -139,13 +141,13 @@ form .form-row .textarea{
   bottom: 10px;
   font-size: 16px;
   transition: all 0.3s ease;
-  color:#85586F;
-  background-color: #F8EDE3;
+  color:#004a7a;
+  background-color: #fff;
 }
 .textarea label{
   width: 100%;
   bottom: 40px;
-  background: #F8EDE3;
+  background: #590066;
   color:#85586F;
 }
 textarea .underline{
@@ -198,11 +200,15 @@ textarea .underline:before{
 
 .submit-btn .input-data input{
  
-  background-color: #85586F;
+  background-color: #004a7a;
   color:white;
   
 }
 
+
+label {
+  color: #004a7a;
+}
 
 body {
     margin: 0;
@@ -240,19 +246,19 @@ body {
   
   .choices__list--dropdown .choices__item--selectable {
     padding-right: 1rem;
-    background-color: #85586F;
+    background-color: #004a7a;
     color: white;
 
   }
   .choices .choices__inner .choices__list--multiple .choices__item--selectable {
-    background-color: #85586F;  
+    background-color: #004a7a;  
     color: white;
     border-color: #85586F;
     border-radius: 50px;
     font-weight: 200;
 }
 .choices .choices__list .choices__item--choice:hover {
-  background-color: #836373;  /* Example: lighter orange on hover */
+  background-color: #00233a;  /* Example: lighter orange on hover */
   color: white; 
 }
 
@@ -310,8 +316,8 @@ body {
   .datepicker-dropdown {
     top: 180px !important;
     left: calc(50% - 173.5px) !important;
-    border-right: #85586F;
-    border-left: #85586F;
+    border-right: #004a7a;
+    border-left: #004a7a;
     
       width: 312px; /* Set this to your desired smaller width */
   
@@ -337,7 +343,7 @@ body {
   }
   
   thead tr:nth-child(2) {
-    background-color: #85586F !important;
+    background-color: #004a7a !important;
 
   }
   
@@ -392,13 +398,13 @@ tfoot tr:nth-child(2) th {
 
 .active {
   border-radius: 50% !important;
-  background-image: linear-gradient(#85586F,#85586F) !important;
+  background-image: linear-gradient(#004a7a,#004a7a) !important;
   color: #fff !important;
 }
 
 .range-start, .range-end {
   border-radius: 50% !important;
-  background-image: linear-gradient(#85586F,#85586F) !important;
+  background-image: linear-gradient(#004a7a,#004a7a) !important;
 }
 
 .range {
@@ -478,17 +484,29 @@ tfoot tr:nth-child(2) th {
 .offcanvas-body {
   background-color:#004a7a;
   text-decoration: none;
-  color: bisque;
+  color: #e8f1ac;
+}
+
+.offcanvas-body .my-task {
+  text-decoration: none;
+  color: white;
 }
 
 .current-workspace {
-  color: #a40052;
+  color: #fff;
   text-decoration: none;
 
 }
 
-.join-workspace {
+.offcanvas-body .join-workspace {
   background-color:#004a7a;
   text-decoration: none;
-  color: bisque;
+  color: white;
 }
+
+/*drop down on add project*/
+
+.choices__list--dropdown .choices__list {
+  background-color: #004a7a;
+}
+

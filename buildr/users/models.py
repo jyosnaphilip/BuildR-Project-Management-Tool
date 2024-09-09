@@ -140,6 +140,7 @@ class issue_assignee_bridge(models.Model):
 
     class Meta:
         unique_together = ('assignee', 'issue')
+        
 class EmailVerification(models.Model):
     email = models.EmailField(unique=True)
     verification_code = models.CharField(max_length=6)

@@ -547,3 +547,5 @@ def add_subIssue(request,issue_id,custom_id):
     return render(request,'users/add_subissue.html',context)
 
 
+def dashboard(request):
+    return render (request,'dashboard\Dashboard.html')

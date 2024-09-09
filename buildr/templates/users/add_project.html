@@ -8,12 +8,12 @@
 
 <div id="content" class="expanded">
     <div class="container ">
-        <div class="row justify-content-center w-75" style="margin: auto;">
+        <div class="row justify-content-center w-75 add-project" style="margin: auto;">
 
 
             <form method="POST">
                 {% csrf_token %}
-                <div class="form-box ">
+                <div class="form-box shadow-lg">
                     <div class="text">
                         New Project
                     </div>
@@ -29,6 +29,7 @@
 
                     <div class="form-row">
                         <div class="texteditor">
+                            <label for="des">Description</label>
                             <textarea id="description" name="desc">
                             </textarea>
                             <br />
@@ -54,17 +55,17 @@
                           <div class="dropdown rounded-pill me-2">
                             <select class="form-select custom-select rounded-pill" type="button" name="status" data-bs-toggle="dropdown" id="selectDropdown2" aria-expanded="false">
                                 <option selected disabled class="dropdown-item">Status</option>
-                                <option class="dropdown-item" value="1"><i class="fa-regular fa-circle fa-l"></i> Open</option>
-                                <option class="dropdown-item " value="2"><i class="fa-solid fa-circle-half-stroke fa-l"></i> In progress</option>
-                                <option class="dropdown-item " value="3"><i class="fa-solid fa-circle-pause fa-l"></i> Paused</option>
-                                <option class="dropdown-item " value="4"><i class="fa-solid fa-circle-check fa-l"></i> Closed</option>
+                                <option class="dropdown-item status-dropdown" value="1" style="background-color: green;"><i class="fa-regular fa-circle fa-l"></i> Open</option>
+                                <option class="dropdown-item status-dropdown" value="2" style="background-color: orange;"><i class="fa-solid fa-circle-half-stroke fa-l"></i> In progress</option>
+                                <option class="dropdown-item status-dropdown" value="3" style="background-color: #FF5733;"><i class="fa-solid fa-circle-pause fa-l"></i> Paused</option>
+                                <option class="dropdown-item status-dropdown" value="4" style="background-color:rgb(191,87,0);"><i class="fa-solid fa-circle-check fa-l"></i> Closed</option>
                               </select>
                             
                           </div>
                           <div class="col-sm-4">
-                          <div class="input-group input-daterange " style="color:white;">
+                          <div class="input-group input-daterange " style="color:white;width: 150px;">
                             
-                            <input type="text" id="start" name="deadline" class="form-control rounded-pill w-25" placeholder="Target" style="background-color: #85586F;border-color: #85586F;color:white;">
+                            <input type="text" id="start" name="deadline" class="form-control rounded-pill w-25" placeholder="Target" style="background-color: white;border-color: #3d3d3d;color:rgb(13, 13, 13); ">
                             <label class=" form-control-placeholder" id="start-p" for="start"></label>
                             <!-- <span class="fa fa-calendar" id="fa-1" ></span> -->
                           </div>
@@ -74,11 +75,11 @@
                     <div class="form-row justify-content-center">
                         <div class="col-sm-4 w-25 rounded-pill m-1  ">
                             <div class="rounded-pill   ">
-                                <select id="choices-multiple-remove-button" name="lead" placeholder="Select lead"
+                                <select id="choices-multiple-remove-button"  name="lead" placeholder="Select lead"
                                     class="rounded-pill" multiple>
                                     {% for ws_member in ws_members %}
 
-                                    <option value="{{ws_member.customUser.custom_id}}">{{ws_member.customUser.user.first_name}} {{ws_member.customUser.user.last_name}}</option>
+                                    <option value="{{ws_member.customUser.custom_id}}" class="drop">{{ws_member.customUser.user.first_name}} {{ws_member.customUser.user.last_name}}</option>
                                     {% endfor %}
 
                                 </select>
@@ -127,4 +128,31 @@
     var editor1 = new RichTextEditor("#description");
 </script>
 
+<script>
+
+    // changing status color
+    document.addEventListener('DOMContentLoaded', function() {
+        // Function to update the background color of all select elements
+        function updateDropdownColors() {
+            const dropdowns = document.querySelectorAll('.status-dropdown');
+    
+            dropdowns.forEach(function(dropdown) {
+                const selectedOption = dropdown.options[dropdown.selectedIndex];
+                const selectedColor = selectedOption.style.backgroundColor || 'transparent';
+                dropdown.style.backgroundColor = selectedColor;
+                dropdown.style.color = '#fff'; // Adjust text color for better readability
+            });
+        }
+    
+        // Initialize color for all dropdowns on page load
+        updateDropdownColors();
+    
+        // Update color when any dropdown selection changes
+        document.addEventListener('change', function(event) {
+            if (event.target.classList.contains('status-dropdown')) {
+                updateDropdownColors();
+            }
+        });
+    });
+    </script>
 {% endblock content %}

@@ -9,14 +9,14 @@
 
       <h5 class="offcanvas-title font" id="offcanvasScrollingLabel">
         <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
-        <select id="workspaceDropdown" name="workspace" style="border:none;">
+        <select id="workspaceDropdown" name="workspace" style="border:none;background-color: #004a7a;color: white;">
 
           <option style="color:black;" value="{{current_ws}}">
             {{current_ws.ws_name}}
           </option>
 
           {% for ws in workspaces %}
-          <option style="color:black;" value="{{ ws.workspace__ws_id }}">
+          <option style="color:black;background-color: #f7f9fb; " value="{{ ws.workspace__ws_id }}">
             {{ ws.workspace__ws_name }}
           </option>
           {% endfor %}
@@ -27,10 +27,10 @@
 
       {% endif %}
       <button type="button" class="btn-close" onclick="toggleSidebar()" data-bs-dismiss="offcanvas"
-        aria-label="Close"></button>
+        aria-label="Close" style = "background-color:#fff"></button>
     </div>
     <div class="offcanvas-body">
-      <p><a href="{% url 'home' custom_id %}">My tasks</a></p>
+      <p><a href="{% url 'home' custom_id %}" class="my-task">My tasks</a></p>
       
       {% for project in projects %}
       <p><a href="{% url 'project_view' project.project_id custom_id %}" class="current-workspace">{{project.name}}</a></p>
@@ -41,9 +41,9 @@
     <p>
       <a href="{% url 'join-workspace' custom_id %}" class="join-workspace" >Join Workspace</a>
     </p>
-      <p><a href="{% url 'add_project' custom_id %}" class="join-workspace" ><i class="fa-solid fa-plus fa-2xl" style="color: #36089b;color: bisque;"></i> Add Project</a></p>
+      <p><a href="{% url 'add_project' custom_id %}" class="join-workspace" ><i class="fa-solid fa-plus fa-2xl" style="color: #36089b;color: white;"></i> Add Project</a></p>
       <p>{% if flag %}
-        <button type="button" class="btn btn-dark" data-bs-toggle="modal" data-bs-target="#codeModal">
+        <button type="button" class="btn btn-outline-light" data-bs-toggle="modal" data-bs-target="#codeModal">
           Add members
         </button>
 
@@ -51,6 +51,7 @@
 
         {% endif %}
       </p>
+      <a href = "{% url 'dashboard' %}" class="join-workspace">Dashboard</a>
     </div>
   </div>
   <div class="modal" id="codeModal" tabindex="-1">

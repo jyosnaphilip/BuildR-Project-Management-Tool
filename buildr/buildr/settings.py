@@ -29,6 +29,7 @@ DEBUG = True
 ALLOWED_HOSTS = []
 
 
+
 # Application definition
 
 INSTALLED_APPS = [
@@ -40,7 +41,17 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'users',
     'compressor',
+    'allauth',
+    # 'allauth.account',
+    'allauth.socialaccount',
+    # 'allauth.socialaccount.providers.google',
+    
 ]
+
+AUTHENTICATION_BACKENDS = [
+    'allauth.account.auth_backends.AuthenticationBackend',  #Allauth Backend
+]
+
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -50,9 +61,30 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'allauth.account.middleware.AccountMiddleware' #adding
 ]
 
 ROOT_URLCONF = 'buildr.urls'
+
+#social login settings
+
+# SOCIALACCOUNT_PROVIDERS = {
+#     'google': {
+#         'APP' : {
+#             'client_id':'929543177955-eg3rq4afpomq5uc5419gfljpq88uga5o.apps.googleusercontent.com',
+#             'secret':'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'
+#         },
+#         'SCOPE': [
+#             'email',
+#             'profile'
+#         ],
+#         'AUTH_PARAMS':{
+#             'access_type':'online'
+#             },
+#             'METHOD':'oauth2',
+#             'VERIFIED_EMAIL':True,
+#     }
+# }
 
 TEMPLATES = [
     {
@@ -144,6 +176,8 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 LOGIN_REDIECT_URL = 'home'
 
+
 #Email verification
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
 # EMAIL_HOST =
+
