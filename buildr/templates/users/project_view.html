@@ -189,9 +189,9 @@
                     <div class="col-sm-3 mb-2">
                             <span class="input-group input-daterange  " style="color:white;">
                                                         
-                                <button type="text" id="end" class="form-control btn btn-sm  rounded-pill   me-2"  placeholder="Start" style="background-color: rgb(21, 67, 96); color: #e7eaee;">{{project.created_on}}</button>
+                                <button type="text" id="end" class="form-control btn btn-sm  rounded-pill   me-2"  placeholder="Start" style="background-color: rgb(21, 67, 96); color: #e7eaee;">{{project.created_on|date:'d-m-Y'}}</button>
                                 <!-- <span class="fa fa-calendar fa-xs" id="fa-2"></span> -->
-                                <button type="text" id="start" class="form-control rounded-pill btn btn-sm " style="background-color: rgb(21, 67, 96); color: #e7eaee;">{{project.deadline}}</button>
+                                <button type="text" id="start" class="form-control rounded-pill btn btn-sm " style="background-color: rgb(21, 67, 96); color: #e7eaee;">{{project.deadline|date:'d-m-Y'}}</button>
                                 <!-- <span class="fa fa-calendar" id="fa-1" ></span> -->
                             </span>
                     </div>
@@ -229,7 +229,7 @@
              <div class="container">
                 <table class="table table-hover" style="background-color: rgb(41, 128, 185) ;">
                     <thead>
-                      <tr>
+                      <tr >
                         <th scope="col-sm-1">Status</th>
 
                         <th scope="col-sm-6">Issue</th>

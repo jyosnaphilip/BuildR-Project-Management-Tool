@@ -25,12 +25,14 @@
                     </div>
 
                     <div class="form-row">
-                        <div class="input-data textarea">
-                            <label for="des">Description</label>
-                            <textarea rows="8" name="desc" cols="80" ></textarea>
+                        <div class="texteditor">
+                            <!-- <label for="des">Description</label>
+                            <textarea rows="8" name="desc" cols="80" ></textarea> -->
+                           
                             <br />
-                            <div class="underline"></div>
-                            <label for="">Add description</label>
+                            <label for="des">Description</label>
+                            <textarea id="sub-issue-description" name="des">
+                        </textarea>
                             <br />
                         </div>
                     </div>
@@ -48,18 +50,18 @@
                               </select>
                           </div>
                           <div class="dropdown rounded-pill me-2">
-                            <select class="form-select custom-select rounded-pill" type="button" name="status" data-bs-toggle="dropdown" id="selectDropdown2" aria-expanded="false">
+                            <select class="form-select custom-select rounded-pill" type="button" name="status" data-bs-toggle="dropdown" id="selectDropdown2" aria-expanded="false" style="color: white; background-color:#004a7a ;">
                                 <option selected disabled class="dropdown-item">Status</option>
-                                <option class="dropdown-item" value="1"><i class="fa-regular fa-circle fa-l"></i> Open</option>
+                                <option class="dropdown-item" value="1" style="color: white; background-color:#004a7a ;"><i class="fa-regular fa-circle fa-l"></i> Open</option>
                                 <option class="dropdown-item " value="2"><i class="fa-solid fa-circle-half-stroke fa-l"></i> In progress</option>
                                 <option class="dropdown-item " value="3"><i class="fa-solid fa-circle-pause fa-l"></i> Paused</option>
                                 <option class="dropdown-item " value="4"><i class="fa-solid fa-circle-check fa-l"></i> Closed</option>
                               </select>
                           </div>
                           <div class="col-sm-4">
-                          <div class="input-group input-daterange " style="color:white;">
+                          <div class="input-group input-daterange " style="color:white; width: 150px;">
                             
-                            <input type="text" id="start"  name="deadline" class="form-control rounded-pill w-25" placeholder="Target" style="background-color: #85586F;border-color: #85586F;color:white;">
+                            <input type="text" id="start"  name="deadline" class="form-control rounded-pill w-25" placeholder="Target" style="background-color: white;border-color: #3d3d3d;color:rgb(13, 13, 13);">
                             <label class=" form-control-placeholder" id="start-p" for="start"></label>
                             <!-- <span class="fa fa-calendar" id="fa-1" ></span> -->
                           </div>
@@ -101,6 +103,8 @@
 </div>
 
 
-
+<script>
+    var editor1 = new RichTextEditor("#sub-issue-description");
+</script>
 
 {% endblock content %}

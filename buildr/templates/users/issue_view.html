@@ -12,7 +12,7 @@
                     <div class="modal fade" id="editIssue" tabindex="-1" aria-labelledby="editIssueLabel" aria-hidden="true">
                         <div class="modal-dialog">
                           <div class="modal-content">
-                            <div class="modal-header" style="background-color: #85586f;color:#fafafa;">
+                            <div class="modal-header" style="background-color: #004a7a;color:#fafafa;">
                               <h1 class="modal-title fs-5" id="editIssueLabel">Edit Issue</h1>
                               <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" style="color:white;"></button>
                             </div>
@@ -73,10 +73,10 @@
                                               <div class="col-sm-4">
                                               <div class="input-group input-daterange " style="color:white;">
                                                 
-                                                <input type="text" id="end" class="form-control   rounded-pill  w-25 me-2" name="start" placeholder="Start" value="{{issue.created_on|date:'d-m-Y'}}" style="color:#ffff; background-color: #85586F; ">
+                                                <input type="text" id="end" class="form-control   rounded-pill  w-25 me-2" name="start" placeholder="Start" value="{{issue.created_on|date:'d-m-Y'}}" style="color:#ffff; background-color: #004a7a; ">
                                                 <label class="ml-3 form-control-placeholder" id="end-p" for="end" ></label>
                                                 <!-- <span class="fa fa-calendar fa-xs" id="fa-2"></span> -->
-                                                <input type="text" id="start" class="form-control rounded-pill w-25" placeholder="Target"  name="deadline" value="{{issue.deadline|date:'d-m-Y'}}" style="background-color: #85586F;border-color: #85586F;color:white;">
+                                                <input type="text" id="start" class="form-control rounded-pill w-25" placeholder="Target"  name="deadline" value="{{issue.deadline|date:'d-m-Y'}}" style="background-color: #004a7a;border-color: #004a7a;color:white;">
                                                 <label class=" form-control-placeholder" id="start-p" for="start"></label>
                                                 <!-- <span class="fa fa-calendar" id="fa-1" ></span> -->
                                               </div>
@@ -140,11 +140,11 @@
                     </div>  
                     <div class="col-sm-2 mb-2 ">
                         <div class="dropdown rounded-pill me-2">
-                            <select  class=" status-dropdown form-select custom-select rounded-pill" type="button" name="status" data-bs-toggle="dropdown"  aria-expanded="false" data-issue-id="{{issue.issue_id}}">
+                            <select  class=" status-dropdown form-select custom-select   rounded-pill" type="button"  name="status" data-bs-toggle="dropdown"  aria-expanded="false" data-issue-id="{{issue.issue_id}}">
                                 {% for stat in status %}
                                 {% if issue.status.id|stringformat:"s" == stat.id|stringformat:"s" %}
     
-                                <option value="{{stat.id}}"  class="dropdown-item" selected>{{stat.name}}</option>
+                                <option value="{{stat.id}}"  class="dropdown-item " selected>{{stat.name}}</option>
                                 {% else %}
     
                                 <option class="dropdown-item" value="{{stat.id}}"><i class="fa-regular fa-circle fa-l"></i> {{stat.name}}</option>
@@ -160,9 +160,9 @@
                     <div class="col-sm-3 mb-2">
                             <span class="input-group input-daterange  " style="color:white;">
                                                         
-                                <button type="text" id="end" class="form-control btn btn-sm  rounded-pill   me-2"  placeholder="Start" style="color:#ffff; background-color: #85586F; ">{{issue.created_on}}</button>
+                                <button type="text" id="end" class="form-control btn btn-sm  rounded-pill   me-2"  placeholder="Start" style="color:#ffff; background-color: #004a7a; ">{{issue.created_on|date:'d-m-Y'}}</button>
                                 <!-- <span class="fa fa-calendar fa-xs" id="fa-2"></span> -->
-                                <button type="text" id="start" class="form-control rounded-pill btn btn-sm " style="background-color: #85586F;border-color: #85586F;color:white;">{{issue.deadline}}</button>
+                                <button type="text" id="start" class="form-control rounded-pill btn btn-sm " style="background-color: #004a7a;border-color: #004a7a;color:white;">{{issue.deadline|date:'d-m-Y'}}</button>
                                 <!-- <span class="fa fa-calendar" id="fa-1" ></span> -->
                             </span>
                     </div>
@@ -178,7 +178,7 @@
                         </ul>
                     </div>
                     <div class=" col-sm-2 offset-sm-2 ms-4 mb-2 ">    
-                        <a class="rounded-pill btn btn-sm " href="{% url 'add_subIssue' issue.issue_id custom_id  %}" style="background-color: #85586f; color:#f5f7fa;"><i
+                        <a class="rounded-pill btn btn-sm " href="{% url 'add_subIssue' issue.issue_id custom_id  %}" style="background-color: #004a7a; color:#f5f7fa;"><i
                                 class="fa-solid fa-plus" style="color: #f5f7fa;"></i> Add sub-Issue</a>
                     </div>
                 </div>
@@ -205,13 +205,13 @@
                       <tr>
                         <th scope="row">
                            <div class="w-50 dropdown rounded-pill ">
-                               <select  class="subissue-status-dropdown form-select custom-select rounded-pill btn btn-sm" type="button" name="status" data-bs-toggle="dropdown"  aria-expanded="false" data-subissue-id="{{issue.issue_id}}">
+                               <select  class="subissue-status-dropdown form-select custom-select rounded-pill text-light btn btn-sm" type="button" name="status" data-bs-toggle="dropdown"  aria-expanded="false" data-subissue-id="{{issue.issue_id}}">
                                    {% for stat in status %}
                                    {% if issue.status.id|stringformat:"s" == stat.id|stringformat:"s" %}
        
-                                   <option value="{{stat.id}}"  class="dropdown-item" selected>{{stat.name}}</option>
+                                   <option value="{{stat.id}}"  class="dropdown-item"  style = "background-color: {% if stat.id == 1%}green{% elif stat.id == 2%}orange{% elif stat.id == 3%}#FF5733{% else %}rgb(191,87,0){% endif%};" class="dropdown-item" selected>{{stat.name}}</option>
                                    {% else %}
-                                   <option class="dropdown-item" value="{{stat.id}}"><i class="fa-regular fa-circle fa-l"></i> {{stat.name}}</option>
+                                   <option class="dropdown-item" value="{{stat.id}}"  style = "background-color: {% if stat.id == 1%}green{% elif stat.id == 2%}orange{% elif stat.id == 3%}#FF5733{% else %}rgb(191,87,0){% endif%};" ><i class="fa-regular fa-circle fa-l"></i> {{stat.name}}</option>
                                    {% endif %}
                                    {% endfor %}
                                
@@ -219,13 +219,13 @@
                             </div>
                         </th>
                         <td style="cursor: pointer;" class="col-sm-3">
-                            <a href="{% url 'issue_view' issue.issue_id  custom_id %}" class="link-light link-underline link-underline-opacity-0">{{issue}}
+                            <a href="{% url 'issue_view' issue.issue_id  custom_id %}" class="link-dark link-underline  link-underline-opacity-0">{{issue}}
                             
                             </a>
                         </td>
                             <td >
                                 <div class=" dropdown rounded-pill" >
-                                    <select  class="subissue-priority-dropdown form-select custom-select rounded-pill btn btn-sm" type="button" name="status" data-bs-toggle="dropdown"  aria-expanded="false" data-subissue-id="{{ issue.issue_id }}">
+                                    <select  class="subissue-priority-dropdown form-select custom-select text-light rounded-pill btn btn-sm" type="button" style="background-color: rgb(40, 116, 166); color: #e7eaee;" name="status" data-bs-toggle="dropdown"  aria-expanded="false" data-subissue-id="{{ issue.issue_id }}">
                                         {% for prior in priority %}
                                         {% if issue.priority.id|stringformat:"s" == prior.id|stringformat:"s" %}
             
@@ -401,5 +401,35 @@
     });
 });
 </script>
+<script>
 
+    // changing status color
+    document.addEventListener('DOMContentLoaded', function() {
+        // Function to update the background color of all select elements
+        function updateDropdownColors() {
+            const dropdowns = document.querySelectorAll('.subissue-status-dropdown');
+    
+            dropdowns.forEach(function(dropdown) {
+                const selectedOption = dropdown.options[dropdown.selectedIndex];
+                const selectedColor = selectedOption.style.backgroundColor || 'transparent';
+                dropdown.style.backgroundColor = selectedColor;
+                dropdown.style.color = '#fff'; // Adjust text color for better readability
+            });
+        }
+    
+        // Initialize color for all dropdowns on page load
+        updateDropdownColors();
+    
+        // Update color when any dropdown selection changes
+        document.addEventListener('change', function(event) {
+            if (event.target.classList.contains('subissue-status-dropdown')) {
+                updateDropdownColors();
+            }
+        });
+    });
+    
+    
+    
+    </script>
+    
 {% endblock content %}

@@ -157,8 +157,8 @@ form .form-row .textarea{
 .textarea label{
   width: 100%;
   bottom: 40px;
-  background: #590066;
-  color:#85586F;
+  background: #fff;
+  color:#004a7a;
 }
 textarea .underline{
   position: absolute;
@@ -171,7 +171,7 @@ textarea .underline:before{
   content: "";
   height: 2px;
   width: 100%;
-  background: #85586F;
+  background: #004a7a;
   transform: scaleX(0);
   transform-origin: center;
   transition: transform 0.3s ease;
@@ -188,7 +188,7 @@ textarea .underline:before{
   content: "";
   height: 2px;
   width: 100%;
-  background: #85586F;
+  background: #004a7a;
   transform: scaleX(0);
   transform-origin: center;
   transition: transform 0.3s ease;
@@ -229,7 +229,7 @@ body {
 
   
 .dropdown{
-  background-color: #85586F;
+  background-color: #004a7a;
   color:white;
   margin-right: 2px;
 }

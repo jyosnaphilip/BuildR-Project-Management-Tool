@@ -29,9 +29,9 @@
                                  {% for stat in status %}
                                  {% if issue.status.id|stringformat:"s" == stat.id|stringformat:"s" %}
      
-                                 <option value="{{stat.id}}"  class="dropdown-item" selected>{{stat.name}}</option>
+                                 <option value="{{stat.id}}"  style = "background-color: {% if stat.id == 1%}green{% elif stat.id == 2%}orange{% elif stat.id == 3%}#FF5733{% else %}rgb(191,87,0){% endif%};" class="dropdown-item" selected>{{stat.name}}</option>
                                  {% else %}
-                                 <option class="dropdown-item" value="{{stat.id}}"><i class="fa-regular fa-circle fa-l"></i> {{stat.name}}</option>
+                                 <option class="dropdown-item" style = "background-color: {% if stat.id == 1%}green{% elif stat.id == 2%}orange{% elif stat.id == 3%}#FF5733{% else %}rgb(191,87,0){% endif%};" value="{{stat.id}}"><i class="fa-regular fa-circle fa-l"></i> {{stat.name}}</option>
                                  {% endif %}
                                  {% endfor %}
                              

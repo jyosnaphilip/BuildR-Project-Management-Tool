@@ -274,7 +274,7 @@ def add_project(request, custom_id):  # need to check again
         members = request.POST.getlist('members')
 
         project = Project(name=project_name, description=desc, ws=current_ws)
-        if deadline != None:
+        if deadline != None and deadline!="":
             deadline = datetime.strptime(deadline, '%d-%m-%Y').date()
             project.deadline = deadline
         if prior != None:
