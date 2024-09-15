@@ -129,6 +129,7 @@ class issue(models.Model):
     status = models.ForeignKey(status, on_delete=models.SET_NULL, null=True, blank=True, related_name='issues')
     assignee=models.ManyToManyField(customUser,through='issue_assignee_bridge')
     parent_task=models.ForeignKey('self', on_delete=models.CASCADE,null=True,related_name='child')
+    overall_sentiment_score = models.FloatField(null=True, blank=True)
     def __str__(self):
         return self.name
 
@@ -162,7 +163,7 @@ class Comments(models.Model):
                                         on_delete = models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
     issue = models.ForeignKey(issue, related_name = 'comments', on_delete = models.CASCADE)
-
+    sentiment_score=models.IntegerField(blank=True,null=True)
     def __str__(self):
         return 'Comment by ' + self.author + 'about' + self.issue.name
     

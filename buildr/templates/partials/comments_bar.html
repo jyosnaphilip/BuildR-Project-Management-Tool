@@ -148,9 +148,13 @@
                         commentSection.classList.add('comments-list', 'w-100');
                         document.getElementById('commentSection').appendChild(commentSection);
 
+                        // re add textarea and submit button
+                        const newCommentForm = `<textarea id="newComment" class="add_comm" placeholder="Write a comment..."></textarea>
+                        <button class="submit-comment" onclick="submitComment('${issueId}')">Submit</button>`;
+                        commentSection.insertAdjacentHTML('afterend', newCommentForm);
                     }
                     appendComment(commentSection, data.comment, issueId);
-
+                    
                 } else {
                     alert('Error submitting comment');
                 }
@@ -160,7 +164,7 @@
             }).finally(() => {
                 const newCommentInput = document.getElementById('newComment');
                 if (newCommentInput) {
-                    newComment.value = '';
+                    newCommentInput.value = '';
                 }
 
             });
@@ -176,7 +180,7 @@
         }
 
         // Send reply to the backend
-        fetch(/submit_reply/, {
+        fetch('/submit_reply/', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -195,7 +199,8 @@
         }).then(data => {
             if (data.success) {
                 const repliesSection = document.getElementById(repliesId);
-                appendReply(repliesSection, data.reply);  // Pass the new reply data
+                repliesSection.style.display = 'block';
+                appendReply(repliesSection, data.reply, issueId);  // Pass the new reply data
             } else {
                 alert('Error submitting reply');
             }
