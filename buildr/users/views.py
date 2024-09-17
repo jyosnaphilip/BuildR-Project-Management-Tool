@@ -15,6 +15,7 @@ import random
 from .models import EmailVerification
 
 
+
 def check_code(ws_code):
     ws_code = workspaceCode.objects.get(
         code=ws_code[0]['code'], is_active=True)
@@ -696,5 +697,13 @@ def submit_replies(request):
             return JsonResponse({'success': False, 'error': 'Parent comment not found'})
     return JsonResponse({'success': False, 'error': 'Invalid request'})
 
-def dashboard(request):
-    return render (request,'dashboard\Dashboard.html')
+
+
+def dashboard(request,custom_id):
+    current_ws_id = request.session.get('current_ws', None)
+
+    ws, current_ws, projects, flag, code = req_for_navbar(
+        custom_id, current_ws_id)
+    context = {'custom_id':custom_id,'workspaces': ws, 'current_ws': current_ws,
+               'flag': flag, 'ws_code': code, 'projects': projects }
+    return render (request,'dashboard\default_dashboard.html', context)

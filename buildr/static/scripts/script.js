@@ -95,4 +95,28 @@ $(document).ready(function(){
 });
 
 
-// for loading comments
+// get morale
+function get_morale(issueId) {
+    $.ajax({
+        url: "/get-morale/",  // Replace with the correct URL pattern
+        method: "POST",
+        data: {
+            'issue_id': issueId,
+            'csrfmiddlewaretoken': '{{ csrf_token }}'
+        },
+        success: function(response) {
+            if (response.success) {
+                // Display the sentiment as an alert
+                alert(`
+                    Overall Sentiment: ${response.overall_sentiment}
+                   
+                `);
+            } else {
+                alert('Failed to fetch the sentiment analysis.');
+            }
+        },
+        error: function(xhr, status, error) {
+            alert('Error occurred: ' + error);
+        }
+    });
+}

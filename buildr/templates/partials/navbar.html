@@ -29,43 +29,49 @@
       <button type="button" class="btn-close" onclick="toggleSidebar()" data-bs-dismiss="offcanvas"
         aria-label="Close" style = "background-color:#fff"></button>
     </div>
-    <div class="offcanvas-body">
+    <div class="offcanvas-body d-flex align-items-start flex-column ">
+      <div class="mb-auto">
       <p><a href="{% url 'home' custom_id %}" class="my-task">My tasks</a></p>
       
       {% for project in projects %}
       <p><a href="{% url 'project_view' project.project_id custom_id %}" class="current-workspace">{{project.name}}</a></p>
       {% endfor %}
+      <p><a href="{% url 'add_project' custom_id %}" class="join-workspace" ><i class="fa-solid fa-plus fa-l" style="color: #36089b;color: white;"></i>  Add Project</a></p>
+      <a href = "{% url 'dashboard' custom_id %}" class="join-workspace"><i class="fa-solid fa-chart-column" style="color: #f3f4f7;"></i> My Dashboard</a>
+    </div>
+    <div class="">
+      <p>{% if flag %}
+        <button type="button" class="btn btn-outline-light" data-bs-toggle="modal" data-bs-target="#codeModal">
+          Add members
+        </button>
+
+        
+
+        {% endif %}
+      </p>
     <p>
     <a href="{% url 'new_workspace' custom_id %}" class="join-workspace" >Create Workspace</a>
     </p>
     <p>
       <a href="{% url 'join-workspace' custom_id %}" class="join-workspace" >Join Workspace</a>
     </p>
-      <p><a href="{% url 'add_project' custom_id %}" class="join-workspace" ><i class="fa-solid fa-plus fa-2xl" style="color: #36089b;color: white;"></i> Add Project</a></p>
-      <p>{% if flag %}
-        <button type="button" class="btn btn-outline-light" data-bs-toggle="modal" data-bs-target="#codeModal">
-          Add members
-        </button>
-
-        <!-- Modal -->
-
-        {% endif %}
-      </p>
-      <a href = "{% url 'dashboard' %}" class="join-workspace">Dashboard</a>
+      
+    </div>
     </div>
   </div>
+  <!-- Modal -->
   <div class="modal" id="codeModal" tabindex="-1">
     <div class="modal-dialog">
       <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title">Share this workspace code to add members:</h5>
+        <div class="modal-header " style="background-color: #004a7a;color:white;">
+          <h5 class="modal-title">Share this workspace code to add members</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
-        <div class="modal-body">
+        <div class="modal-body text-center" style="color:#004a7a;font-size: larger; font-weight: 900;">
           <p>{{ws_code}}</p>
         </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        <div class="modal-footer " style="background-color: #004a7a;">
+          <button type="button"  class="btn btn-outline-light" data-bs-dismiss="modal">Close</button>
 
         </div>
       </div>
