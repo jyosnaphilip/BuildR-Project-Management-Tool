@@ -704,6 +704,37 @@ def dashboard(request,custom_id):
 
     ws, current_ws, projects, flag, code = req_for_navbar(
         custom_id, current_ws_id)
+    
+    # treemap of priority
+    treemap_data, priority_count = treemap_of_priority(custom_id)
+
     context = {'custom_id':custom_id,'workspaces': ws, 'current_ws': current_ws,
-               'flag': flag, 'ws_code': code, 'projects': projects }
+               'flag': flag, 'ws_code': code, 'projects': projects, 'treemap_data':treemap_data, 'priority_count':priority_count}
     return render (request,'dashboard\default_dashboard.html', context)
+
+
+def treemap_of_priority(custom_id):
+    """ retrieves all active & pending issues assigned to a person and sorts them into priority groups """
+
+    issues_assigned = issue_assignee_bridge.objects.filter(
+                        assignee=custom_id,active=True).exclude(
+                                    issue__status=3).select_related('issue', 'issue__project')
+    
+    tree_data = {'Urgent':{}, 'High Priority':{}, 'Medium Priority':{}, 'Low Priority':{},
+                  'No Priority':{}}
+    priority_count = {'Urgent':0, 'High Priority':0, 'Medium Priority':0, 'Low Priority':0,
+                  'No Priority':0}
+    for issue in issues_assigned:
+        prior = issue.issue.priority.name
+        project = issue.issue.project.name
+        if prior not in tree_data:
+            prior = "No Priority"
+        tree_data[prior][project] = tree_data[prior].get(project,0) + 1
+        priority_count[prior] += 1
+
+        
+    print(tree_data)
+    print(priority_count)
+    return tree_data, priority_count
+
+

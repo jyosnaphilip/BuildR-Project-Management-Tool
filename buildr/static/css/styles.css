@@ -1,5 +1,6 @@
 @import url("https://code.highcharts.com/css/highcharts.css");
 @import url("https://code.highcharts.com/dashboards/css/dashboards.css");
+@import url("https://code.highcharts.com/dashboards/css/datagrid.css");
 @media (max-width: 700px) {
   .container .text{
     font-size: 30px;
@@ -761,4 +762,7 @@ highcharts-data-table tr:nth-child(even) {
 
 highcharts-data-table tr:hover {
     background: #f1f7ff;
+}
+#csv {
+  display: none;
 }
