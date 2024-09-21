@@ -11,21 +11,19 @@
 <script src="https://code.highcharts.com/dashboards/modules/layout.js"></script>
 <script src="https://code.highcharts.com/modules/treemap.js"></script>
 <script src="https://code.highcharts.com/modules/drilldown.js"></script>
+<script src="https://code.highcharts.com/gantt/modules/gantt.js"></script>
 <div id="content" class="expanded">
     
-<div id="container" class="highcharts-light ">
-    <div class="row h-50 m-4">
+<div id="container" class="highcharts-light mx-5 my-2 rounded" style="background-color:white;">
+    <div class="row p-3" >
       <div class="col-sm-4  h-100" >
-        <div id="treemap" class="shadow-lg rounded"></div>
+        <div id="treemap" class="shadow-sm rounded"></div>
+      </div>
+      <div class="col-sm-4 h-100">
+        <div id="pie_chart" class="shadow-sm rounded"></div>
       </div>
     </div>
 </div>
-<pre id="csv">Food,Vitamin A
-    Beef Liver,6421
-    Lamb Liver, 2122
-    Cod Liver Oil, 1350
-    Mackerel, 388
-    Tuna, 214</pre>
 
 </div>
 <script>
@@ -106,6 +104,116 @@ Highcharts.chart('treemap', {
     useHTML: true,
     pointFormat:
     'There are <b>{point.value}</b> tasks of <b>{point.name}</b> '
+  }
+});
+// to do: show what these issues are by adding level in the drilldown option
+</script>
+<!-- piechart -->
+ <!-- possible issue: as time goes on the closed issues can increase and then it will be like 
+  close=50, pending=1 
+  solu: if closed, check the closing date(if in last 2 weeks) and add???  -->
+<script>
+  // Radialize the colors
+Highcharts.getOptions({
+    colors: Highcharts.map(Highcharts.getOptions().colors, function (color) {
+        return {
+            radialGradient: {
+                cx: 0.5,
+                cy: 0.3,
+                r: 0.7
+            },
+            stops: [
+                [0, color],
+                [1, Highcharts.color(color).brighten(-0.3).get('rgb')] // darken
+            ]
+        };
+    })
+});
+  Highcharts.chart('pie_chart', {
+  
+  chart: {
+    type: 'pie'
+  },
+  title: {
+    text: 'Your Task Status',
+    align:'left'
+  },
+  subtitle:{
+    text:'Click on slices to view breakdown of status by project',
+    align:'left'
+  },
+  
+  tooltip: {
+    
+    borderColor: '#999',
+    backgroundColor: 'rgba(255, 255, 255, 0.93)'
+  },
+  plotOptions: {
+    pie: {
+      allowPointSelect: true,
+      cursor: 'pointer',
+      colors,
+      dataLabels: [{
+        distance:'-30%',
+        position:'center',
+        enabled: true,
+        format: '<span style="font-size:1.0rem;color:black;"><b> {point.name}</b></span>' +
+                    '<br>' +
+                    '<span style="color:black;">{point.percentage:.1f}</span> ' +
+                    '%',
+                connectorColor: 'rgba(128,128,128,0.5)',
+                filter: {
+                    property: 'percentage',
+                    operator: '>',
+                    value: 0
+                }
+      },
+    ],
+      
+    }
+  },
+  series: [
+    { borderRadius:5,
+      name: 'Issues',
+      colorByPoint: true,
+      data: [
+        {% for status,count in status_count.items %}
+        {
+          name: '{{status}}',
+          y: {{count}},
+          drilldown:'{{status}}'
+        } {% if not loop.last %},{% endif %}
+        {% endfor %}
+        
+      ]
+    }
+  ],
+  drilldown:{
+    activeDataLabelStyle: {
+            textDecoration: 'none'
+            },
+            dataLabels: [{
+        distance:'-1%',
+        position:'center',
+        enabled: true,
+        format: '<span style="font-size:0.5rem;color:black;"><b> {point.name}</b></span>' +
+                    '<br>' +
+                    '<span style="color:black;">{point.percentage:.1f}</span> ' +
+                    '%',
+                connectorColor: 'rgba(128,128,128,0.5)'}],
+    series:[
+      {% for status, projects in pie_data.items %}
+      {name:'{{status}}',
+        id:'{{status}}',
+        data:[
+        {% for project, count in projects.items %}
+        ['{{project}}',{{count}}]{% if not loop.last %},{% endif %}
+        {% endfor %}
+        ]
+        
+      }{% if not loop.last %},{% endif %}
+      {% endfor %}
+    ]
   }
 });
 </script>

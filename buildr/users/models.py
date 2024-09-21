@@ -89,6 +89,7 @@ class status(models.Model):
     name = models.CharField(max_length=100, choices=[
         ('Open', 'Open'),
         ('In Progress', 'In Progress'),
+        ('Paused', 'Paused'),
         ('Closed', 'Closed')
     ])
     

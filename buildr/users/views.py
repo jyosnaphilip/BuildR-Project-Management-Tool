@@ -707,9 +707,10 @@ def dashboard(request,custom_id):
     
     # treemap of priority
     treemap_data, priority_count = treemap_of_priority(custom_id)
-
+    # pie chart
+    pie_data, status_count = status_pie(custom_id)
     context = {'custom_id':custom_id,'workspaces': ws, 'current_ws': current_ws,
-               'flag': flag, 'ws_code': code, 'projects': projects, 'treemap_data':treemap_data, 'priority_count':priority_count}
+               'flag': flag, 'ws_code': code, 'projects': projects, 'treemap_data':treemap_data, 'priority_count':priority_count, 'pie_data':pie_data, 'status_count': status_count}
     return render (request,'dashboard\default_dashboard.html', context)
 
 
@@ -725,16 +726,33 @@ def treemap_of_priority(custom_id):
     priority_count = {'Urgent':0, 'High Priority':0, 'Medium Priority':0, 'Low Priority':0,
                   'No Priority':0}
     for issue in issues_assigned:
-        prior = issue.issue.priority.name
-        project = issue.issue.project.name
-        if prior not in tree_data:
+        if issue.issue.priority:
+            prior = issue.issue.priority.name
+        else:
             prior = "No Priority"
+        
+        project = issue.issue.project.name            
         tree_data[prior][project] = tree_data[prior].get(project,0) + 1
         priority_count[prior] += 1
+    
 
-        
-    print(tree_data)
-    print(priority_count)
     return tree_data, priority_count
 
+def status_pie(custom_id):
+    """ retrievs active issues and their statuses assigned to user with given custom_id """
+    issues_assigned = issue_assignee_bridge.objects.filter(
+                        assignee=custom_id,active=True).select_related('issue', 'issue__project')
+    
+    pie_data = {'Open':{}, 'In Progress':{}, 'Paused':{}, 'Closed':{}}
+    status_count = {'Open':0, 'In Progress':0, 'Paused':0, 'Closed':0}
 
+    for issue in issues_assigned:
+        if issue.issue.status:
+            stat = issue.issue.status.name
+        else:
+            stat = "Open"
+        project = issue.issue.project.name
+        pie_data[stat][project] = pie_data[stat].get(project,0) + 1
+        status_count[stat] += 1
+    
+    return pie_data, status_count
