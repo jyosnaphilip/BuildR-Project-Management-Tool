@@ -1,35 +1,35 @@
-from django.db.models.signals import post_save
-from django.dispatch import receiver
-from transformers import pipeline
-from .models import Comments
-from users.tasks import get_sentiment_task
+# from django.db.models.signals import post_save
+# from django.dispatch import receiver
+# from transformers import pipeline
+# from .models import Comments,issue,project_member_bridge
+# from users.tasks import get_sentiment_task
 
-@receiver(post_save, sender=Comments)
-def sentiment_analysis_on_save(sender, instance, created, **kwargs):
-    if created: # check if comments were actually created
-        print("here 0")
-        get_sentiment_task.delay(instance.id)   # call celery tasks async
-        comment = Comments.objects.get(id=instance.id)
+# @receiver(post_save, sender=Comments)
+# def sentiment_analysis_on_save(sender, instance, created, **kwargs):
+#     if created: # check if comments were actually created
+#         print("here 0")
+#         get_sentiment_task.delay(instance.id)   # call celery tasks async
+#         comment = Comments.objects.get(id=instance.id)
 
-        pipe = pipeline("text-classification", model="finiteautomata/bertweet-base-sentiment-analysis")  # output labels: POS, NEG, NEU
+#         pipe = pipeline("text-classification", model="finiteautomata/bertweet-base-sentiment-analysis")  # output labels: POS, NEG, NEU
 
-    # Save sentiment score back to the database
-        result = pipe(comment.comment)
-        label = result[0]['label'] 
-        print(f"Sentiment analysis result: {label}")
-        if label == 'NEG':
-            comment.sentiment_score = -1
-            # notify fn
-        elif label == 'NEU':
-            comment.sentiment_score = 0
-        else:
-            comment.sentiment_score = 1
+#     # Save sentiment score back to the database
+#         result = pipe(comment.comment)
+#         label = result[0]['label'] 
+#         print(f"Sentiment analysis result: {label}")
+#         if label == 'NEG':
+#             comment.sentiment_score = -1
+#             # notify fn
+#         elif label == 'NEU':
+#             comment.sentiment_score = 0
+#         else:
+#             comment.sentiment_score = 1
 
     
-        comment.save()
+#         comment.save()
     
     
-        issue_id = comment.issue.issue_id
+#         issue_id = comment.issue.issue_id
     
     
 

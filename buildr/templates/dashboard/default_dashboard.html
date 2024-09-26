@@ -22,6 +22,15 @@
       <div class="col-sm-4 h-100">
         <div id="pie_chart" class="shadow-sm rounded"></div>
       </div>
+      <div class="col-sm-4">
+        add num
+        
+      </div>
+    </div>
+    <div class="row p-3">
+      <div class="col-sm-12">
+        <div id="gantt" class="shadow-sm rounded"></div>
+      </div>
     </div>
 </div>
 
@@ -115,13 +124,14 @@ Highcharts.chart('treemap', {
 <script>
   // Radialize the colors
 Highcharts.getOptions({
-    colors: Highcharts.map(Highcharts.getOptions().colors, function (color) {
+    colors: Highcharts.getOptions().colors.map(function(color) {
         return {
-            radialGradient: {
-                cx: 0.5,
-                cy: 0.3,
-                r: 0.7
-            },
+          linearGradient: {
+            cx: 0.5,
+            cy: 0.5,
+            r: 0.7
+          },
+        
             stops: [
                 [0, color],
                 [1, Highcharts.color(color).brighten(-0.3).get('rgb')] // darken
@@ -153,11 +163,12 @@ Highcharts.getOptions({
       allowPointSelect: true,
       cursor: 'pointer',
       colors,
+      borderRadius: 8,
       dataLabels: [{
-        distance:'-30%',
+        distance:'-40%',
         position:'center',
         enabled: true,
-        format: '<span style="font-size:1.0rem;color:black;"><b> {point.name}</b></span>' +
+        format: '<span style="font-size:0.80rem;color:black;"><b> {point.name}</b></span>' +
                     '<br>' +
                     '<span style="color:black;">{point.percentage:.1f}</span> ' +
                     '%',
@@ -176,6 +187,7 @@ Highcharts.getOptions({
     { borderRadius:5,
       name: 'Issues',
       colorByPoint: true,
+      innerSize: '75%',
       data: [
         {% for status,count in status_count.items %}
         {
@@ -217,6 +229,270 @@ Highcharts.getOptions({
   }
 });
 </script>
+
+<!-- gantt -->
+ <script>
+  function getDate(date) {
+      const dateParts = date.split('-');
+      const year = parseInt(dateParts[0], 10);
+      const month = parseInt(dateParts[1], 10) - 1; // JavaScript months are zero-indexed
+      const day = parseInt(dateParts[2], 10);
+      
+      // Return the date as a UTC timestamp
+      return Date.UTC(year, month, day);
+                }
+  const day = 24 * 36e5,
+    today = Math.floor(Date.now() / day) * day;
+
+const options = {
+    chart: {
+        plotBackgroundColor: 'rgba(128,128,128,0.02)',
+        plotBorderColor: 'rgba(128,128,128,0.1)',
+        plotBorderWidth: 1
+    },
+
+    plotOptions: {
+        series: {
+            borderRadius: '50%',
+            // connectors: {
+            //     dashStyle: 'ShortDot',
+            //     lineWidth: 2,
+            //     radius: 5,
+            //     startMarker: {
+            //         enabled: false
+            //     }
+            // },
+            groupPadding: 0,
+            dataLabels: [{
+                enabled: true,
+                align: 'left',
+                format: '{point.name}',
+                padding: 10,
+                style: {
+                    fontWeight: 'normal',
+                    textOutline: 'none'
+                }
+            }, {
+                enabled: true,
+                align: 'right',
+                format: '{#if point.completed}{(multiply ' +
+                    'point.completed.amount 100):.0f}%{/if}',
+                padding: 10,
+                style: {
+                    fontWeight: 'normal',
+                    textOutline: 'none',
+                    opacity: 0.6
+                }
+            }]
+        }
+    },
+
+    series: [ // project start 
+    {% for project,details in gantt.items %}
+    {
+      
+        name: '{{project}}',
+        data: [{
+            name: '{{project}}',
+            id: '{{project}}',
+            owner: {% if details.lead %}{% for lead in details.lead %}'{{lead.team_member.user.first_name}}'{% endfor %}{% else %}'na'{% endif %}
+        }, {% for issue,issues_details in details.issues.items %}
+        {
+            name: '{{issue}}',
+            id: '{{issue}}',
+            parent: '{{project}}',
+            start:  getDate('{{ issues_details.created_on }}') ,
+            
+            end: getDate('{{issues_details.deadline}}'),
+            completed: {
+                amount: 0.2
+                // 
+            },
+            owner:  {% if issues_details.assignees %}{% for assignee in issues_details.assignees %}'{{assignee.assignee.user}}'{% endfor %}{% else %}'na'{% endif %}
+        }{% if not loop.last %},{% endif %} {% endfor %}
+        ]
+    }{% if not loop.last %},{% endif %}
+    {% endfor %}
+    // project end
+    ],
+  dataLabels: [{
+            enabled: true,
+            format: '<div style="width: 20px; height: 20px; overflow: ' +
+                'hidden; border-radius: 50%; margin-left: -25px">' +
+                '<img src="https://github.com/jyosnaphilip.png" ' +
+                'style="width: 30px; margin-left: -5px; margin-top: -2px">' +
+                '</div>',
+            useHTML: true,
+            align: 'left'
+        }, {
+            enabled: true,
+            format: '<i class="fa fa-{point.fontSymbol}" style="font-size: ' +
+                '1.5em"></i>',
+            useHTML: true,
+            align: 'right'
+        }],
+        tooltip: {
+      outside:true,
+         
+        pointFormat: '<span style="font-weight: bold;color:white;">{point.name}'+ 'Start: {point.start:%e %b %Y}<br>' +
+        'End: {point.end:%e %b %Y}<br>' +
+        'Completed: {point.completed.amount :.0%}<br>' +
+        'Owner: {point.owner}</span><br>' 
+           
+    },
+    title: {
+        text: 'Gantt Project Management To do: add dates, calculate time and try changing bg color'
+    },
+    xAxis: [{
+        currentDateIndicator: {
+            color: '#2caffe',
+            dashStyle: 'ShortDot',
+            width: 2,
+            label: {
+                format: ''
+            }
+        },
+        dateTimeLabelFormats: {
+            day: '%e<br><span style="opacity: 0.5; font-size: 0.7em">%a</span>'
+        },
+        grid: {
+            borderWidth: 0
+        },
+        gridLineWidth: 1,
+        min: today - 3 * day,
+        max: today + 18 * day,
+        custom: {
+            today,
+            weekendPlotBands: true
+        }
+    }],
+    yAxis: {
+        grid: {
+            borderWidth: 0
+        },
+        gridLineWidth: 0,
+        labels: {
+            symbol: {
+                width: 8,
+                height: 6,
+                x: -4,
+                y: -2
+            }
+        },
+        staticScale: 30
+    },
+  navigator: {
+    enabled: true,
+    liveRedraw: true,
+    series: {
+      type: 'gantt',
+      pointPlacement: 0.5,
+      pointPadding: 0.25,
+      accessibility: {
+        enabled: false
+      }
+    },
+    yAxis: {
+      min: 0,
+      max: 3,
+      reversed: true,
+      categories: []
+    }
+  },
+
+  scrollbar: {
+    enabled: true
+  },
+
+  rangeSelector: {
+    enabled: true,
+    selected: 0
+  },
+    accessibility: {
+        keyboardNavigation: {
+            seriesNavigation: {
+                mode: 'serialize'
+            }
+        },
+        point: {
+            descriptionFormatter: function (point) {
+                const completedValue = point.completed ?
+                        point.completed.amount || point.completed : null,
+                    completed = completedValue ?
+                        ' Task ' + Math.round(completedValue * 1000) / 10 +
+                            '% completed.' :
+                        '',
+                    dependency = point.dependency &&
+                        point.series.chart.get(point.dependency).name,
+                    dependsOn = dependency ?
+                        ' Depends on ' + dependency + '.' : '';
+
+                return Highcharts.format(
+                    point.milestone ?
+                        '{point.yCategory}. Milestone at {point.x:%Y-%m-%d}. ' +
+                        'Owner: {point.owner}.{dependsOn}' :
+                        '{point.yCategory}.{completed} Start ' +
+                        '{point.x:%Y-%m-%d}, end {point.x2:%Y-%m-%d}. Owner: ' +
+                        '{point.owner}.{dependsOn}',
+                    { point, completed, dependsOn }
+                );
+            }
+        }
+    },
+    lang: {
+        accessibility: {
+            axis: {
+                xAxisDescriptionPlural: 'The chart has a two-part X axis ' +
+                    'showing time in both week numbers and days.'
+            }
+        }
+    }
+};
+
+// Plug-in to render plot bands for the weekends
+Highcharts.addEvent(Highcharts.Axis, 'foundExtremes', e => {
+    if (e.target.options.custom && e.target.options.custom.weekendPlotBands) {
+        const axis = e.target,
+            chart = axis.chart,
+            day = 24 * 36e5,
+            isWeekend = t => /[06]/.test(chart.time.dateFormat('%w', t)),
+            plotBands = [];
+
+        let inWeekend = false;
+
+        for (
+            let x = Math.floor(axis.min / day) * day;
+            x <= Math.ceil(axis.max / day) * day;
+            x += day
+        ) {
+            const last = plotBands.at(-1);
+            if (isWeekend(x) && !inWeekend) {
+                plotBands.push({
+                    from: x,
+                    color: {
+                        pattern: {
+                            path: 'M 0 10 L 10 0 M -1 1 L 1 -1 M 9 11 L 11 9',
+                            width: 10,
+                            height: 10,
+                            color: 'rgba(128,128,128,0.15)'
+                        }
+                    }
+                });
+                inWeekend = true;
+            }
+
+            if (!isWeekend(x) && inWeekend && last) {
+                last.to = x;
+                inWeekend = false;
+            }
+        }
+        axis.options.plotBands = plotBands;
+    }
+});
+
+Highcharts.ganttChart('gantt', options);
+
+ </script>
 
 
 

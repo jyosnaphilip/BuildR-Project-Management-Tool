@@ -13,9 +13,17 @@ from django.db.models import Count
 from django.core.mail import send_mail
 import random
 from .models import EmailVerification
+from datetime import timedelta,date
+from django.utils.dateformat import format
+from highcharts_gantt.chart import Chart
+from highcharts_gantt.global_options.shared_options import SharedOptions
+from highcharts_gantt.options import HighchartsGanttOptions
+from highcharts_gantt.options.plot_options.gantt import GanttOptions
+from highcharts_gantt.options.series.gantt import GanttSeries
+from users.tasks import get_sentiment_task
 
-
-
+# shared_options = SharedOptions.from_js_literal('buildr\\static\\scripts\\highcharts_config\\shared_options.js')
+# js_shared_options = shared_options.to_js_literal()
 def check_code(ws_code):
     ws_code = workspaceCode.objects.get(
         code=ws_code[0]['code'], is_active=True)
@@ -35,11 +43,13 @@ def create_code(ws_id):
 
 
 def get_projects(ws_id):
+    """ retrieves all projects of a workspace """
     projects = Project.objects.filter(ws=ws_id.ws_id).distinct()
     return projects
 
 
 def req_for_navbar(custom_id, current_ws_id):
+    """ retrieves all things necessary for rendering of sidebar """
     ws = get_ws(custom_id, current_ws_id)  # all ws #nav
     current_ws = workspace.objects.get(ws_id=current_ws_id)
     projects = get_projects(current_ws)  # nav
@@ -651,6 +661,9 @@ def submit_comment(request):
                 author=customUser.objects.get(user=request.user),
                 comment=comment_text
             )
+            get_sentiment_task.delay(
+                comment.id
+            )
             return JsonResponse({'success': True, 'comment': {
                     'id': comment.id,
                     'author': comment.author.user.first_name + comment.author.user.last_name ,  
@@ -700,6 +713,7 @@ def submit_replies(request):
 
 
 def dashboard(request,custom_id):
+    """ sends user to dashboard """
     current_ws_id = request.session.get('current_ws', None)
 
     ws, current_ws, projects, flag, code = req_for_navbar(
@@ -709,8 +723,12 @@ def dashboard(request,custom_id):
     treemap_data, priority_count = treemap_of_priority(custom_id)
     # pie chart
     pie_data, status_count = status_pie(custom_id)
+    gantt = gantt_data(projects)
+    print(gantt)
     context = {'custom_id':custom_id,'workspaces': ws, 'current_ws': current_ws,
-               'flag': flag, 'ws_code': code, 'projects': projects, 'treemap_data':treemap_data, 'priority_count':priority_count, 'pie_data':pie_data, 'status_count': status_count}
+               'flag': flag, 'ws_code': code, 'projects': projects, 'treemap_data':treemap_data,
+                 'priority_count':priority_count, 'pie_data':pie_data,
+                   'status_count': status_count, 'gantt':gantt}
     return render (request,'dashboard\default_dashboard.html', context)
 
 
@@ -756,3 +774,23 @@ def status_pie(custom_id):
         status_count[stat] += 1
     
     return pie_data, status_count
+
+def gantt_data(projects):
+    gantt = {}
+    for project in projects:
+        lead = project_member_bridge.objects.filter(
+        project_id=project.project_id, role="Lead", active=True)
+        gantt[project.name] = {'project':project,'lead':lead,'issues':{}}
+        top_level_issues = issue.objects.filter(project=project,parent_task__isnull = True)
+        for issue_ in top_level_issues:
+            assignees = issue_assignee_bridge.objects.filter(
+            active=True, issue=issue_)
+            if not issue_.deadline:
+                deadline=date.today()+timedelta(days=60)
+            else:
+                deadline=issue_.deadline
+            gantt[project.name]['issues'][issue_.name] = {'issue':issue_,'assignees':assignees,'created_on':issue_.created_on.date().strftime('%Y-%m-%d'),'deadline':deadline.strftime('%Y-%m-%d')} # sending created on separately cos otherwise, too much processing in front end
+
+    print(gantt)
+        
+    return gantt

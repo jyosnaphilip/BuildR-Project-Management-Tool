@@ -5,7 +5,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-@shared_task
+@shared_task(bind=True)
 def get_sentiment_task(comment_id):
     """ Get sentiment score for new comment"""
     logger.info("here1")
@@ -28,11 +28,11 @@ def get_sentiment_task(comment_id):
     comment.save()
     
     print(f"Saved sentiment score: {comment.sentiment_score}")
-    issue_id = comment.issue.issue_id
-    chain(
-            recalculate_issue_sentiment_task.s(issue_id),
-            notify_user_of_neg_sentiment_task.s(issue_id)
-        ).apply_async()      
+    # issue_id = comment.issue.issue_id
+    # chain(
+    #         recalculate_issue_sentiment_task.s(issue_id),
+    #         notify_user_of_neg_sentiment_task.s(issue_id)
+    #     ).apply_async()      
     
 
 @shared_task
