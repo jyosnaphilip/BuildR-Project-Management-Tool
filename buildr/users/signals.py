@@ -4,7 +4,7 @@
 # from .models import Comments,issue,project_member_bridge
 # from users.tasks import get_sentiment_task
 
-# @receiver(post_save, sender=Comments)
+# @receiver(post_save, sender=)
 # def sentiment_analysis_on_save(sender, instance, created, **kwargs):
 #     if created: # check if comments were actually created
 #         print("here 0")

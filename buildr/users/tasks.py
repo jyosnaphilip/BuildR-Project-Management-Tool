@@ -5,10 +5,10 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-@shared_task(bind=True)
-def get_sentiment_task(comment_id):
+@shared_task(bind=True) # THIS BIND AUTOMATICALY ADDS A SELF ARGUMENT IN THE BEGINNING !!!
+def get_sentiment_task(self, comment_id): # DO NOT, I REPEAT, DO NOT REMOVE THE SELF PARAMETER!!!
     """ Get sentiment score for new comment"""
-    logger.info("here1")
+    
     comment = Comments.objects.get(id=comment_id)
 
     pipe = pipeline("text-classification", model="finiteautomata/bertweet-base-sentiment-analysis")  # output labels: POS, NEG, NEU
@@ -16,7 +16,6 @@ def get_sentiment_task(comment_id):
     # Save sentiment score back to the database
     result = pipe(comment.comment)
     label = result[0]['label'] 
-    print(f"Sentiment analysis result: {label}")
     if label == 'NEG':
         comment.sentiment_score = -1
     elif label == 'NEU':
@@ -27,13 +26,11 @@ def get_sentiment_task(comment_id):
     
     comment.save()
     
-    print(f"Saved sentiment score: {comment.sentiment_score}")
-    # issue_id = comment.issue.issue_id
-    # chain(
-    #         recalculate_issue_sentiment_task.s(issue_id),
-    #         notify_user_of_neg_sentiment_task.s(issue_id)
-    #     ).apply_async()      
-    
+    issue_id = comment.issue.issue_id
+    chain(
+                recalculate_issue_sentiment_task.s(issue_id)
+            ).apply_async()      
+
 
 @shared_task
 def recalculate_issue_sentiment_task(issue_id):
@@ -47,7 +44,7 @@ def recalculate_issue_sentiment_task(issue_id):
             if comment.sentiment_score is not None:
                 sentiment_scores.append(comment.sentiment_score)
         if not sentiment_scores:
-            return  # no sentiments
+            return  None # no sentiments
         
         avg_sentiment = sum(sentiment_scores)/len(sentiment_scores)
         previous_sentiment_score = issue_.overall_sentiment_score
@@ -55,14 +52,14 @@ def recalculate_issue_sentiment_task(issue_id):
         issue_.save()
         if avg_sentiment < 0:
             if previous_sentiment_score is None or previous_sentiment_score >= 0:
-                notify_user_of_neg_sentiment_task.delay_on_commit(issue_id, debug = True)
-
-           
+                notify_user_of_neg_sentiment_task.s(issue_id).apply_async()
+    
+        return None
         
         
 
 @shared_task
-def notify_user_of_neg_sentiment_task(issue_id):
+def notify_user_of_neg_sentiment_task(self,issue_id):
     issue_ = issue.objects.get(issue_id=issue_id)
     project = issue_.project
     leads = project_member_bridge.objects.filter(project=project.project_id,active=True,role='Lead')
@@ -74,7 +71,8 @@ def notify_user_of_neg_sentiment_task(issue_id):
             pass
     
     # TO DO: code for sending in app notifications
+    return None
 
-@shared_task
-def test_task():
-    print("Celery is working!")
+# @shared_task
+# def test_task():
+#     print("Celery is working!")

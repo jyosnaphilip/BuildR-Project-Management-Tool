@@ -649,6 +649,7 @@ def get_issueComments(request, issue_id):
 
 
 def submit_comment(request):
+    print("Request Method:", request.method)
     if request.method == 'POST':
         data = json.loads(request.body.decode('utf-8'))
         comment_text = data.get('comment')
@@ -661,9 +662,10 @@ def submit_comment(request):
                 author=customUser.objects.get(user=request.user),
                 comment=comment_text
             )
-            get_sentiment_task.delay(
-                comment.id
-            )
+            comment.save()
+            print(f"Submitting sentiment task for comment ID: {comment.id}")
+            get_sentiment_task.delay(comment.id)
+            print("after celery")
             return JsonResponse({'success': True, 'comment': {
                     'id': comment.id,
                     'author': comment.author.user.first_name + comment.author.user.last_name ,  
@@ -672,6 +674,9 @@ def submit_comment(request):
                 }})
         except issue.DoesNotExist:
             return JsonResponse({'success': False, 'error': 'Issue not found'})
+        except Exception as e:
+            print(f"Error: {e}")  # Log the error for debugging
+            return JsonResponse({'error': str(e)}, status=500)
     return JsonResponse({'success': False, 'error': ' Invalid request method'})
 
 def submit_replies(request):
