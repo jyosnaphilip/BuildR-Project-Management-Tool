@@ -870,6 +870,18 @@ def user_profile(request,custom_id):
 
     ws, current_ws, projects, flag, code = req_for_navbar(
         custom_id, current_ws_id)
+    custom_user = customUser.objects.get(custom_id=custom_id)
     context = {"custom_id": custom_id, 'workspaces': ws, 'current_ws': current_ws,
-               'flag': flag, 'ws_code': code, 'projects': projects}
+               'flag': flag, 'ws_code': code, 'projects': projects, 'custom_user':custom_user}
     return render(request, 'users/user_profile.html', context)
+
+def edit_profile(request,custom_id):
+    if request.method == 'POST':
+        email_id = request.POST.get('email')
+        profile_pic = request.FILES.get('file')
+        customer = customUser.objects.get(custom_id=custom_id)
+        customer.email = email_id
+        customer.profile_pic = profile_pic
+        customer.save()
+        return redirect('user-profile',custom_id)
+    
