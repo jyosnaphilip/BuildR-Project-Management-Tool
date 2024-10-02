@@ -21,7 +21,7 @@ from django.contrib.auth import views as auth_views
 from django.urls import include
 from users.views import register,logout,join_workspace,new_workspace
 
-from users.views import home,add_project,project_view,issue_view,add_issue,add_subIssue,user_login,first_signin,change_ws,update_status,update_issue_field,update_project_field,edit_project,edit_issue, get_issueComments,submit_comment,submit_replies,dashboard
+from users.views import home,add_project,project_view,issue_view,add_issue,add_subIssue,user_login,first_signin,change_ws,update_status,update_issue_field,update_project_field,edit_project,edit_issue, get_issueComments,submit_comment,submit_replies,dashboard,user_profile
 urlpatterns = [
     path('admin/', admin.site.urls),
     # path("accounts/",include('allauth.urls')),
@@ -50,5 +50,7 @@ urlpatterns = [
     path('get_issueComments/<str:issue_id>',get_issueComments,name='get_issueComments'),
     path('submit_comment/',submit_comment,name="submit_comment"),
     path('submit_reply/',submit_replies,name='submit_reply'),
+    path('user-profile/<str:custom_id>',user_profile,name='user-profile'),
+
  
 ]

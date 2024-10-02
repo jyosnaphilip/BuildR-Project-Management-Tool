@@ -196,6 +196,7 @@ def logout_user(request):
             custom_user.save()
     logout(request)
     return redirect('login')
+
     
 # auth end------------------------
 
@@ -863,3 +864,12 @@ def scatter_plot_with_time(custom_id,ws_id):
             })
     
     return issue_data
+
+def user_profile(request,custom_id):
+    current_ws_id = request.session.get('current_ws', None)
+
+    ws, current_ws, projects, flag, code = req_for_navbar(
+        custom_id, current_ws_id)
+    context = {"custom_id": custom_id, 'workspaces': ws, 'current_ws': current_ws,
+               'flag': flag, 'ws_code': code, 'projects': projects}
+    return render(request, 'users/user_profile.html', context)
