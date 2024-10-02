@@ -23,7 +23,7 @@
         <div id="pie_chart" class="shadow-sm rounded"></div>
       </div>
       <div class="col-sm-4">
-        add num
+        <div id="scatter" class="shadow-sm rounded"></div>
         
       </div>
     </div>
@@ -170,8 +170,8 @@ Highcharts.getOptions({
         enabled: true,
         format: '<span style="font-size:0.80rem;color:black;"><b> {point.name}</b></span>' +
                     '<br>' +
-                    '<span style="color:black;">{point.percentage:.1f}</span> ' +
-                    '%',
+                    '<span style="color:black;">{point.percentage:.1f}%</span> ' 
+                    ,
                 connectorColor: 'rgba(128,128,128,0.5)',
                 filter: {
                     property: 'percentage',
@@ -264,13 +264,18 @@ const options = {
             // },
             groupPadding: 0,
             dataLabels: [{
-                enabled: true,
+                enabled: false,
                 align: 'left',
                 format: '{point.name}',
                 padding: 10,
                 style: {
                     fontWeight: 'normal',
-                    textOutline: 'none'
+                    textOutline: 'none',
+                    textOverflow: 'ellipsis',
+                    whiteSpace: 'nowrap',
+                    overflow: 'hidden',
+                    color: 'contrast',
+                     width: '80px'
                 }
             }, {
                 enabled: true,
@@ -305,8 +310,8 @@ const options = {
             
             end: getDate('{{issues_details.deadline}}'),
             completed: {
-                amount: 0.2
-                // 
+                amount: {{issues_details.percent}}
+                
             },
             owner:  {% if issues_details.assignees %}{% for assignee in issues_details.assignees %}'{{assignee.assignee.user}}'{% endfor %}{% else %}'na'{% endif %}
         }{% if not loop.last %},{% endif %} {% endfor %}
@@ -318,7 +323,7 @@ const options = {
   dataLabels: [{
             enabled: true,
             format: '<div style="width: 20px; height: 20px; overflow: ' +
-                'hidden; border-radius: 50%; margin-left: -25px">' +
+                'hidden; border-radius: 50%; margin-left: -25px;">' +
                 '<img src="https://github.com/jyosnaphilip.png" ' +
                 'style="width: 30px; margin-left: -5px; margin-top: -2px">' +
                 '</div>',
@@ -334,7 +339,7 @@ const options = {
         tooltip: {
       outside:true,
          
-        pointFormat: '<span style="font-weight: bold;color:white;">{point.name}'+ 'Start: {point.start:%e %b %Y}<br>' +
+        pointFormat: '<span style="font-weight: bold;color:white;">{point.name}<br>'+ 'Start: {point.start:%e %b %Y}<br>' +
         'End: {point.end:%e %b %Y}<br>' +
         'Completed: {point.completed.amount :.0%}<br>' +
         'Owner: {point.owner}</span><br>' 
@@ -419,7 +424,7 @@ const options = {
                 const completedValue = point.completed ?
                         point.completed.amount || point.completed : null,
                     completed = completedValue ?
-                        ' Task ' + Math.round(completedValue * 1000) / 10 +
+                        ' Task ' + Math.round(completedValue ) +
                             '% completed.' :
                         '',
                     dependency = point.dependency &&
@@ -494,7 +499,140 @@ Highcharts.ganttChart('gantt', options);
 
  </script>
 
+<script>
+  Highcharts.setOptions({
+    colors: [
+        'rgba(5,141,199,0.5)', 'rgba(80,180,50,0.5)', 'rgba(237,86,27,0.5)'
+    ]
+});
 
+const series = [{
+    name: 'Urgent',
+    id:'1',
+    marker: {
+        symbol: 'circle'
+    }
+},
+{
+    name: 'High Priority',
+    id: '2',
+    marker: {
+        symbol: 'triangle'
+    }
+},
+{
+    name: 'Medium Priority',
+    id: '3',
+    marker: {
+        symbol: 'square'
+    }
+},
+{
+    name: 'Low Priority',
+    id: '4',
+    marker: {
+        symbol: 'diamond'
+    }
+},
+{
+    name: 'No Priority',
+    id: '5',
+    marker: {
+        symbol: 'diamond'
+    }
+}];
+
+const taskData = [
+  
+  {% for scatter_item in scatter %}
+  {
+    task:'{{scatter_item.name}}', category:'{{scatter_item.category}}', expected: {{scatter_item.expected_duration}}, actual: {{scatter_item.actual_duration}}
+  }{% if not loop.last %},{% endif %}
+  
+  {% endfor %}
+]
+
+// filter data by task priority
+const getData =  category => {
+  return taskData.filter(task=>parseInt(task.category) === parseInt(category)).map(task=>[task.expected,task.actual]);
+}; // output will be of an array of arrays
+
+series.forEach(s=>{s.data=getData(s.id);
+
+});
+
+
+
+    Highcharts.chart('scatter', {
+        chart: {
+            type: 'scatter',
+            zooming: {
+                type: 'xy'
+            }
+        },
+        title: {
+            text: 'Comparison of Expected vs. Actual Task Duration',
+            align: 'left'
+        },
+        subtitle: {
+            text:
+          'Tasks categorized by priority',
+            align: 'left'
+        },
+        xAxis: {
+            title: {
+                text: 'Expected Duration (Days)'
+            },
+            labels: {
+                format: '{value}'
+            },
+            startOnTick: true,
+            endOnTick: true,
+            showLastLabel: true
+        },
+        yAxis: {
+            title: {
+                text: 'Actual Duration (Days)'
+            },
+            labels: {
+                format: '{value}'
+            }
+        },
+        legend: {
+            enabled: true
+        },
+        plotOptions: {
+            scatter: {
+                marker: {
+                    radius: 4,
+                    symbol: 'circle',
+                    states: {
+                        hover: {
+                            enabled: true,
+                            lineColor: 'rgb(100,100,100)'
+                        }
+                    }
+                },
+                states: {
+                    hover: {
+                        marker: {
+                            enabled: false
+                        }
+                    }
+                },
+                jitter: {
+                    x: 0.005
+                }
+            }
+        },
+        tooltip: {
+            pointFormat: 'Expected: {point.x} days <br/> Actual: {point.y} days'
+        },
+        series
+    });
+
+
+</script>
 
 
 {% endblock content %}

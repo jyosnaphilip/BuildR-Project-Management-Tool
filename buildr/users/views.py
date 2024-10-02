@@ -451,19 +451,33 @@ def update_issue_field(request):
         issue_id = request.POST.get('issue_id')
         field_name = request.POST.get('field_name')
         value = request.POST.get('value')
+        print(value)
         try:
             the_issue = issue.objects.get(issue_id=issue_id)
         except issue.DoesNotExist:
             return JsonResponse({'success': False, 'error': 'Issue not found'}, status=404)
-
+        
         if field_name == 'status':
-            the_issue.status_id = value
+            
+            previous_stat=the_issue.status_id
+            print("prev",previous_stat)
+            the_issue.status_id = int(value) 
+            print(type(value))
+            print("prev2",previous_stat)
+            if previous_stat!=4 and int(value)==4:
+                the_issue.mark_completed()
+                
+                
+            the_issue.save()
+            print("saved")
         elif field_name == 'priority':
             the_issue.priority_id = value
+            the_issue.save()
         elif field_name == 'assignee':
             try:
                 the_assignee = customUser.objects.filter(custom_id__in=value)
                 the_issue.assignee = the_assignee
+                the_issue.save()
             except customUser.DoesNotExist:
                 return JsonResponse({'success': False, 'error': 'Assignee not found'}, status=404)
         else:
@@ -488,7 +502,10 @@ def update_project_field(request):
 
         # Update the appropriate field
         if field_name == 'status':
+            previous_stat=the_project.status_id
             the_project.status_id = value
+            if value==4 and previous_stat!=4:
+                the_project.mark_completed()
         elif field_name == 'priority':
             the_project.priority_id = value
         else:
@@ -725,24 +742,24 @@ def dashboard(request,custom_id):
         custom_id, current_ws_id)
     
     # treemap of priority
-    treemap_data, priority_count = treemap_of_priority(custom_id)
+    treemap_data, priority_count = treemap_of_priority(custom_id,current_ws_id)
     # pie chart
-    pie_data, status_count = status_pie(custom_id)
+    pie_data, status_count = status_pie(custom_id,current_ws_id)
     gantt = gantt_data(projects)
-    print(gantt)
+    scatter = scatter_plot_with_time(custom_id, current_ws_id)
     context = {'custom_id':custom_id,'workspaces': ws, 'current_ws': current_ws,
                'flag': flag, 'ws_code': code, 'projects': projects, 'treemap_data':treemap_data,
                  'priority_count':priority_count, 'pie_data':pie_data,
-                   'status_count': status_count, 'gantt':gantt}
+                   'status_count': status_count, 'gantt':gantt, 'scatter':scatter}
     return render (request,'dashboard\default_dashboard.html', context)
 
 
-def treemap_of_priority(custom_id):
+def treemap_of_priority(custom_id,current_ws_id):
     """ retrieves all active & pending issues assigned to a person and sorts them into priority groups """
 
     issues_assigned = issue_assignee_bridge.objects.filter(
-                        assignee=custom_id,active=True).exclude(
-                                    issue__status=3).select_related('issue', 'issue__project')
+                        assignee=custom_id,active=True, issue__project__ws__ws_id=current_ws_id).exclude(
+                                    issue__status=4).select_related('issue', 'issue__project')
     
     tree_data = {'Urgent':{}, 'High Priority':{}, 'Medium Priority':{}, 'Low Priority':{},
                   'No Priority':{}}
@@ -761,13 +778,13 @@ def treemap_of_priority(custom_id):
 
     return tree_data, priority_count
 
-def status_pie(custom_id):
-    """ retrievs active issues and their statuses assigned to user with given custom_id """
+def status_pie(custom_id,current_ws_id):
+    """ retrievs active issues in the current ws and their statuses assigned to user with given custom_id """
     issues_assigned = issue_assignee_bridge.objects.filter(
-                        assignee=custom_id,active=True).select_related('issue', 'issue__project')
+                        assignee=custom_id,active=True, issue__project__ws__ws_id=current_ws_id).select_related('issue', 'issue__project')
     
-    pie_data = {'Open':{}, 'In Progress':{}, 'Paused':{}, 'Closed':{}}
-    status_count = {'Open':0, 'In Progress':0, 'Paused':0, 'Closed':0}
+    pie_data = {'Open':{}, 'In progress':{}, 'Paused':{}, 'Closed':{}}
+    status_count = {'Open':0, 'In progress':0, 'Paused':0, 'Closed':0}
 
     for issue in issues_assigned:
         if issue.issue.status:
@@ -785,17 +802,63 @@ def gantt_data(projects):
     for project in projects:
         lead = project_member_bridge.objects.filter(
         project_id=project.project_id, role="Lead", active=True)
-        gantt[project.name] = {'project':project,'lead':lead,'issues':{}}
+        gantt[project.name] = {'project':project,'lead':lead,'issues':{},'completion_percent':0}
         top_level_issues = issue.objects.filter(project=project,parent_task__isnull = True)
+        project_issues=top_level_issues.count()
+        project_issue_completed=0
         for issue_ in top_level_issues:
+          
             assignees = issue_assignee_bridge.objects.filter(
             active=True, issue=issue_)
+            if issue_.status==4:
+                project_issue_completed+=1
             if not issue_.deadline:
                 deadline=date.today()+timedelta(days=60)
             else:
                 deadline=issue_.deadline
-            gantt[project.name]['issues'][issue_.name] = {'issue':issue_,'assignees':assignees,'created_on':issue_.created_on.date().strftime('%Y-%m-%d'),'deadline':deadline.strftime('%Y-%m-%d')} # sending created on separately cos otherwise, too much processing in front end
+            # check for child tasks
+            sub_issues = issue.objects.filter(project=project,parent_task = issue_)
 
-    print(gantt)
-        
+            if len(sub_issues)!=0:
+                total=len(sub_issues)
+                
+                completed=sub_issues.filter(status=3).count()
+                percent=round((completed/total),2)
+            else:
+                # No sub-issues; determine based on the main issue's status
+                
+                if issue_.status.name == 'Closed':
+                    percent = 1  # Issue is completed (100%)
+                else:
+                    percent = 0  # Issue is not completed (0%)
+
+            project_completion_percent=round(project_issue_completed/project_issues, 2)
+
+            gantt[project.name]['issues'][issue_.name] = {'issue':issue_,'assignees':assignees,'created_on':issue_.created_on.date().strftime('%Y-%m-%d'),'deadline':deadline.strftime('%Y-%m-%d'),'percent':percent} # sending created on separately cos otherwise, too much processing in front end
+            gantt[project.name]['completion_percent']=project_completion_percent
     return gantt
+
+def scatter_plot_with_time(custom_id,ws_id):
+    issues_=issue.objects.filter(completed=True,assignee=custom_id,project__ws=ws_id)
+    
+    issue_data = []
+    for i in issues_:
+        print("her1e")
+        if i.deadline and i.completed_date: # should have deadline as well
+            # expected duration
+            expected_duration = (i.deadline - i.created_on.date()).days
+            actual_duration = (i.completed_date.date() - i.created_on.date()).days
+            print(i.name)
+            print(i.priority)
+            print("expected",expected_duration)
+            print(type(actual_duration))
+            print(type(expected_duration))
+            print(actual_duration)
+            issue_data.append({
+                "name":i.name,
+                "category":i.priority.id,
+                "expected_duration":expected_duration,
+                "actual_duration":actual_duration
+            })
+    
+    return issue_data

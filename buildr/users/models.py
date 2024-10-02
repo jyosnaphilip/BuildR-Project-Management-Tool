@@ -100,12 +100,18 @@ class Project(models.Model):
     deadline = models.DateField(null=True, blank=True)
     created_on = models.DateTimeField(auto_now_add=True)
     completed = models.BooleanField(default=False)
+    completed_date =models.DateTimeField(null=True, blank=True)
     ws = models.ForeignKey(workspace, on_delete=models.CASCADE, related_name='projects')
     priority = models.ForeignKey(priority, on_delete=models.SET_NULL, null=True, blank=True, related_name='projects')
     status = models.ForeignKey(status, on_delete=models.SET_NULL, null=True, blank=True, related_name='projects')
     team=models.ManyToManyField(customUser,through='project_member_bridge')
     def __str__(self):
         return self.name
+    
+    def mark_completed(self):
+        self.completed = True
+        self.completed_date  = timezone.now()
+        self.save()
     
 class project_member_bridge(models.Model):
     team_member=models.ForeignKey(customUser,on_delete=models.CASCADE)
@@ -125,6 +131,7 @@ class issue(models.Model):
     deadline = models.DateField(null=True, blank=True)
     created_on = models.DateTimeField(auto_now_add=True)
     completed = models.BooleanField(default=False)
+    completed_date =models.DateTimeField(null=True, blank=True)
     project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name='issues')
     priority = models.ForeignKey(priority, on_delete=models.SET_NULL, null=True, blank=True, related_name='issues')
     status = models.ForeignKey(status, on_delete=models.SET_NULL, null=True, blank=True, related_name='issues')
@@ -133,6 +140,11 @@ class issue(models.Model):
     overall_sentiment_score = models.FloatField(null=True, blank=True)
     def __str__(self):
         return self.name
+    
+    def mark_completed(self):
+        self.completed = True
+        self.completed_date  = timezone.now()
+        self.save()
 
 class issue_assignee_bridge(models.Model):
     assignee=models.ForeignKey(customUser,on_delete=models.CASCADE)
