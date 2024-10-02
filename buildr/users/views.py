@@ -3,7 +3,7 @@ from django.views.decorators.http import require_POST
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.contrib.auth.models import User
-from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth import authenticate, login,logout
 from .models import customUser, workspace, workspaceMember, workspaceCode, Project, priority, status, project_member_bridge, issue, issue_assignee_bridge, Comments
 from django.utils import timezone
 import json
@@ -186,7 +186,7 @@ def first_signin(request, customUser_id):
     return render(request, 'users/first_sign_in.html', {'customUser_id': customUser_id})
 
 
-def logout(request):
+def logout_user(request):
     if request.user.is_authenticated:
         custom_user = customUser.objects.get(user=request.user)
         current_ws = request.session.get('current_ws')
@@ -196,6 +196,7 @@ def logout(request):
             custom_user.save()
     logout(request)
     return redirect('login')
+    
 # auth end------------------------
 
 
