@@ -142,3 +142,37 @@ function copyTextClipboard() {
             }, 2000);
        
   }
+
+
+  function getCsrfToken() {
+    return document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+}
+
+  function toggleMemberStatus(custom_id, ws_id, element) {
+    // Send AJAX request to toggle the member's active status
+    fetch(`/toggle_ws_member_status/${custom_id}/${ws_id}`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken':  getCsrfToken(),  // Include CSRF token for security
+            'Content-Type': 'application/json',
+        },
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === 'success') {
+            // Update the icon based on the new active state
+            if (data.active) {
+                element.classList.remove('fa-toggle-off');
+                element.classList.add('fa-toggle-on');
+                element.style.color = '';
+            } else {
+                element.classList.remove('fa-toggle-on');
+                element.classList.add('fa-toggle-off');
+                element.style.color = '#7e7f81';
+            }
+        } else {
+            console.error('Error toggling member status:', data.message);
+        }
+    })
+    .catch(error => console.error('Error:', error));
+}

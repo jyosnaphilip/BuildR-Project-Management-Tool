@@ -923,3 +923,15 @@ def deactivate_ws_member(request, user_custom_id, custom_id, ws_id):
     ws_member.save()
     messages.success(request,"Workspace member deactivated succesfully")
     return redirect('manage_ws',user_custom_id,ws_id )
+
+
+
+def toggle_ws_member_status(request, custom_id, ws_id):
+    """Toggle the active state of a workspace member."""
+    try:
+        ws_member = workspaceMember.objects.get(workspace=ws_id, customUser=custom_id)
+        ws_member.active = not ws_member.active  # Toggle the active state
+        ws_member.save()
+        return JsonResponse({'status': 'success', 'active': ws_member.active})
+    except workspaceMember.DoesNotExist:
+        return JsonResponse({'status': 'error', 'message': 'Member not found'}, status=404)

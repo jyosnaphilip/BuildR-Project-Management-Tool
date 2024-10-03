@@ -2,6 +2,7 @@
 {% load static %}
 {% load index %}
 {% block content %}
+<meta name="csrf-token" content="{{ csrf_token }}">
 <div class="container">
 <div class="row-sm">
     <div class="col-sm-3">
@@ -35,11 +36,10 @@
                 {% for member in members %}
               <tr>
                 <th scope="row">
-                   {% if member.active %}
-                    <i class="fa-solid fa-toggle-on fa-xl" style="cursor:pointer;"></i>
-                    {% else %}
-                    <i class="fa-solid fa-toggle-off fa-xl" style="color: #7e7f81;"></i>
-                    {% endif %}
+                  <i class="fa-solid {% if member.active %}fa-toggle-on{% else %}fa-toggle-off{% endif %} fa-xl" 
+                  style="cursor:pointer; {% if not member.active %}color: #7e7f81;{% endif %}" 
+                  onclick="toggleMemberStatus('{{ member.customUser.custom_id }}', '{{ current_ws.ws_id }}', this)">
+               </i>
                 </th>
                 <td style="cursor: pointer;" class="col-sm-3">
                     <a href="" class="link-dark link-underline link-underline-opacity-0">{{member.customUser.user.first_name}} {{member.customUser.user.last_name}}
@@ -112,4 +112,9 @@
     </div>
   </div>
 <!-- model end -->
+
+
+
+
+
 {% endblock content %}
