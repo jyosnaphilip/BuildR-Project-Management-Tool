@@ -124,20 +124,19 @@ function get_morale(issueId) {
 
 
 function copyTextClipboard() {
-    // Get the text field
+  
     var copyText = document.getElementById("code");
-  
-    // Select the text field
+
     copyText.select();
-    copyText.setSelectionRange(0, 99999); // For mobile devices
+    copyText.setSelectionRange(0, 99999); 
   
-     // Copy the text inside the text field
+   
     navigator.clipboard.writeText(copyText.value);
   
     var successMessage = document.getElementById("copySuccessMessage");
             successMessage.style.display = "block";
 
-            // Optionally, hide the message after a few seconds
+           
             setTimeout(function() {
                 successMessage.style.display = "none";
             }, 2000);

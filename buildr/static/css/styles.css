@@ -515,10 +515,11 @@ tfoot tr:nth-child(2) th {
 }
 
 .offcanvas-body .join-workspace {
-  background-color:#004a7a;
+  
   text-decoration: none;
   color: white;
 }
+
 
 /*drop down on add project*/
 
@@ -769,4 +770,12 @@ highcharts-data-table tr:hover {
 }
 #csv {
   display: none;
+}
+
+.success{
+  color:green;
+}
+
+.error{
+  color:red;
 }

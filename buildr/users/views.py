@@ -247,24 +247,31 @@ def new_workspace(request, custom_id):
             ws_member = workspaceMember(workspace=workspace.objects.get(
                 ws_id=ws.ws_id), customUser=customUser.objects.get(custom_id=custom_id))
             ws_member.save()
-            code = workspaceCode.objects.filter(
-                ws=ws).order_by('-created_on').first()
-
-            if not code or code.has_expired():
-                if code:
-                    code.regenerate_code()
-                else:
-                    expires_on = timezone.now() + timezone.timedelta(days=120)  # Set expiration duration
-                    code = workspaceCode.objects.create(
+            expires_on = timezone.now() + timezone.timedelta(days=120)  # Set expiration duration
+            code = workspaceCode.objects.create(
                         ws=workspace.objects.get(ws_id=ws.ws_id),
-                        code=workspaceCode.generate_unique_code(),
+                        code=workspaceCode().generate_unique_code(),
                         expires_on=expires_on
                     )
-                    code.save()
+            code.save()
+            # code = workspaceCode.objects.filter(
+            #     ws=ws).order_by('-created_on').first()
 
-                return render(request, 'users/home.html', {'custom_id': custom_id, "ws_id": ws, 'code': code})
-            else:
-                messages.error(request, 'Code incorrect!')
+            # if not code or code.has_expired():
+            #     if code:
+            #         code.regenerate_code()
+            #     else:
+            #         expires_on = timezone.now() + timezone.timedelta(days=120)  # Set expiration duration
+            #         code = workspaceCode.objects.create(
+            #             ws=workspace.objects.get(ws_id=ws.ws_id),
+            #             code=workspaceCode.generate_unique_code(),
+            #             expires_on=expires_on
+            #         )
+            #         code.save()
+
+            return render(request, 'users/home.html', {'custom_id': custom_id, "ws_id": ws, 'code': code})
+        else:
+            messages.error(request, 'Workspace name already exists!')
             return redirect('new_workspace', custom_id)
 
     return render(request, 'partials/new_workspace.html', {'custom_id': custom_id})
@@ -885,3 +892,34 @@ def edit_profile(request,custom_id):
         customer.save()
         return redirect('user-profile',custom_id)
     
+
+def manage_workspace(request, custom_id, ws_id):
+    
+    ws, current_ws, projects, flag, code = req_for_navbar(custom_id, ws_id)
+    workspace_members=workspaceMember.objects.filter(workspace=ws_id)
+    
+    project_count_for_members = []
+    
+    for member in workspace_members:
+        project_count = project_member_bridge.objects.filter(team_member=custom_id, active=True, project__ws__ws_id=ws_id).count()
+        project_count_for_members.append(project_count)
+    
+    context = {"custom_id": custom_id, 'workspaces': ws, 'current_ws': current_ws,
+               'flag': flag, 'ws_code': code, 'projects': projects, 'members':workspace_members, 'project_count':project_count_for_members}
+    return render(request,'users/manage_ws.html',context)
+
+def remove_ws_member(request, user_custom_id, custom_id, ws_id):
+    """ removes user with custom_id 'custom_id' from workspace having id 'ws_id' """
+    ws_member=workspaceMember.objects.get(workspace=ws_id,customUser=custom_id)
+    ws_member.delete()
+    
+    messages.success(request,"Workspace member removed succesfully")
+    return redirect('manage_ws',user_custom_id,ws_id )
+
+def deactivate_ws_member(request, user_custom_id, custom_id, ws_id):
+    """ deactivates, not remove a user with id 'custom_id' from ws with id 'ws_id' """
+    ws_member=workspaceMember.objects.get(workspace=ws_id,customUser=custom_id)
+    ws_member.active = False
+    ws_member.save()
+    messages.success(request,"Workspace member deactivated succesfully")
+    return redirect('manage_ws',user_custom_id,ws_id )

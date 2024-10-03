@@ -42,10 +42,10 @@
     </div>
     <div class="">
       <p>{% if flag %}
-        <button type="button" class="btn btn-outline-light" data-bs-toggle="modal" data-bs-target="#codeModal">
-          Add members
+        
+        <button type="button" class="btn btn-outline-light" onclick="location.href='{% url 'manage_ws' custom_id current_ws.ws_id %}'" >
+          Manage Workspace
         </button>
-
         
 
         {% endif %}
@@ -61,27 +61,7 @@
     </div>
   </div>
   <!-- Modal -->
-  <div class="modal" id="codeModal" tabindex="-1">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header " style="background-color: #004a7a;color:white;">
-          <h5 class="modal-title">Share this workspace code to add members</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body text-center" style="color:#004a7a;font-size: larger; font-weight: 900;">
-          <input id="code" class="w-25" type="text" value="{{ws_code}}" style="border:none"></input>
-            <button style=" border: none;background-color: white;" onclick="copyTextClipboard()"><i class="fas fa-copy fa-xs" style="color:#7c93bb" ></i></button> <!-- Copy icon -->
-        </span>
-        <p id="copySuccessMessage" style="display:none; color:green;">Copied to clipboard!</p>
-        </div>
-        <div class="modal-footer " style="background-color: #004a7a;">
-          <button type="button"  class="btn btn-outline-light" data-bs-dismiss="modal">Close</button>
-
-        </div>
-      </div>
-    </div>
-  </div>
-
+  
 </div>
 
 <div class="dropdown mt-3 me-4" style="background:none;">

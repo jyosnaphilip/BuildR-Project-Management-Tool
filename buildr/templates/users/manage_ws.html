@@ -1,0 +1,115 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load index %}
+{% block content %}
+<div class="container">
+<div class="row-sm">
+    <div class="col-sm-3">
+        <button type="button" class="btn btn-outline-dark" data-bs-toggle="modal" data-bs-target="#codeModal">
+            Add members
+          </button>
+    </div>
+</div>
+<!-- workspace member list -->
+    {% if messages %}
+    {% for message in messages %}
+
+    <p {% if message.tags %} class="{{ message.tags }}" {% endif %}>{{ message }}</p>
+    {% endfor %}
+    {% endif %}
+    <div class="container p-3">
+        <table class="table table-hover text-center" style="background-color: rgb(41, 128, 185) ;">
+            <thead>
+              <tr>
+                <th scope="col-sm-1" class="text-center">Active</th>
+
+                <th scope="col-sm-6" class="text-center">Workspace Member</th>
+                <th scope="col-sm-1" class="text-center">Email</th>
+                <th scope="col-sm-1" class="text-center">Projects</th>
+                <th scope="col-sm-1" class="text-center">Edit</th>
+                
+                
+              </tr>
+            </thead>
+            <tbody>
+                {% for member in members %}
+              <tr>
+                <th scope="row">
+                   {% if member.active %}
+                    <i class="fa-solid fa-toggle-on fa-xl" style="cursor:pointer;"></i>
+                    {% else %}
+                    <i class="fa-solid fa-toggle-off fa-xl" style="color: #7e7f81;"></i>
+                    {% endif %}
+                </th>
+                <td style="cursor: pointer;" class="col-sm-3">
+                    <a href="" class="link-dark link-underline link-underline-opacity-0">{{member.customUser.user.first_name}} {{member.customUser.user.last_name}}
+                    </a>
+                </td>
+                    <td >
+                        {{member.customUser.email}}
+                    </td>
+                
+                <td> 
+                    <div class="col-sm-7 mb-2 ms-0">
+                        
+                        {{project_count|index:forloop.counter0}}
+                    </div>
+                    
+              </td>
+                <td><i class="fa-solid fa-trash" style="cursor:pointer;" data-bs-toggle="modal" data-bs-target="#delete-{{forloop.counter0}}"></i>  </td>
+                <!-- modal -->
+                <div class="modal" id="delete-{{forloop.counter0}}" tabindex="-1">
+                  <div class="modal-dialog">
+                    <div class="modal-content">
+                      <div class="modal-header " style="color:grey;">
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                      </div>
+                      <div class="modal-body text-center" style="color:#004a7a;font-size: larger; font-weight: 900;">
+                        <h5 class="modal-title">Are you sure you want to remove {{member.customUser.user.first_name}} {{member.customUser.user.last_name}} from the workspace?</h5>
+                      </div>
+                      <div class="modal-footer ">
+                        <button type="button"  class="btn btn-outline-secondary" data-bs-dismiss="modal" onclick="location.href='{% url 'deactivate_ws_member' custom_id member.customUser.custom_id current_ws.ws_id %}'">No, deactivate instead</button>
+
+                        <button type="button"  class="btn btn-outline-danger" data-bs-dismiss="modal" onclick="location.href='{% url 'remove_ws_member' custom_id member.customUser.custom_id current_ws.ws_id %}'">Yes, remove</button>
+              
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <!-- end modal -->
+                </tr>
+              {% empty %}
+              <tr><td colspan="6">No issues found.</td></tr>
+             
+              
+              {% endfor %}
+            
+            </tbody>
+          </table>
+
+    </div>
+
+</div>
+<!-- model -->
+  <div class="modal" id="codeModal" tabindex="-1">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header " style="background-color: #004a7a;color:white;">
+          <h5 class="modal-title">Share this workspace code to add members</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body text-center" style="color:#004a7a;font-size: larger; font-weight: 900;">
+          <input id="code" class="w-25" type="text" value="{{ws_code}}" style="border:none"></input>
+            <button style=" border: none;background-color: white;" onclick="copyTextClipboard()"><i class="fas fa-copy fa-xs" style="color:#7c93bb" ></i></button> <!-- Copy icon -->
+        </span>
+        <p id="copySuccessMessage" style="display:none; color:green;">Copied to clipboard!</p>
+        </div>
+        <div class="modal-footer " style="background-color: #004a7a;">
+          <button type="button"  class="btn btn-outline-light" data-bs-dismiss="modal">Close</button>
+
+        </div>
+      </div>
+    </div>
+  </div>
+<!-- model end -->
+{% endblock content %}
