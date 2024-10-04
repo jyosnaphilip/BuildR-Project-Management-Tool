@@ -105,6 +105,8 @@
         <p id="copySuccessMessage" style="display:none; color:green;">Copied to clipboard!</p>
         </div>
         <div class="modal-footer " style="background-color: #004a7a;">
+          <button type="button" id="update-code-btn" class="btn btn-outline-light">Update Code</button>
+
           <button type="button"  class="btn btn-outline-light" data-bs-dismiss="modal">Close</button>
 
         </div>
@@ -113,7 +115,18 @@
   </div>
 <!-- model end -->
 
-
+<script>
+  document.getElementById('update-code-btn').addEventListener('click', function() {
+      $.ajax({
+          url: "{% url 'create_new_code' custom_id current_ws.ws_id %}",
+          method: 'GET',
+          success: function(response) {
+              
+              document.getElementById('code').value = response.new_code;
+          }
+      });
+  });
+  </script>
 
 
 

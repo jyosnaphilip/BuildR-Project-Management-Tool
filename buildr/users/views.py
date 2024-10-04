@@ -35,9 +35,10 @@ def check_code(ws_code):
 
 
 def create_code(ws_id):
-    ws_code = workspaceCode(ws_id=ws_id)
+    ws_code = workspaceCode.objects.get(ws=ws_id)
     ws_code.regenerate_code()
     ws_code.save()
+
     return ws_code.code
 # Create your views here.
 
@@ -927,6 +928,7 @@ def deactivate_ws_member(request, user_custom_id, custom_id, ws_id):
 
 
 def toggle_ws_member_status(request, custom_id, ws_id):
+
     """Toggle the active state of a workspace member."""
     try:
         ws_member = workspaceMember.objects.get(workspace=ws_id, customUser=custom_id)
@@ -935,3 +937,7 @@ def toggle_ws_member_status(request, custom_id, ws_id):
         return JsonResponse({'status': 'success', 'active': ws_member.active})
     except workspaceMember.DoesNotExist:
         return JsonResponse({'status': 'error', 'message': 'Member not found'}, status=404)
+    
+def create_new_code(request,custom_id,ws_id):
+    new_code = create_code(ws_id)
+    return JsonResponse({'new_code': new_code}) 
