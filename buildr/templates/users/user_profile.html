@@ -10,16 +10,13 @@
                 {% csrf_token %}
             <div class="container-sm  text-center bg-color ">
                 <label for="fileField">
-            {% if custom_user.profile_pic %}
-                <img class="card-img-top mt-4 me-4" src="{{custom_user.profile_pic.url}}" alt="profile pic of {{custom_user.user.first_name}}" style="width: 250px;height:250px;border-radius: 100%;">
-                
-            {% else %}
-                
-                    <!-- <input name="image-1" id="idImage1" type="file"> -->
-                    <img class="card-img-top mt-5 text-center " src="{% static 'images/default_profile_pic.png' %}" alt="No image added" title="No image added. Click to add" style="width: 250px;height:250px;border-radius: 100%;opacity: 0.8 ;">
-            {% endif %}
+                    {% if custom_user.profile_pic %}
+                        <img id="profilePicPreview" class="card-img-top mt-4 me-4" src="{{custom_user.profile_pic.url}}" alt="profile pic of {{custom_user.user.first_name}}" style="width: 250px;height:250px;border-radius: 100%;">
+                    {% else %}
+                        <img id="profilePicPreview" class="card-img-top mt-5 text-center" src="{% static 'images/default_profile_pic.png' %}" alt="No image added" title="No image added. Click to add" style="width: 250px;height:250px;border-radius: 100%;opacity: 0.8;">
+                    {% endif %}
                 </label>
-                <input type="file" id="fileField" name="file" accept="image/*" hidden="true">
+                <input type="file" id="fileField" name="file" accept="image/*" hidden="true" onchange="previewProfilePic(event)">
                 
             </div>
         <div class="p-4 text-center"><span class="mt-5 text-secondary">Username: </span>{{custom_user.user.username}}</div>
@@ -45,4 +42,15 @@
 </div>
 </div>
 </div>
+<script>
+    function previewProfilePic(event) {
+
+        const reader = new FileReader();
+        reader.onload = function(){
+            const output = document.getElementById('profilePicPreview');
+            output.src = reader.result;
+        };
+        reader.readAsDataURL(event.target.files[0]);
+    }
+</script>
 {% endblock content %}

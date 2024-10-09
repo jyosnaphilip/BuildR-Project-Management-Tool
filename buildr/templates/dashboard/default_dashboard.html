@@ -3,6 +3,7 @@
 {% block content %}
 
 
+
 <script src="https://code.highcharts.com/highcharts.js"></script>
 <script src="https://code.highcharts.com/modules/exporting.js"></script>
 <script src="https://code.highcharts.com/modules/export-data.js"></script>
@@ -12,9 +13,33 @@
 <script src="https://code.highcharts.com/modules/treemap.js"></script>
 <script src="https://code.highcharts.com/modules/drilldown.js"></script>
 <script src="https://code.highcharts.com/gantt/modules/gantt.js"></script>
+
 <div id="content" class="expanded">
+ 
+  <div class="toggle-buttons d-inline-flex gap-1 ms-5 mb-2 ">
+    <div>
+      {% if flag %}
+    <button type="button" id="viewWorkspaceBtn" onclick="showWorkspaceInsights()" class="btn " style="background-color:#004a7a;color:white;" aria-pressed="true" data-bs-toggle="button">View Workspace Insights</button>
+    {% endif %}
+    <button type="button" id="viewPersonalBtn" onclick="showPersonalInsights()" class="btn " style="background-color:#004a7a;color:white"  data-bs-toggle="button" >View Personal Insights</button>
+  </div>
+  {% if is_project_lead %}
     
-<div id="container" class="highcharts-light mx-5 my-2 rounded" style="background-color:white;">
+      
+
+        <button type="button" id="viewProjectBtn" onclick="showProjectInsights()" class="btn btn-outline-primary"  aria-pressed="true" data-bs-toggle="button">Insights on Projects lead by you</button>
+
+     
+    
+    {% endif %}
+</div>
+{% if flag %}
+  {% block ws_admin_dashboard %}
+  
+  {% endblock ws_admin_dashboard %}
+  {% endif %}
+ 
+<div id="personalInsights" class="highcharts-light mx-5 my-2 rounded" style="background-color:white;{% if flag %} display:none;{% endif %}">
     <div class="row p-3" >
       <div class="col-sm-4  h-100" >
         <div id="treemap" class="shadow-sm rounded"></div>
@@ -33,7 +58,29 @@
       </div>
     </div>
 </div>
+{% if is_project_lead %}
+<div id="projectInsights" style="display:none;">
+  <div class="container">
+  {% for project in projects_lead %}
+  <div class="accordion" id="accordion-{{forloop.counter}}">
+    <div class="accordion-item">
+      <h2 class="accordion-header">
+        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-{{forloop.counter}}" aria-expanded="false" aria-controls="collapse-{{forloop.counter}}">
+          {{project}}
+        </button>
+      </h2>
+      <div id="collapse-{{forloop.counter}}" class="accordion-collapse collapse show" data-bs-parent="#accordion-{{forloop.counter}}">
+        <div class="accordion-body">
+          <strong>This is the first item's accordion body.</strong> It is shown by default, until the collapse plugin adds the appropriate classes that we use to style each element. These classes control the overall appearance, as well as the showing and hiding via CSS transitions. You can modify any of this with custom CSS or overriding our default variables. It's also worth noting that just about any HTML can go within the <code>.accordion-body</code>, though the transition does limit overflow.
+        </div>
+      </div>
+    </div>
+  </div>
 
+  {% endfor %}
+</div>
+</div>
+{% endif %}
 </div>
 <script>
   let colors = ['#8B0000', '#ff4b33', '#ff4b33', '#D3D3D3'];
@@ -633,6 +680,263 @@ series.forEach(s=>{s.data=getData(s.id);
 
 
 </script>
+<script>
+  function showWorkspaceInsights() {
+     // Show Workspace Insights and hide Personal Insights
+     document.getElementById('workspaceInsights').style.display = 'block';
+     document.getElementById('personalInsights').style.display = 'none';
+     document.getElementById('projectInsights').style.display = 'none';
+     // Update button states
+     document.getElementById('viewWorkspaceBtn').classList.add('active');
+     document.getElementById('viewWorkspaceBtn').setAttribute('aria-pressed', 'true');
+     document.getElementById('viewProjectBtn').classList.remove('active');
+     document.getElementById('viewPersonalBtn').classList.remove('active');
+     document.getElementById('viewPersonalBtn').setAttribute('aria-pressed', 'false');
+     document.getElementById('viewProjectBtn').setAttribute('aria-pressed', 'false');
+
+ }
+
+ function showPersonalInsights() {
+     // Show Personal Insights and hide Workspace Insights
+     document.getElementById('personalInsights').style.display = 'block';
+     document.getElementById('workspaceInsights').style.display = 'none';
+     document.getElementById('projectInsights').style.display = 'none';
+
+     // Update button states
+     document.getElementById('viewPersonalBtn').classList.add('active');
+     document.getElementById('viewPersonalBtn').setAttribute('aria-pressed', 'true');
+     document.getElementById('viewProjectBtn').classList.remove('active');
+
+     document.getElementById('viewWorkspaceBtn').classList.remove('active');
+     document.getElementById('viewWorkspaceBtn').setAttribute('aria-pressed', 'false');
+     document.getElementById('viewProjectBtn').setAttribute('aria-pressed', 'false');
+
+ }
+
+ 
+ function showProjectInsights() {
+
+ 
+     // Show Workspace Insights and hide Personal Insights
+     document.getElementById('workspaceInsights').style.display = 'none';
+     document.getElementById('personalInsights').style.display = 'none';
+     document.getElementById('projectInsights').style.display = 'block';
+     // Update button states
+     document.getElementById('viewWorkspaceBtn').classList.remove('active');
+     document.getElementById('viewWorkspaceBtn').setAttribute('aria-pressed', 'false');
+     document.getElementById('viewProjectBtn').classList.add('active');
+     document.getElementById('viewProjectBtn').setAttribute('aria-pressed', 'true');
+
+
+     document.getElementById('viewPersonalBtn').classList.remove('active');
+     document.getElementById('viewPersonalBtn').setAttribute('aria-pressed', 'false');
+ }
+
+ // By default, show Workspace Insights
+ </script>
+ 
+<script>
+  
+// pie chart for resource allocation (ws_admin_dashboard.html)
+
+Highcharts.getOptions({
+    colors: Highcharts.getOptions().colors.map(function(color) {
+        return {
+          linearGradient: {
+            cx: 0.5,
+            cy: 0.5,
+            r: 0.7
+          },
+        
+            stops: [
+                [0, color],
+                [1, Highcharts.color(color).brighten(-0.3).get('rgb')] // darken
+            ]
+        };
+    })
+});
+  Highcharts.chart('pie_chart_resource_allocation', {
+  
+  chart: {
+    type: 'pie'
+  },
+  title: {
+    text: 'Team members per project',
+    align:'left'
+  },
+  subtitle:{
+    text:'Click on slices to view breakdown of status by project',
+    align:'left'
+  },
+  
+  tooltip: {
+    
+    borderColor: '#999',
+    backgroundColor: 'rgba(255, 255, 255, 0.93)'
+  },
+  plotOptions: {
+    pie: {
+      allowPointSelect: true,
+      cursor: 'pointer',
+      colors,
+      borderRadius: 8,
+      dataLabels: [{
+        distance:'-40%',
+        position:'center',
+        enabled: true,
+        format: '<span style="font-size:0.80rem;color:black;"><b> {point.name}</b></span>' +
+                    '<br>' +
+                    '<span style="color:black;">{point.y}</span> ' 
+                    ,
+                connectorColor: 'rgba(128,128,128,0.5)',
+                filter: {
+                    property: 'y',
+                    operator: '>',
+                    value: 0
+                }
+      },
+    ],
+      
+    }
+  },
+  series: [
+    { borderRadius:5,
+      name: 'Resource',
+      colorByPoint: true,
+      innerSize: '75%',
+      data: [
+        {% for project,count in resource_details.items %}
+        {
+          name: '{{project}}',
+          y: {{count}},
+        //   drilldown:'{{status}}'
+        } {% if not loop.last %},{% endif %}
+        {% endfor %}
+        
+      ]
+    }
+  ]
+  }
+);
+</script>
+
+<!-- barchart number of tasks closed by each project last week-->
+<script>
+  // Data retrieved from https://gs.statcounter.com/browser-market-share#monthly-202201-202201-bar
+
+// Create the chart
+Highcharts.chart('issues_closed_last_week_per_team', {
+    chart: {
+        type: 'column'
+    },
+    title: {
+        align: 'left',
+        text: 'Issues closed per project'
+    },
+    subtitle: {
+        align: 'left',
+        text: 'Click the columns to view issue priorities.'
+    },
+    accessibility: {
+        announceNewData: {
+            enabled: true
+        }
+    },
+    xAxis: {
+        type: 'category',
+        labels:{
+          useHTML: true,
+				style: {
+					color: 'black',
+          textDecoration: 'none'
+				},
+        formatter() {
+          return '<div style="white-space: break-spaces;color:black;text-decoration:none;" >'+this.value+'</div>';
+          //return this.point.name;
+        }
+
+        }
+    },
+    yAxis: {
+        title: {
+            text: 'Count'
+        }
+
+    },
+    legend: {
+        enabled: false
+    },
+    plotOptions: {
+        series: {
+            borderWidth: 0,
+            dataLabels: {
+                enabled: true,
+                
+                useHTML: true,
+				style: {
+          color: 'black',
+          textDecoration: 'none'
+				},
+        formatter() {
+          return '<div style="white-space: break-spaces;color:black;text-decoration:none;" >'+this.y+'</div>';
+          //return this.point.name;
+        }
+        
+            }//here
+        }
+    },
+
+    tooltip: {
+        headerFormat: '<span style="font-size:11px">{series.name}</span><br>',
+        pointFormat: '<span style="color:{point.color}">{point.name}</span>: ' +
+            '<b>{point.y}</b> '
+    },
+
+    series: [
+    {
+            name:'Projects',
+            colorByPoint:true,
+            data: [
+            {% for project in closed_tasks_last_week %}
+            {
+                name:'{{project.name}}',
+                y:{{project.closed_count}},
+                drilldown:'{{project.name}}'
+            }{% if not loop.last %},{% endif %}
+            {% endfor %}
+            ]
+
+        }
+    ],
+    drilldown: {
+        breadcrumbs: {
+            position: {
+                align: 'right'
+            }
+        },
+        series: [
+             {% for project in closed_tasks_last_week %}
+            {
+                id: '{{ project.name }}',
+                name: '{{ project.name }} - Priorities',
+                type:'pie',
+                data: [
+                ['Urgent Priority', {{ project.urgent_priority_count }}],
+                    ['High Priority', {{ project.high_priority_count }}],
+                    ['Medium Priority', {{ project.medium_priority_count }}],
+                    ['Low Priority', {{ project.low_priority_count }}],
+                    ['No Priority', {{ project.no_priority_count }}]
+                ]
+            }{% if not loop.last %},{% endif %}
+            {% endfor %}
+                ]
+    //         
+    }
+}
+);
+
+</script>
+
 
 
 {% endblock content %}

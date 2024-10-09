@@ -413,7 +413,7 @@ tfoot tr:nth-child(2) th {
 }
 
 .active {
-  border-radius: 50% !important;
+  
   background-image: linear-gradient(#004a7a,#004a7a) !important;
   color: #fff !important;
 }
@@ -778,4 +778,33 @@ highcharts-data-table tr:hover {
 
 .error{
   color:red;
+}
+
+.l-bg-blue-dark {
+  background: linear-gradient(to right, #1d2227, #004a7a) !important;
+  color: #ffffff;
+}
+
+
+.card .card-statistic-3 .card-icon-large .fas, .card .card-statistic-3 .card-icon-large .far, .card .card-statistic-3 .card-icon-large .fab, .card .card-statistic-3 .card-icon-large .fal {
+  font-size: 90px;
+  color:#ffff;
+  border-color: #00233a;
+  
+  
+}
+
+.card .card-statistic-3 .card-icon {
+  text-align: center;
+  line-height: 40px;
+  margin-left: 15px;
+  color: #ffff;
+  position: absolute;
+  right: -5px;
+  top: 20px;
+  opacity: 0.1;
+}
+
+.card-title{
+  color: #ffff;;
 }

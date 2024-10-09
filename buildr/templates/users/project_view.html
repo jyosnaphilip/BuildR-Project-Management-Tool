@@ -301,7 +301,12 @@
                       </td>
                         <td>{{issue.deadline|date:"d-m-Y"}}  </td>
                         <td><button class="btn " type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasExample" aria-controls="offcanvasExample" onclick="get_issueComments('{{issue.issue_id}}')">
-                            <i class="fa-regular fa-comment"></i>
+                            <i class="fa-regular fa-comment position-relative">
+                                {% if issue.unread_comments_count != 0 %}<span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 9px;">
+                                {{issue.unread_comments_count}}
+                                <span class="visually-hidden">unread messages</span>
+                              </span>
+                            {% endif %}</i>
                           </button>
                           {% if issue.overall_sentiment_score < 0.0 %} 
                           <button type="button" class="btn" onclick="get_morale('{{issue.issue_id}}')"><i  class="fa-solid fa-bolt-lightning" style="color:rgb(157, 30, 30)"></i></button></td>

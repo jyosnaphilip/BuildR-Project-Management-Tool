@@ -218,6 +218,11 @@
             replyInput.parentElement.style.display = 'none';
         });
     }
+// Event listener to reload page when offcanvas is hidden
+const offcanvas = document.getElementById('offcanvasExample');
+    offcanvas.addEventListener('hidden.bs.offcanvas', function () {
+        location.reload();
+    });
 
 
     function toggleReplyForm(replyFormId) {

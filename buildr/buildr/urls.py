@@ -22,7 +22,7 @@ from django.urls import include
 from users.views import register,logout,join_workspace,new_workspace
 from django.conf import settings
 from django.conf.urls.static import static
-from users.views import home,add_project,project_view,issue_view,add_issue,add_subIssue,user_login,first_signin,change_ws,update_status,update_issue_field,update_project_field,edit_project,edit_issue, get_issueComments,submit_comment,submit_replies,dashboard,user_profile,edit_profile, manage_workspace, remove_ws_member, deactivate_ws_member, toggle_ws_member_status, create_new_code
+from users.views import home,add_project,project_view,issue_view,add_issue,add_subIssue,user_login,first_signin,change_ws,update_status,update_issue_field,update_project_field,edit_project,edit_issue, get_issueComments,submit_comment,submit_replies,dashboard,user_profile,edit_profile, manage_workspace, remove_ws_member, deactivate_ws_member, toggle_ws_member_status, create_new_code, get_project_insights
 urlpatterns = [
     path('admin/', admin.site.urls),
     # path("accounts/",include('allauth.urls')),
@@ -58,7 +58,7 @@ urlpatterns = [
     path('deactivate_ws_member/<str:user_custom_id>/<str:custom_id>/<str:ws_id>',deactivate_ws_member,name='deactivate_ws_member'),
     path('toggle_ws_member_status/<str:ws_id>', toggle_ws_member_status, name='toggle_ws_member_status'),
     path('create_new_code/<str:custom_id>/<str:ws_id>', create_new_code, name='create_new_code'),
-
+    path('get_project_insights/<str:project_id>',get_project_insights,name='show_project_insights'),
 
  
 ]   

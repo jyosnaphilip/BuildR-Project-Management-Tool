@@ -146,6 +146,12 @@ class issue(models.Model):
         self.completed_date  = timezone.now()
         self.save()
 
+    def unread_comments_count(self, user):
+        return self.comments.exclude(read_by=user).count()
+    
+    class Meta:
+        ordering = ['priority__id'] 
+
 class issue_assignee_bridge(models.Model):
     assignee=models.ForeignKey(customUser,on_delete=models.CASCADE)
     issue=models.ForeignKey(issue,on_delete=models.CASCADE)
@@ -177,6 +183,7 @@ class Comments(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     issue = models.ForeignKey(issue, related_name = 'comments', on_delete = models.CASCADE)
     sentiment_score=models.IntegerField(blank=True,null=True)
+    read_by = models.ManyToManyField(customUser, related_name='read_comments', blank=True)  # Track which users have read the comment
     def __str__(self):
         return 'Comment by ' + self.author + 'about' + self.issue.name
     

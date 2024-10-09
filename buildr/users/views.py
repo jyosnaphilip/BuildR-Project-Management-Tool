@@ -9,7 +9,7 @@ from django.utils import timezone
 import json
 from datetime import datetime
 from django.http import JsonResponse
-from django.db.models import Count
+from django.db.models import Count, Q, Sum
 from django.core.mail import send_mail
 import random
 from .models import EmailVerification
@@ -201,7 +201,7 @@ def logout_user(request):
     
 # auth end------------------------
 
-
+# ws-related
 def join_workspace(request, custom_id):
     if request.method == "POST":
         code = request.POST.get('ws-code')
@@ -221,11 +221,11 @@ def join_workspace(request, custom_id):
 
                 return redirect('home', custom_id)
             else:
-                messages.error("Invalid Code!")
-                return redirect('join_workspace')
+                messages.error(request, message="Invalid Code!")
+                return redirect('join-workspace', custom_id )
         else:
-            messages.error("Invalid Code!")
-            return redirect('join_workspace')
+            messages.error(request,message="Invalid Code!")
+            return redirect('join-workspace', custom_id)
     return render(request, 'partials/join_workspace.html', {'custom_id': custom_id})
 
 
@@ -339,7 +339,7 @@ def access_control(lead, custom_id, current_ws):
             break
     return flag_edit
 
-
+# project-issues
 def project_view(request, project_id, custom_id):
     # stuff for navbar
     current_ws_id = request.session.get('current_ws', None)
@@ -361,7 +361,7 @@ def project_view(request, project_id, custom_id):
     workspace_members = workspaceMember.objects.filter(workspace=current_ws)
 
     issues = issue.objects.filter(project_id=project_id, parent_task__isnull=True).annotate(
-        subissue_count=Count('child'))
+        subissue_count=Count('child'), unread_comments_count=Count('comments', filter=~Q(comments__read_by=customUser.objects.get(user=request.user)))).order_by('priority__id')
     context = {'project': project, 'lead': lead, 'team': team, 'status': statuses,
                'priority': priorities, 'issues': issues, 'workspace_memb': workspace_members,
                'lead_user_ids': lead_user_ids, 'team_ids': team_ids, 'workspaces': ws, 'current_ws': current_ws,
@@ -461,7 +461,6 @@ def update_issue_field(request):
         issue_id = request.POST.get('issue_id')
         field_name = request.POST.get('field_name')
         value = request.POST.get('value')
-        print(value)
         try:
             the_issue = issue.objects.get(issue_id=issue_id)
         except issue.DoesNotExist:
@@ -470,16 +469,12 @@ def update_issue_field(request):
         if field_name == 'status':
             
             previous_stat=the_issue.status_id
-            print("prev",previous_stat)
             the_issue.status_id = int(value) 
-            print(type(value))
-            print("prev2",previous_stat)
             if previous_stat!=4 and int(value)==4:
                 the_issue.mark_completed()
                 
                 
             the_issue.save()
-            print("saved")
         elif field_name == 'priority':
             the_issue.priority_id = value
             the_issue.save()
@@ -554,7 +549,7 @@ def issue_view(request, issue_id, custom_id):
         active=True, issue=the_issue)
     assignee_ids = assignees.values_list('assignee__custom_id', flat=True)
 
-    subIssues = issue.objects.filter(parent_task=issue_id)
+    subIssues = issue.objects.filter(parent_task=issue_id).order_by('priority__id')
     statuses, priorities = get_priority_status_list()
     context = {'subIssues': subIssues, 'issue': the_issue, 'issue_id': issue_id,
                "custom_id": custom_id, 'priority': priorities, 'status': statuses, 'workspaces': ws, 'current_ws': current_ws,
@@ -622,7 +617,6 @@ def add_subIssue(request, issue_id, custom_id):
         assignees = request.POST.getlist('assignees')
         issue_instance = issue(name=title, description=desc, project=Project.objects.get(
             project_id=subIssue.project.project_id), parent_task=issue.objects.get(issue_id=issue_id))
-        print('deadline', deadline)
         if deadline != None and deadline != "":
             deadline = datetime.strptime(deadline, '%d-%m-%Y').date()
             issue_instance.deadline = deadline
@@ -645,7 +639,7 @@ def add_subIssue(request, issue_id, custom_id):
                'flag': flag, 'ws_code': code, 'projects': projects, 'custom_id': custom_id, 'team_members': team_members}
     return render(request, 'users/add_subissue.html', context)
 
-
+# comments
 def get_issueComments(request, issue_id):
 
     comments = Comments.objects.filter(
@@ -653,12 +647,19 @@ def get_issueComments(request, issue_id):
     if not comments.exists():
 
         return JsonResponse({'comments': [], 'message': 'No comments available.'})
-
+    custom_id = customUser.objects.get(user=request.user.id).custom_id
     comment_data = []
+    
     for comment in comments:
+        comment_is_read=custom_id in comment.read_by.all()
+        
+        comment.read_by.add(custom_id)
         replies = comment.replies.select_related('author').all()
         replies_data = []
         for reply in replies:
+            reply_is_read=custom_id in reply.read_by.all()
+            if not reply_is_read:
+                reply.read_by.add(custom_id)
             replies_data.append({
                 'id': reply.id,
                 'author': reply.author.user.first_name + " " + reply.author.user.first_name,
@@ -676,7 +677,6 @@ def get_issueComments(request, issue_id):
 
 
 def submit_comment(request):
-    print("Request Method:", request.method)
     if request.method == 'POST':
         data = json.loads(request.body.decode('utf-8'))
         comment_text = data.get('comment')
@@ -692,7 +692,6 @@ def submit_comment(request):
             comment.save()
             print(f"Submitting sentiment task for comment ID: {comment.id}")
             get_sentiment_task.delay(comment.id)
-            print("after celery")
             return JsonResponse({'success': True, 'comment': {
                     'id': comment.id,
                     'author': comment.author.user.first_name + comment.author.user.last_name ,  
@@ -712,7 +711,6 @@ def submit_replies(request):
         reply_text = data.get('reply')
         issue_id = data.get('issueId')
         comment_id = data.get('comment_id')  
-        print(issue_id)
         try:
             the_issue = issue.objects.get(issue_id=issue_id)
             parent_comment = Comments.objects.get(id=comment_id) 
@@ -742,15 +740,240 @@ def submit_replies(request):
             return JsonResponse({'success': False, 'error': 'Parent comment not found'})
     return JsonResponse({'success': False, 'error': 'Invalid request'})
 
+def check_if_project_lead(custom_id,current_ws_id):
+    """ checks if user is a project lead in the current ws """
+    projects = project_member_bridge.objects.filter(team_member=custom_id, role='Lead', project__ws__ws_id=current_ws_id)
+    
+    return projects.exists()
+
+def get_project_deadlines_with_leads(active_projects):
+    """ returns the deadlines of projects if they lie in the current month, along with lead names"""
+    active_deadlines = []
+    today = date.today()
+    for project in active_projects:
+        if project.deadline and project.deadline.year == today.year and project.deadline.month == today.month: 
+            leads = [bridge.team_member for bridge in project.project_member_bridge_set.filter(role='Lead')]    
+            active_deadlines.append({project.deadline:leads})
+    return active_deadlines
+
+def resource_allocation_details(active_projects):
+    """ returns count of members in each project"""
+    resource_details = {}
+    for project in active_projects:
+        members = project.team.all().distinct()
+        member_count = len(members)
+        resource_details[project.name] = member_count
+    
+    return resource_details
+            
+def get_closed_tasks_last_week(current_ws_id):
+    """ returns the number of tasks closed in each project over last 7 days including projects with no closed tasks"""
+    # Define the time range for the last week
+    one_week_ago = timezone.now() - timedelta(days=7)
+
+    closed_tasks_count = (
+        Project.objects 
+        .filter(ws__ws_id=current_ws_id, completed=False) 
+        .annotate(
+            closed_count=Count(
+                'issues', 
+                filter=Q(issues__completed_date__gte=one_week_ago, issues__status=4)  # Filter for closed tasks in the last week
+            ),
+            urgent_priority_count=Count(
+                'issues',
+                filter=Q(issues__priority=1, issues__completed_date__gte=one_week_ago, issues__status=4)
+            ),
+            high_priority_count=Count(
+                'issues',
+                filter=Q(issues__priority=2, issues__completed_date__gte=one_week_ago, issues__status=4)
+            ),
+            medium_priority_count=Count(
+                'issues',
+                filter=Q(issues__priority=3, issues__completed_date__gte=one_week_ago, issues__status=4)
+            ),
+            low_priority_count=Count(
+                'issues',
+                filter=Q(issues__priority=4, issues__completed_date__gte=one_week_ago, issues__status=4)
+            ),
+            no_priority_count=Count(
+                'issues',
+                filter=Q(issues__priority=5, issues__completed_date__gte=one_week_ago, issues__status=4)
+            )
+        )
+
+    )
+    
+    return closed_tasks_count
+
+def get_active_issues(current_ws_id):
+    """ returns project wise active issues """
+    active_issues_per_project = (
+        issue.objects
+        .filter(project__ws__ws_id = current_ws_id)
+        .exclude(status=4)  # Filter active issues
+        .values('project')  # Group by project
+        .annotate(active_count=Count('issue_id'))  # Count the active issues
+    )
+
+    return active_issues_per_project
+
+def get_active_issue_count(active_issues_per_project):
+    """ returns total active number of active issues in the current ws"""
+    active_issue_count = 0
+    for project in active_issues_per_project:
+        active_issue_count += project['active_count']
+    return active_issue_count
+
+def load_admin_specific_insights(custom_id, current_ws_id):
+    """ loads insights for dashboard of ws admin """
+
+    # project count
+    project_count = Project.objects.filter(ws=current_ws_id).distinct().count()
+    # active vs inactive projects 
+    active_projects = Project.objects.filter(ws=current_ws_id, completed=False).distinct()
+    active_projects_count = len(active_projects)
+    # project progress(gannt) - already in default dashboard
+    admin_insights = {'project_count': project_count, 'active_projects':active_projects, 'active_projects_count': active_projects_count}
+    # upcoming deadlines
+    if active_projects_count > 0:
+
+        active_deadlines_w_leads = get_project_deadlines_with_leads(active_projects)
+        if active_deadlines_w_leads is None:
+            active_deadlines_w_leads = 0
+        # Resource Allocation: Pie chart showing the allocation of resources (e.g., team members) across projects
+        resource_details = resource_allocation_details(active_projects)
+        # get the number of tasks closed by each project team in the last week (barchart)
+        closed_tasks_last_week = get_closed_tasks_last_week(current_ws_id)
+        # for card
+        closed_tasks_last_week_num = closed_tasks_last_week.aggregate(total_closed=Sum('closed_count'))['total_closed'] or 0
+        # barchart active issues per project
+        project_wise_active_issues = get_active_issues(current_ws_id)
+        active_issue_count = get_active_issue_count(project_wise_active_issues)
+        admin_insights.update({'active_deadlines_w_leads': active_deadlines_w_leads, 'resource_details': resource_details, 'active_count': active_issue_count,
+            'closed_tasks_last_week_num': closed_tasks_last_week_num,'closed_tasks_last_week': closed_tasks_last_week, 'project_wise_active_issues': project_wise_active_issues
+            })
+    return admin_insights
+
+def get_projects_lead(custom_id, current_ws_id):
+    """ retrieves a list of projects the user leads """
+    projects_led = Project.objects.filter(
+        project_member_bridge__team_member=custom_id, 
+        project_member_bridge__role='Lead',
+        ws=current_ws_id
+    )
+    
+
+    return projects_led
+
+def load_project_lead_insights(custom_id,current_ws_id):
+    pass
+def check_overdue(project_id):
+    """ count number of tasks which are over due, retriev them and show as list when clicked with assignee"""
+    project = Project.objects.get(project_id=project_id)
+    overdue_issues = issue.objects.filter(project=project,deadline__lt=timezone.now(), completed=False)
+    overdue = []
+    for task in overdue_issues:
+        assignees = task.assignee.all()
+        overdue_by=(timezone.now().date()-task.deadline).days
+        overdue.append({
+            'task': task.name,
+            'assignees': [user.user.username for user in assignees],
+            'overdue by':overdue_by
+        })
+    return overdue
+    
+
+def task_completion_status(project_id):
+    """ drilldown : priority """
+    project = Project.objects.get(project_id=project_id)
+    task_status = issue.objects.filter(project=project).values('priority__name').annotate(
+    total_issues=Count('issue_id'),
+    completed_issues=Count('issue_id', filter=Q(completed=True)),
+    in_progress_issues=Count('issue_id', filter=Q(completed=False))
+    )
+    print(task_status)
+    return task_status
+
+def issues_per_team_member(project_id):
+    """ drilldown by priority """
+    project = Project.objects.get(project_id=project_id)
+    team_issues = issue_assignee_bridge.objects.filter(issue__project=project).values(
+        'assignee__user__username', 'issue__priority__name'
+    ).annotate(
+        total_issues=Count('issue')
+    )
+    
+    return team_issues
+
+def show_top_critical_issue(project_id):
+    """ urgent and high-priority issues that are unresolved, and showing the time they have remained open."""
+    project = Project.objects.get(project_id=project_id)
+    critical_issues = issue.objects.filter(
+        project=project,
+        priority__name__in=['Urgent', 'High Priority'],
+        completed=False
+    ).order_by('created_on')
+    
+    results = []
+    for task in critical_issues:
+        open_duration = (timezone.now() - task.created_on).days  # Days since the task was created
+        results.append({
+            'task': task.name,
+            'priority': task.priority.name,
+            'open_for_days': open_duration
+        })
+    
+    return results
 
 
+def tasks_completed_last_week(project_id):
+    """ breakdown by team member """
+    project = Project.objects.get(project_id=project_id)
+    one_week_ago = timezone.now() - timedelta(days=7)
+    completed_issues = issue.objects.filter(project=project, completed=True, completed_date__gte=one_week_ago)
+    
+    team_completed = completed_issues.values('assignee__user__username').annotate(
+        total_completed=Count('issue_id')
+    )
+    
+    return team_completed
+
+def count_tasks_completed_last_week(project_id):
+    project = Project.objects.get(project_id=project_id)
+    one_week_ago = timezone.now() - timedelta(days=7)
+    return issue.objects.filter(project=project, completed=True, completed_date__gte=one_week_ago).count()
+ 
+
+def active_issues(project_id):
+    project = Project.objects.get(project_id=project_id)
+    return issue.objects.filter(project=project, completed=False).count()
+
+def tasks_closed_per_week(project_id):
+    pass
+def team_sentiment_analysis():
+    pass
+
+
+
+def get_project_insights(request, project_id):
+    current_ws_id = request.session.get('current_ws', None)
+    custom_id = customUser.objects.get(user=request.user.id).custom_id
+    ws, current_ws, projects, flag, code = req_for_navbar(
+        custom_id, current_ws_id)
+    context = {'custom_id':custom_id,'workspaces': ws, 'current_ws': current_ws,
+                'flag': flag, 'ws_code': code, 'projects': projects}
+    return render(request, 'dashboard\project_wise_dashboard.html', context)
+
+
+# dashboard
 def dashboard(request,custom_id):
-    """ sends user to dashboard """
+    """ sends user to dashboard based on their role """
     current_ws_id = request.session.get('current_ws', None)
 
     ws, current_ws, projects, flag, code = req_for_navbar(
         custom_id, current_ws_id)
     
+    # for all users 
     # treemap of priority
     treemap_data, priority_count = treemap_of_priority(custom_id,current_ws_id)
     # pie chart
@@ -758,12 +981,44 @@ def dashboard(request,custom_id):
     gantt = gantt_data(projects)
     scatter = scatter_plot_with_time(custom_id, current_ws_id)
     context = {'custom_id':custom_id,'workspaces': ws, 'current_ws': current_ws,
-               'flag': flag, 'ws_code': code, 'projects': projects, 'treemap_data':treemap_data,
-                 'priority_count':priority_count, 'pie_data':pie_data,
-                   'status_count': status_count, 'gantt':gantt, 'scatter':scatter}
-    return render (request,'dashboard\default_dashboard.html', context)
+                'flag': flag, 'ws_code': code, 'projects': projects, 'treemap_data':treemap_data,
+                    'priority_count':priority_count, 'pie_data':pie_data,
+                    'status_count': status_count, 'gantt':gantt, 'scatter':scatter}
+   
+ 
+    is_project_lead = check_if_project_lead(custom_id,current_ws_id)
+       #  Additional data for workspace admins
+    if flag:
+       
+        admin_specific_data = load_admin_specific_insights(custom_id,current_ws_id)
+        if admin_specific_data is not None:
+            context.update(admin_specific_data)
+        if is_project_lead: # check if user is ws admin AND a project lead
+            context.update({'is_project_lead':True})
+            projects_lead = get_projects_lead(custom_id,current_ws_id)
+            # print(projects_lead)
+            # if projects_lead is not None:
+            #     for project in projects_lead:
+                    # project_insights = get_projects_lead_data(project, current_ws_id)
+                    # if project_insights is not None:
+                    #     context.update(project_insights)
+            context.update({'projects_lead':projects_lead})
+            
+        return render(request,'dashboard\ws_admin_dashboard.html',context)
 
+    
+    elif is_project_lead: # users who are not ws admin but is project lead
+        context.update({'is_project_lead':True})
+        projects_lead = get_projects_lead(custom_id,current_ws_id)
+        # for project in projects_lead:
+        #     project_insights = get_projects_lead_data(project)
+        #     if project_insights is not None:
+        #             context.update(project_insights)
+        return render(request,'dashboard\ws_admin_dashboard.html',context)
+    else:
+        return render (request,'dashboard\default_dashboard.html', context)
 
+# default dashboard
 def treemap_of_priority(custom_id,current_ws_id):
     """ retrieves all active & pending issues assigned to a person and sorts them into priority groups """
 
@@ -810,14 +1065,16 @@ def status_pie(custom_id,current_ws_id):
 def gantt_data(projects):
     gantt = {}
     for project in projects:
+
         lead = project_member_bridge.objects.filter(
         project_id=project.project_id, role="Lead", active=True)
         gantt[project.name] = {'project':project,'lead':lead,'issues':{},'completion_percent':0}
         top_level_issues = issue.objects.filter(project=project,parent_task__isnull = True)
         project_issues=top_level_issues.count()
         project_issue_completed=0
+        
         for issue_ in top_level_issues:
-          
+        
             assignees = issue_assignee_bridge.objects.filter(
             active=True, issue=issue_)
             if issue_.status==4:
@@ -836,11 +1093,11 @@ def gantt_data(projects):
                 percent=round((completed/total),2)
             else:
                 # No sub-issues; determine based on the main issue's status
-                
-                if issue_.status.name == 'Closed':
-                    percent = 1  # Issue is completed (100%)
-                else:
-                    percent = 0  # Issue is not completed (0%)
+                if issue_.status:
+                    if issue_.status.name == 'Closed':
+                        percent = 1  # Issue is completed (100%)
+                    else:
+                        percent = 0  # Issue is not completed (0%)
 
             project_completion_percent=round(project_issue_completed/project_issues, 2)
 
@@ -853,17 +1110,10 @@ def scatter_plot_with_time(custom_id,ws_id):
     
     issue_data = []
     for i in issues_:
-        print("her1e")
         if i.deadline and i.completed_date: # should have deadline as well
             # expected duration
             expected_duration = (i.deadline - i.created_on.date()).days
             actual_duration = (i.completed_date.date() - i.created_on.date()).days
-            print(i.name)
-            print(i.priority)
-            print("expected",expected_duration)
-            print(type(actual_duration))
-            print(type(expected_duration))
-            print(actual_duration)
             issue_data.append({
                 "name":i.name,
                 "category":i.priority.id,
@@ -873,6 +1123,9 @@ def scatter_plot_with_time(custom_id,ws_id):
     
     return issue_data
 
+# ws admin dashboard
+
+# user profile
 def user_profile(request,custom_id):
     current_ws_id = request.session.get('current_ws', None)
 
@@ -889,11 +1142,12 @@ def edit_profile(request,custom_id):
         profile_pic = request.FILES.get('file')
         customer = customUser.objects.get(custom_id=custom_id)
         customer.email = email_id
-        customer.profile_pic = profile_pic
+        if profile_pic:
+            customer.profile_pic = profile_pic
         customer.save()
         return redirect('user-profile',custom_id)
     
-
+# manage ws
 def manage_workspace(request, custom_id, ws_id):
     
     ws, current_ws, projects, flag, code = req_for_navbar(custom_id, ws_id)
