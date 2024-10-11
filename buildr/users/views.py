@@ -325,7 +325,7 @@ def add_project(request, custom_id):  # need to check again
                    'workspaces': ws, 'current_ws': current_ws,
                    'flag': flag, 'ws_code': code, 'projects': projects})
 
-
+@csrf_exempt
 def upload_file(request):
     if request.method == 'POST' and request.FILES.get('file'):
         print("hre")

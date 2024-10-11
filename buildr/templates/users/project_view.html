@@ -10,7 +10,13 @@
                     <button type="button" class="btn" data-bs-toggle="modal" data-bs-target="#editProject" data-bs-whatever="@mdo"><i class="fa-solid fa-pen pt-4" style="color: #004a7a;"></i></button>
 
                     </div>
-                    <i class="mb-0    text-truncate d-inline-block">{{project.description|safe}}</i><br>
+                    <div class="description-container">
+                        <div class="description-content">
+                            {{ project.description|safe }} 
+                        </div>
+                        <div class="fade-effect"></div>
+                        <button class="toggle-btn">▼ Show more</button>
+                    </div>
                     {% if flag_edit %}
                     <!-- modal -->
                     <div class="modal fade" id="editProject" tabindex="-1" aria-labelledby="editProjectLabel" aria-hidden="true">

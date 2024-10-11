@@ -123,11 +123,11 @@
         </div>
     </div>
 </div>
-<script type="text/javascript">
+<script>
     var config = {};
 
     config.file_upload_handler = function (file, callback, optionalIndex, optionalFiles) {
-        var uploadhandlerpath = "upload_file";  // Update with the URL of your Django view
+        var uploadhandlerpath = {% url 'upload_file' %};  // Update with the URL of your Django view
 
         console.log("upload", file, "to", uploadhandlerpath);
 
@@ -175,11 +175,9 @@
         }
 
         var xh = new XMLHttpRequest();
-        var formData = new FormData();
-        formData.append("file", file);  // Append the file to form data
-
-        xh.open("POST", uploadhandlerpath, true);
-        xh.setRequestHeader("X-CSRFToken", getCookie('csrftoken'));  // Add CSRF token if necessary
+        xh.open("POST", uploadhandlerpath + "?name=" + encodeURIComponent(file.name) + "&type=" + encodeURIComponent(file.type) + "&size=" + file.size, true);
+        
+      
         xh.onload = xh.onabort = xh.onerror = function (pe) {
             console.log(pe);
             console.log(xh);
@@ -187,23 +185,29 @@
             if (pe.type == "load") {
                 if (xh.status != 200) {
                     console.log("uploaderror", pe);
-                    callback(null, "http-error-" + xh.status);
-                } else {
-                    var response = JSON.parse(xh.responseText);
-                    if (response.file_url) {
-                        callback(response.file_url);  // Pass the file URL back to the editor
-                    } else {
-                        callback(null, "http-error-no-file-url");
-                    }
-                }
-            } else if (uploadcancelled) {
-                console.log("uploadcancelled", pe);
-                callback(null, "cancelled");
-            } else {
-                console.log("uploaderror", pe);
-                callback(null, pe.type);
-            }
-        };
+                    if (xh.responseText.startsWith("ERROR:")) {
+						callback(null, "http-error-" + xh.responseText.substring(6));
+					}else {
+						callback(null, "http-error-" + xh.status);
+					}
+				}
+				else if (xh.responseText.startsWith("READY:")) {
+					console.log("File uploaded to " + xh.responseText.substring(6));
+					callback(xh.responseText.substring(6));
+				}
+				else {
+					callback(null, "http-error-" + xh.responseText);
+				}
+			}
+			else if (uploadcancelled) {
+				console.log("uploadcancelled", pe);
+				callback(null, "cancelled");
+			}
+			else {
+				console.log("uploaderror", pe);
+				callback(null, pe.type);
+			}
+		}
 
         xh.upload.onprogress = function (pe) {
             console.log(pe);
@@ -212,26 +216,11 @@
             progressbg.style.cssText = "background-color:green;width:" + (percent * progressbar.offsetWidth / 100) + "px;height:12px;";
         };
 
-        xh.send(formData);  // Send the file as form data
+        xh.send(file);  // Send the file as form data
     };
 
     var editor1 = new RichTextEditor("#description", config);
 
-    // Helper function to get CSRF token from cookies
-    function getCookie(name) {
-        let cookieValue = null;
-        if (document.cookie && document.cookie !== '') {
-            const cookies = document.cookie.split(';');
-            for (let i = 0; i < cookies.length; i++) {
-                const cookie = cookies[i].trim();
-                if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                    break;
-                }
-            }
-        }
-        return cookieValue;
-    }
 </script>
 
 

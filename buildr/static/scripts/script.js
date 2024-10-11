@@ -148,4 +148,19 @@ function copyTextClipboard() {
     return document.querySelector('meta[name="csrf-token"]').getAttribute('content');
 }
 
-  
+document.addEventListener('DOMContentLoaded', function() {
+    const toggleButton = document.querySelector('.toggle-btn');
+    const descriptionContainer = document.querySelector('.description-container');
+
+    toggleButton.addEventListener('click', function() {
+        // Toggle the expanded class
+        descriptionContainer.classList.toggle('description-expanded');
+        
+        // Change the button text accordingly
+        if (descriptionContainer.classList.contains('description-expanded')) {
+            toggleButton.textContent = '▲ Show less';
+        } else {
+            toggleButton.textContent = '▼ Show more';
+        }
+    });
+});
