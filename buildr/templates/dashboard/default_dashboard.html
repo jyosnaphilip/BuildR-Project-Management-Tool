@@ -61,18 +61,126 @@
 {% if is_project_lead %}
 <div id="projectInsights" style="display:none;">
   <div class="container">
-  {% for project in projects_lead %}
-  <div class="accordion" id="accordion-{{forloop.counter}}">
-    <div class="accordion-item">
-      <h2 class="accordion-header">
-        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-{{forloop.counter}}" aria-expanded="false" aria-controls="collapse-{{forloop.counter}}">
-          {{project}}
+  {% for a_project in project_details %}
+  <div class="accordion"  id="accordion-{{forloop.counter}}"  style="background-color: white;border-color: white;--bs-focus-ring-color: rgba(var(--bs-success-rgb), .0)">
+    <div class="accordion-item" style="border-color: white;--bs-focus-ring-color: rgba(var(--bs-success-rgb), .0);" >
+      <h2 class="accordion-header" >
+        <button class="accordion-button"   style="background-color: white;--bs-focus-ring-color: rgba(var(--bs-success-rgb), .0)" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-{{forloop.counter}}" aria-expanded="false" aria-controls="collapse-{{forloop.counter}}">
+          {{a_project.project_name}}
         </button>
       </h2>
       <div id="collapse-{{forloop.counter}}" class="accordion-collapse collapse show" data-bs-parent="#accordion-{{forloop.counter}}">
         <div class="accordion-body">
-          <strong>This is the first item's accordion body.</strong> It is shown by default, until the collapse plugin adds the appropriate classes that we use to style each element. These classes control the overall appearance, as well as the showing and hiding via CSS transitions. You can modify any of this with custom CSS or overriding our default variables. It's also worth noting that just about any HTML can go within the <code>.accordion-body</code>, though the transition does limit overflow.
-        </div>
+          
+            <div class="row g-0 p-0" >
+                
+                <div class="col-sm-3 mt-5 mb-0" >
+                    <div class="card  l-bg-blue-dark shadow-sm  w-75 mb-0" style="height:50%;">
+                        <div class="card-statistic-3 p-4">
+                            <div class="card-icon card-icon-large"><i class="fa-solid fa-diagram-project" style="font-size:450%;"></i></div>
+                            <div class="mb-4">
+                                <h6 class="card-title mb-0 text-light">Active issues</h6>
+                            </div>
+                            <div class="row align-items-center mb-3 d-flex">
+                                <div class="col-8">
+                                    <h5 class="d-flex align-items-center mb-5 text-light pb-5">
+                                        {{a_project.active_issues}}
+                                    </h5>
+                                </div>
+                                
+                            </div>
+                            
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-4 mt-5">
+                    <div class="card l-bg-blue-dark shadow-sm  w-75 mb-0" style="height:50%;">
+                        <div class="card-statistic-3 p-4">
+                            <div class="card-icon card-icon-large"><i class="fa-solid fa-list-check"  style="font-size:450%;"></i></div>
+                            <div class="mb-4">
+                                <h6 class="card-title mb-0 text-light">Issues closed in the past week</h6>
+                            </div>
+                            <div class="row align-items-center mb-2 d-flex">
+                                <div class="col-8">
+                                    <h5 class="d-flex align-items-center text-light mb-5 pb-4">
+                                        {{a_project.tasks_closed_last_week_count}}
+                                    </h5>
+                                </div>
+                                
+                            </div>
+                            
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-4 mt-5">
+                    <div class="card l-bg-blue-dark shadow-sm  w-75 mb-0" style="height:50%;">
+                        <div class="card-statistic-3 p-4">
+                            <div class="card-icon card-icon-large"><i class="fa-solid fa-list-check"  style="font-size:450%;"></i></div>
+                            <div class="mb-4">
+                                <h6 class="card-title mb-0 text-light">Active Issues</h6>
+                            </div>
+                            <div class="row align-items-center mb-2 d-flex">
+                                <div class="col-8">
+                                    <h5 class="d-flex align-items-center text-light mb-5 pb-4">
+                                        {{active_count}}
+                                    </h5>
+                                </div>
+                                
+                            </div>
+                            
+                        </div>
+                    </div>
+                </div>
+                  
+          </div>
+            <!-- tasks closed last week per member -->
+            <div class="row m-2 highcharts-light  rounded"  style="margin-top: 0; padding-top: 0;" >
+              <div class="col-sm-4 " >
+                {% if a_project.tasks_completed_last_week|length > 0 %}
+                <div id="issues_closed_last_week_per_member-{{forloop.counter}}"></div>
+                {% endif %}
+              </div>
+              <div class="col-sm-4">
+                {% if a_project.work_division|length > 0 %}
+                <div id="workDivision-{{forloop.counter}}" class="shadow-sm rounded"></div>
+                {% endif %}
+              </div>
+              <div class="col-sm-4">
+                
+                {% if a_project.overdue_tasks|length > 0 %}
+                <ul class="list-group shadow-sm rounded">
+                  {% for task in a_project.overdue_tasks %}
+                  <li class="list-group-item list-group-item-action" >
+                    <div class="d-flex w-100 justify-content-between">
+                      <h6 class="mb-1">{{task.name}} </h6>
+                      <small class="text-danger">Overdue by {{task.overdue_days}} days</small>
+                    </div>
+                    
+                    <small>Assigned to: 
+                      {% for assignee in task.assignee.all %}
+                      {{assignee.user.first_name}}{% if not loop.last %},{% endif %}
+                      {% endfor %}
+                    </small>
+
+                  </li>
+                  {% endfor %}
+                </ul>
+                {% else %}
+                <span>No overdue issues in project!</span>
+                {% endif %}
+              </div>
+              <div class="col-sm-4">
+                {% if a_project.task_priorities|length > 0 %}
+                <div id="priority_chart-{{forloop.counter}}" class="shadow-sm rounded"></div>
+                {% endif %}
+              </div>
+            </div>
+            <!-- <div class="row p-3">
+              <div class="col-sm-12">
+                <div id="" class="shadow-sm rounded"></div>
+              </div>
+            </div> -->
+            
       </div>
     </div>
   </div>
@@ -82,6 +190,269 @@
 </div>
 {% endif %}
 </div>
+<!-- tasks closed last week per member: project insights -->
+{% for a_project in project_details %}
+<script>
+
+// Create the chart
+Highcharts.chart('issues_closed_last_week_per_member-{{forloop.counter}}', {
+    chart: {
+        type: 'column'
+    },
+    title: {
+        align: 'left',
+        text: 'Issues closed per member last week'
+    },
+  
+    accessibility: {
+        announceNewData: {
+            enabled: true
+        }
+    },
+    xAxis: {
+        type: 'category',
+        labels:{
+          useHTML: true,
+				style: {
+					color: 'black',
+          textDecoration: 'none'
+				},
+        formatter() {
+          return '<div style="white-space: break-spaces;color:black;text-decoration:none;" >'+this.value+'</div>';
+          //return this.point.name;
+        }
+
+        }
+    },
+    yAxis: {
+        title: {
+            text: 'Count'
+        }
+
+    },
+    legend: {
+        enabled: false
+    },
+    plotOptions: {
+        series: {
+            borderWidth: 0,
+            dataLabels: {
+                enabled: true,
+                
+                useHTML: true,
+				style: {
+          color: 'black',
+          textDecoration: 'none'
+				},
+        formatter() {
+          return '<div style="white-space: break-spaces;color:black;text-decoration:none;" >'+this.y+'</div>';
+          //return this.point.name;
+        }
+        
+            }//here
+        }
+    },
+
+    tooltip: {
+        headerFormat: '<span style="font-size:11px">{series.name}</span><br>',
+        pointFormat: '<span style="color:{point.color}">{point.name}</span>: ' +
+            '<b>{point.y}</b> '
+    },
+
+    series: [
+    {
+            name:'Member',
+            colorByPoint:true,
+            data: [
+            {% for data in a_project.tasks_completed_last_week %}
+            {
+                name:'{{data.assignee__user__first_name}}',
+                y:{{data.total_completed}}
+                
+            }{% if not loop.last %},{% endif %}
+            {% endfor %}
+            ]
+
+        }
+    ]
+}
+);
+
+
+// work division bar chart
+
+// Create the chart
+Highcharts.chart('workDivision-{{forloop.counter}}', {
+    chart: {
+        type: 'column'
+    },
+    title: {
+        align: 'left',
+        text: 'Issues assigned per member'
+    },
+  
+    accessibility: {
+        announceNewData: {
+            enabled: true
+        }
+    },
+    xAxis: {
+        type: 'category',
+        labels:{
+          useHTML: true,
+				style: {
+					color: 'black',
+          textDecoration: 'none'
+				},
+        formatter() {
+          return '<div style="white-space: break-spaces;color:black;text-decoration:none;" >'+this.value+'</div>';
+          //return this.point.name;
+        }
+
+        }
+    },
+    yAxis: {
+        title: {
+            text: 'Count'
+        }
+
+    },
+    legend: {
+        enabled: false
+    },
+    plotOptions: {
+        series: {
+            borderWidth: 0,
+            dataLabels: {
+                enabled: true,
+                
+                useHTML: true,
+				style: {
+          color: 'black',
+          textDecoration: 'none'
+				},
+        formatter() {
+          return '<div style="white-space: break-spaces;color:black;text-decoration:none;" >'+this.y+'</div>';
+          //return this.point.name;
+        }
+        
+            }//here
+        }
+    },
+
+    tooltip: {
+        headerFormat: '<span style="font-size:11px">{series.name}</span><br>',
+        pointFormat: '<span style="color:{point.color}">{point.name}</span>: ' +
+            '<b>{point.y}</b> '
+    },
+
+    series: [
+    {
+            name:'Member',
+            colorByPoint:true,
+            data: [
+            {% for data in a_project.work_division %}
+            {
+                name:'{{data.assignee__user__first_name}}',
+                y:{{data.issue_count}}
+                
+            }{% if not forloop.last %},{% endif %}
+            {% endfor %}
+            ]
+
+        }
+    ]
+}
+);
+// donut chart of priorities
+ Highcharts.chart('priority_chart-{{forloop.counter}}', {
+  
+  chart: {
+    type: 'pie'
+  },
+  title: {
+    text: 'Issue Priorities',
+    align:'left'
+  },
+  subtitle:{
+    text:'Click on slices to view breakdown issues by status ',
+    align:'left'
+  },
+  
+  tooltip: {
+    
+    borderColor: '#999',
+    backgroundColor: 'rgba(255, 255, 255, 0.93)'
+  },
+  plotOptions: {
+    pie: {
+      allowPointSelect: true,
+      cursor: 'pointer',
+      
+      borderRadius: 8,
+      dataLabels: {
+    distance: '-40%',
+    position: 'center',
+    enabled: true,
+    format: '<span style="font-size:0.80rem;color:black;"><b> {point.name}</b></span><br><span style="color:black;">{point.percentage:.1f}%</span>',
+    connectorColor: 'rgba(128,128,128,0.5)',
+    filter: {
+        property: 'percentage',
+        operator: '>',
+        value: 0
+    }
+}
+      
+    }
+  },
+  series: [
+    { borderRadius:5,
+      name: 'Issues',
+      colorByPoint: true,
+      innerSize: '75%',
+      data: [
+        {% for data in a_project.task_priorities %}
+        {
+          name: '{{data.priority__name}}',
+          y: {{data.total_issues}},
+          drilldown:'{{data.priority__name}}'
+        } {% if not forloop.last %},{% endif %}
+        {% endfor %}
+        
+      ]
+    }
+  ],
+  drilldown:{
+    activeDataLabelStyle: {
+            textDecoration: 'none'
+            },
+            dataLabels: [{
+        distance:'-1%',
+        position:'center',
+        enabled: true,
+        format: '<span style="font-size:0.5rem;color:black;"><b> {point.name}</b></span>' +
+                    '<br>' +
+                    '<span style="color:black;">{point.percentage:.1f}</span> ' +
+                    '%',
+                connectorColor: 'rgba(128,128,128,0.5)'}],
+    series:[
+      {% for data in a_project.task_priorities %}
+      {name:'{{data.priority__name}}',
+        id:'{{data.priority__name}}',
+        data:[
+        
+        ['Completed',{{data.completed_issues}}],
+        ['In progress',{{data.in_progress_issues}}]
+        ]
+        
+      }{% if not forloop.last %},{% endif %}
+      {% endfor %}
+    ]
+  }
+});
+
+</script>
+{% endfor %}
 <script>
   let colors = ['#8B0000', '#ff4b33', '#ff4b33', '#D3D3D3'];
 
@@ -92,7 +463,7 @@ let data = [
         value: {{ total_count }},
         color: colors[{{ loop.index }} - 1], // This won't work directly
         drilldown: '{{ priority }}'
-    } {% if not loop.last %}, {% endif %}
+    } {% if not forloop.last %}, {% endif %}
     {% endfor %}
 ];
 
@@ -145,10 +516,10 @@ Highcharts.chart('treemap', {
         data: [
           {% for project, count in projects.items %}
           ['{{project}}',{{count}}]
-            {% if not loop.last %},{% endif %}
+            {% if not forloop.last %},{% endif %}
           {% endfor %}
         ]
-      }{% if not loop.last %},{% endif %}
+      }{% if not forloop.last %},{% endif %}
       {% endfor %}
     ]
   },

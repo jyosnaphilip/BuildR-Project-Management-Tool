@@ -227,7 +227,7 @@
 
             <!-- issues here -->
              <div class="container">
-                <table class="table table-hover" style="background-color: rgb(41, 128, 185) ;">
+                <table id="issueTable" class="table table-hover" style="background-color: rgb(41, 128, 185) ;">
                     <thead>
                       <tr >
                         <th scope="col-sm-1">Status</th>
@@ -245,7 +245,7 @@
                       <tr>
                         <th scope="row">
                            <div class="w-53 dropdown rounded-pill ">
-                               <select id="statusDropdown"  class="status-dropdown form-select custom-select rounded-pill btn btn-sm" type="button" name="status" data-bs-toggle="dropdown" style="background-color: rgb(40, 116, 166); color: #e7eaee;"  aria-expanded="false" data-issue-id="{{issue.issue_id}}">
+                               <select id=""  class="status-dropdown form-select custom-select rounded-pill btn btn-sm" type="button" name="status" data-bs-toggle="dropdown" style="background-color: rgb(40, 116, 166); color: #e7eaee;"  aria-expanded="false" data-issue-id="{{issue.issue_id}}">
                                    {% for stat in status %}
                                    {% if issue.status.id|stringformat:"s" == stat.id|stringformat:"s" %}
        
@@ -328,6 +328,45 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.js"></script>
 
 <script>
+$(document).ready( function () {
+    $('#issueTable').DataTable({
+        lengthMenu: [
+        [10, 25, 50, -1],
+        [10, 25, 50, 'All']
+    ],
+    // layout: {
+    //     top1: {
+    //         searchPanes: {
+    //             panes: [
+    //                 {
+    //                     header: 'Custom',
+    //                     options: [
+    //                         {
+    //                             label: 'Accountants from Tokyo',
+    //                             value: function (rowData, rowIdx) {
+    //                                 return rowData[1] === 'Accountant' && rowData[2] === 'Tokyo';
+    //                             }
+    //                         }
+    //                     ],
+    //                     dtOpts: {
+    //                         searching: false,
+    //                         order: [[1, 'desc']]
+    //                     }
+    //                 }
+    //             ]
+    //         }
+    //     }
+    // },
+    // columnDefs: [
+    //     {
+    //         searchPanes: {
+    //             show: false
+    //         },
+    //         targets: ['_all']
+    //     }
+    // ]
+});
+} );
      // Function to send AJAX request to update a field
      function updateIssueField(issueId, fieldName, value) {
             $.ajax({

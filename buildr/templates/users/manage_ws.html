@@ -37,16 +37,15 @@
               <tr>
                 <th scope="row">
                   <i class="fa-solid {% if member.active %}fa-toggle-on{% else %}fa-toggle-off{% endif %} fa-xl" 
-                  style="cursor:pointer; {% if not member.active %}color: #7e7f81;{% endif %}" 
-                  onclick="toggleMemberStatus('{{ member.customUser.custom_id }}', '{{ current_ws.ws_id }}', this)">
-               </i>
+  style="cursor:pointer; {% if not member.active %}color: #7e7f81;{% endif %}" 
+  onclick="toggleMemberStatus('{{ member.customUser.custom_id }}', '{{ current_ws.ws_id }}', '{{ custom_id }}', this)">
+</i>
                 </th>
                 <td style="cursor: pointer;" class="col-sm-3">
                     <a href="" class="link-dark link-underline link-underline-opacity-0">{{member.customUser.user.first_name}} {{member.customUser.user.last_name}}
                     </a>
                 </td>
                     <td >
-                        {{member.customUser.email}}
                     </td>
                 
                 <td> 
@@ -127,7 +126,33 @@
       });
   });
   </script>
-
+<script>
+  function toggleMemberStatus(customUserId, wsId, userCustomId, element) {
+  // Send a request to the Django view
+  const url = `/toggle_ws_member/${userCustomId}/${customUserId}/${wsId}/`;
+  console.log(url);
+  fetch(url, { method: 'GET' })
+    .then(response => {
+      if (response.ok) {
+        // Toggle the icon and color on success
+        if (element.classList.contains('fa-toggle-on')) {
+          element.classList.remove('fa-toggle-on');
+          element.classList.add('fa-toggle-off');
+          element.style.color = '#7e7f81';  // Change to inactive color
+        } else {
+          element.classList.remove('fa-toggle-off');
+          element.classList.add('fa-toggle-on');
+          element.style.color = '';  // Reset to active color
+        }
+      } else {
+        console.error('Server response was not OK.');
+      }
+    })
+    .catch(error => {
+      console.error('Error toggling member status:', error);
+    });
+}
+</script>
 
 
 {% endblock content %}
