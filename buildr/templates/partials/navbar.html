@@ -1,3 +1,4 @@
+<div class="d-flex justify-content-between  mb-5">
 <div id="sidebar-toggle" onclick="toggleSidebar()">
   {% if workspaces %}
 <button  class="btn font" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasScrolling" aria-controls="offcanvasScrolling" style="color:#000000;"><i class="fa-solid fa-bars fa-2xl m-3 p-1" style="color: #050505"></i>{{current_ws.ws_name}}</button>
@@ -29,49 +30,54 @@
       <button type="button" class="btn-close" onclick="toggleSidebar()" data-bs-dismiss="offcanvas"
         aria-label="Close" style = "background-color:#fff"></button>
     </div>
-    <div class="offcanvas-body">
+    <div class="offcanvas-body d-flex align-items-start flex-column ">
+      <div class="mb-auto">
       <p><a href="{% url 'home' custom_id %}" class="my-task">My tasks</a></p>
       
       {% for project in projects %}
       <p><a href="{% url 'project_view' project.project_id custom_id %}" class="current-workspace">{{project.name}}</a></p>
       {% endfor %}
+      <p><a href="{% url 'add_project' custom_id %}" class="join-workspace" ><i class="fa-solid fa-plus fa-l" style="color: #36089b;color: white;"></i>  Add Project</a></p>
+      <a href = "{% url 'dashboard' custom_id %}" class="join-workspace"><i class="fa-solid fa-chart-column" style="color: #f3f4f7;"></i> My Dashboard</a>
+    </div>
+    <div class="">
+      <p>{% if flag %}
+        
+        <button type="button" class="btn btn-outline-light" onclick="location.href='{% url 'manage_ws' custom_id current_ws.ws_id %}'" >
+          Manage Workspace
+        </button>
+        
+
+        {% endif %}
+      </p>
     <p>
     <a href="{% url 'new_workspace' custom_id %}" class="join-workspace" >Create Workspace</a>
     </p>
     <p>
       <a href="{% url 'join-workspace' custom_id %}" class="join-workspace" >Join Workspace</a>
     </p>
-      <p><a href="{% url 'add_project' custom_id %}" class="join-workspace" ><i class="fa-solid fa-plus fa-2xl" style="color: #36089b;color: white;"></i> Add Project</a></p>
-      <p>{% if flag %}
-        <button type="button" class="btn btn-outline-light" data-bs-toggle="modal" data-bs-target="#codeModal">
-          Add members
-        </button>
-
-        <!-- Modal -->
-
-        {% endif %}
-      </p>
-      <a href = "{% url 'dashboard' %}" class="join-workspace">Dashboard</a>
+      
+    </div>
     </div>
   </div>
-  <div class="modal" id="codeModal" tabindex="-1">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title">Share this workspace code to add members:</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body">
-          <p>{{ws_code}}</p>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-
-        </div>
-      </div>
-    </div>
-  </div>
+  <!-- Modal -->
+  
 </div>
+
+<div class="dropdown mt-3 me-4" style="background:none;">
+  
+    <!-- avatar -->
+<i class="fa-solid fa-circle-user fa-2xl " style="color: #004a7a;" data-bs-toggle="dropdown"  aria-expanded="false"></i>
+
+  <!-- avatar end -->
+  <ul class="dropdown-menu">
+    <li><a class="dropdown-item" href="{% url 'user-profile' custom_id %}">Profile</a></li>
+    
+    <li><a class="dropdown-item" href="{% url 'logout_user' %}">Logout</a></li>
+  </ul>
+</div>
+
+  </div>
 <script>
   document.getElementById('workspaceDropdown').addEventListener('change', function () {
     const ws_id = this.value;

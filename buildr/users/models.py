@@ -2,6 +2,7 @@ from django.db import models
 import uuid
 from django.contrib.auth.models import User
 from django.utils import timezone
+
 # Create your models here.
 
 class customUser(models.Model):
@@ -10,7 +11,7 @@ class customUser(models.Model):
     profile_pic=models.ImageField(upload_to='user_dp',null=True,blank=True)
     gameMode=models.BooleanField(default=True,blank=False)
     last_ws=models.ForeignKey("workspace",null=True,blank=True,on_delete=models.SET_NULL)
-
+    email=models.EmailField(null=True,blank=True,unique=True)
     def __str__(self) :
         return self.user
 class workspace(models.Model):
@@ -89,6 +90,7 @@ class status(models.Model):
     name = models.CharField(max_length=100, choices=[
         ('Open', 'Open'),
         ('In Progress', 'In Progress'),
+        ('Paused', 'Paused'),
         ('Closed', 'Closed')
     ])
     
@@ -99,12 +101,18 @@ class Project(models.Model):
     deadline = models.DateField(null=True, blank=True)
     created_on = models.DateTimeField(auto_now_add=True)
     completed = models.BooleanField(default=False)
+    completed_date =models.DateTimeField(null=True, blank=True)
     ws = models.ForeignKey(workspace, on_delete=models.CASCADE, related_name='projects')
     priority = models.ForeignKey(priority, on_delete=models.SET_NULL, null=True, blank=True, related_name='projects')
     status = models.ForeignKey(status, on_delete=models.SET_NULL, null=True, blank=True, related_name='projects')
     team=models.ManyToManyField(customUser,through='project_member_bridge')
     def __str__(self):
         return self.name
+    
+    def mark_completed(self):
+        self.completed = True
+        self.completed_date  = timezone.now()
+        self.save()
     
 class project_member_bridge(models.Model):
     team_member=models.ForeignKey(customUser,on_delete=models.CASCADE)
@@ -124,13 +132,26 @@ class issue(models.Model):
     deadline = models.DateField(null=True, blank=True)
     created_on = models.DateTimeField(auto_now_add=True)
     completed = models.BooleanField(default=False)
+    completed_date =models.DateTimeField(null=True, blank=True)
     project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name='issues')
     priority = models.ForeignKey(priority, on_delete=models.SET_NULL, null=True, blank=True, related_name='issues')
     status = models.ForeignKey(status, on_delete=models.SET_NULL, null=True, blank=True, related_name='issues')
     assignee=models.ManyToManyField(customUser,through='issue_assignee_bridge')
     parent_task=models.ForeignKey('self', on_delete=models.CASCADE,null=True,related_name='child')
+    overall_sentiment_score = models.FloatField(null=True, blank=True)
     def __str__(self):
         return self.name
+    
+    def mark_completed(self):
+        self.completed = True
+        self.completed_date  = timezone.now()
+        self.save()
+
+    def unread_comments_count(self, user):
+        return self.comments.exclude(read_by=user).count()
+    
+    class Meta:
+        ordering = ['priority__id'] 
 
 class issue_assignee_bridge(models.Model):
     assignee=models.ForeignKey(customUser,on_delete=models.CASCADE)
@@ -162,7 +183,8 @@ class Comments(models.Model):
                                         on_delete = models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
     issue = models.ForeignKey(issue, related_name = 'comments', on_delete = models.CASCADE)
-
+    sentiment_score=models.IntegerField(blank=True,null=True)
+    read_by = models.ManyToManyField(customUser, related_name='read_comments', blank=True)  # Track which users have read the comment
     def __str__(self):
         return 'Comment by ' + self.author + 'about' + self.issue.name
     

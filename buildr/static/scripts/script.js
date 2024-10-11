@@ -95,4 +95,72 @@ $(document).ready(function(){
 });
 
 
-// for loading comments
+// get morale
+function get_morale(issueId) {
+    $.ajax({
+        url: "/get-morale/",  // Replace with the correct URL pattern
+        method: "POST",
+        data: {
+            'issue_id': issueId,
+            'csrfmiddlewaretoken': '{{ csrf_token }}'
+        },
+        success: function(response) {
+            if (response.success) {
+                // Display the sentiment as an alert
+                alert(`
+                    Overall Sentiment: ${response.overall_sentiment}
+                   
+                `);
+            } else {
+                alert('Failed to fetch the sentiment analysis.');
+            }
+        },
+        error: function(xhr, status, error) {
+            alert('Error occurred: ' + error);
+        }
+    });
+}
+
+
+
+function copyTextClipboard() {
+  
+    var copyText = document.getElementById("code");
+
+    copyText.select();
+    copyText.setSelectionRange(0, 99999); 
+  
+   
+    navigator.clipboard.writeText(copyText.value);
+  
+    var successMessage = document.getElementById("copySuccessMessage");
+            successMessage.style.display = "block";
+
+           
+            setTimeout(function() {
+                successMessage.style.display = "none";
+            }, 2000);
+       
+  }
+
+
+  function getCsrfToken() {
+    return document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    const toggleButton = document.querySelector('.toggle-btn');
+    const descriptionContainer = document.querySelector('.description-container');
+
+    toggleButton.addEventListener('click', function() {
+        // Toggle the expanded class
+        descriptionContainer.classList.toggle('description-expanded');
+        
+        // Change the button text accordingly
+        if (descriptionContainer.classList.contains('description-expanded')) {
+            toggleButton.textContent = '▲ Show less';
+        } else {
+            toggleButton.textContent = '▼ Show more';
+        }
+    });
+});

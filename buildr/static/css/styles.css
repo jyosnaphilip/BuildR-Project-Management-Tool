@@ -1,4 +1,7 @@
-
+@import url("https://code.highcharts.com/css/highcharts.css");
+@import url("https://code.highcharts.com/dashboards/css/dashboards.css");
+@import url("https://code.highcharts.com/dashboards/css/datagrid.css");
+@import url('https://fonts.googleapis.com/css?family=Poppins:400,500,600,700&display=swap');
 @media (max-width: 700px) {
   .container .text{
     font-size: 30px;
@@ -15,6 +18,9 @@
   .submit-btn .input-data{
     width: 40%!important;
   }
+}
+.highcharts-label-icon {
+  opacity: 0.5;
 }
 
 body {
@@ -80,7 +86,7 @@ input::placeholder{
     display: block;
 }
 
-@import url('https://fonts.googleapis.com/css?family=Poppins:400,500,600,700&display=swap');
+
 *{
   margin: 0;
   padding: 0;
@@ -105,6 +111,57 @@ input::placeholder{
 .container form .form-row{
   display: flex;
   margin: 32px 0;
+}
+.description-container {
+  position: relative;
+  max-width: 100%;
+}
+
+.description-content {
+  max-height: 100px; /* Limit the height initially */
+  overflow: hidden;
+  position: relative;
+  transition: max-height 0.5s ease;
+}
+
+/* Adding fade-out effect at the bottom */
+.fade-effect {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 30px; /* Height of the fade */
+  background: linear-gradient(to bottom, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 1) 100%);
+  pointer-events: none; /* Prevent the gradient from blocking clicks */
+  transition: opacity 0.5s ease;
+}
+
+.description-container.description-expanded .fade-effect {
+  opacity: 0; /* Fade-out effect disappears when expanded */
+}
+
+.description-container.description-expanded .description-content {
+  max-height: none; /* Remove height restriction when expanded */
+}
+
+/* Handle images properly */
+.description-content img {
+  max-width: 100%;
+  height: auto;
+  transition: max-height 0.5s ease;
+}
+
+.toggle-btn {
+  background-color: transparent;
+  border: none;
+  font-size: 16px;
+  cursor: pointer;
+  color: #007bff;
+}
+
+/* On expand, show full image and hide the fade effect */
+.description-container.description-expanded img {
+  max-height: none; /* Full height image */
 }
 form .form-row .input-data{
   width: 100%;
@@ -407,7 +464,7 @@ tfoot tr:nth-child(2) th {
 }
 
 .active {
-  border-radius: 50% !important;
+  
   background-image: linear-gradient(#004a7a,#004a7a) !important;
   color: #fff !important;
 }
@@ -509,10 +566,11 @@ tfoot tr:nth-child(2) th {
 }
 
 .offcanvas-body .join-workspace {
-  background-color:#004a7a;
+  
   text-decoration: none;
   color: white;
 }
+
 
 /*drop down on add project*/
 
@@ -709,4 +767,95 @@ tfoot tr:nth-child(2) th {
   resize: none;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Subtle shadow */
   transition: border-color 0.3s ease; 
+}
+
+/* dashboardsss------------------------ */
+
+
+#dashboard-col-0 {
+  text-align: center;
+}
+highcharts-figure,
+highcharts-data-table table {
+    min-width: 310px;
+    max-width: 800px;
+    margin: 1em auto;
+}
+
+
+
+highcharts-data-table table {
+    font-family: Verdana, sans-serif;
+    border-collapse: collapse;
+    border: 1px solid #ebebeb;
+    margin: 10px auto;
+    text-align: center;
+    width: 100%;
+    max-width: 500px;
+}
+
+highcharts-data-table caption {
+    padding: 1em 0;
+    font-size: 1.2em;
+    color: #555;
+}
+
+highcharts-data-table th {
+    font-weight: 600;
+    padding: 0.5em;
+}
+
+highcharts-data-table td,
+highcharts-data-table th,
+highcharts-data-table caption {
+    padding: 0.5em;
+}
+
+highcharts-data-table thead tr,
+highcharts-data-table tr:nth-child(even) {
+    background: #f8f8f8;
+}
+
+highcharts-data-table tr:hover {
+    background: #f1f7ff;
+}
+#csv {
+  display: none;
+}
+
+.success{
+  color:green;
+}
+
+.error{
+  color:red;
+}
+
+.l-bg-blue-dark {
+  background: linear-gradient(to right, #1d2227, #004a7a) !important;
+  color: #ffffff;
+}
+
+
+.card .card-statistic-3 .card-icon-large .fas, .card .card-statistic-3 .card-icon-large .far, .card .card-statistic-3 .card-icon-large .fab, .card .card-statistic-3 .card-icon-large .fal {
+  font-size: 90px;
+  color:#ffff;
+  border-color: #00233a;
+  
+  
+}
+
+.card .card-statistic-3 .card-icon {
+  text-align: center;
+  line-height: 40px;
+  margin-left: 15px;
+  color: #ffff;
+  position: absolute;
+  right: -5px;
+  top: 20px;
+  opacity: 0.1;
+}
+
+.card-title{
+  color: #ffff;;
 }

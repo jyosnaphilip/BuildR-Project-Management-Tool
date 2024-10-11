@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+{% load static %}
+
+
+{% block content %}
+<div class="container rounded bg-white mt-5 mb-5">
+    <div class="row justify-content-center">
+        <div class="col-md-3 border-right">
+            <form method="POST" enctype="multipart/form-data" action="{% url 'edit_profile' custom_id %}">
+                {% csrf_token %}
+            <div class="container-sm  text-center bg-color ">
+                <label for="fileField">
+                    {% if custom_user.profile_pic %}
+                        <img id="profilePicPreview" class="card-img-top mt-4 me-4" src="{{custom_user.profile_pic.url}}" alt="profile pic of {{custom_user.user.first_name}}" style="width: 250px;height:250px;border-radius: 100%;">
+                    {% else %}
+                        <img id="profilePicPreview" class="card-img-top mt-5 text-center" src="{% static 'images/default_profile_pic.png' %}" alt="No image added" title="No image added. Click to add" style="width: 250px;height:250px;border-radius: 100%;opacity: 0.8;">
+                    {% endif %}
+                </label>
+                <input type="file" id="fileField" name="file" accept="image/*" hidden="true" onchange="previewProfilePic(event)">
+                
+            </div>
+        <div class="p-4 text-center"><span class="mt-5 text-secondary">Username: </span>{{custom_user.user.username}}</div>
+        </div>
+        <div class="col-md-5 border-right">
+            <div class="p-3 py-5">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h4 class="text-right" style="color:#004a7a;">Profile Settings</h4>
+                </div>
+                <div class="row mt-2">
+                    <div class="col-md-6"><label class="labels">Name</label><input  type="text" class="form-control" placeholder="first name" value="{{custom_user.user.first_name}}" disabled></div>
+                    <div class="col-md-6"><label class="labels">Surname</label><input  type="text" class="form-control" value="{{custom_user.user.last_name}}" placeholder="surname" disabled></div>
+                </div>
+                <div class="row mt-3">
+                    <div class="col-md-12"><label class="labels">Email ID</label><input name="email" type="email" class="form-control" placeholder="enter email id" value="{% if custom_user.email %}{{custom_user.email}}{% endif %}"></div>
+                </div>
+                <div class="mt-5 text-center"><button class="btn profile-button" style="background-color: #004a7a;color:white;" type="submit" value="submit" >Save Profile</button></div>
+            </div>
+        </form>
+        </div>
+        
+    </div>
+</div>
+</div>
+</div>
+<script>
+    function previewProfilePic(event) {
+
+        const reader = new FileReader();
+        reader.onload = function(){
+            const output = document.getElementById('profilePicPreview');
+            output.src = reader.result;
+        };
+        reader.readAsDataURL(event.target.files[0]);
+    }
+</script>
+{% endblock content %}

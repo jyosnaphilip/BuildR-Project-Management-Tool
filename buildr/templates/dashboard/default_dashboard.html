@@ -1,0 +1,1319 @@
+
+{% extends 'base.html' %}
+{% block content %}
+
+
+
+<script src="https://code.highcharts.com/highcharts.js"></script>
+<script src="https://code.highcharts.com/modules/exporting.js"></script>
+<script src="https://code.highcharts.com/modules/export-data.js"></script>
+<script src="https://code.highcharts.com/modules/accessibility.js"></script>
+<script src="https://code.highcharts.com/dashboards/dashboards.js"></script>
+<script src="https://code.highcharts.com/dashboards/modules/layout.js"></script>
+<script src="https://code.highcharts.com/modules/treemap.js"></script>
+<script src="https://code.highcharts.com/modules/drilldown.js"></script>
+<script src="https://code.highcharts.com/gantt/modules/gantt.js"></script>
+
+<div id="content" class="expanded">
+ 
+  <div class="toggle-buttons d-inline-flex gap-1 ms-5 mb-2 ">
+    <div>
+      {% if flag %}
+    <button type="button" id="viewWorkspaceBtn" onclick="showWorkspaceInsights()" class="btn " style="background-color:#004a7a;color:white;" aria-pressed="true" data-bs-toggle="button">View Workspace Insights</button>
+    {% endif %}
+    <button type="button" id="viewPersonalBtn" onclick="showPersonalInsights()" class="btn " style="background-color:#004a7a;color:white"  data-bs-toggle="button" >View Personal Insights</button>
+  </div>
+  {% if is_project_lead %}
+    
+      
+
+        <button type="button" id="viewProjectBtn" onclick="showProjectInsights()" class="btn btn-outline-primary"  aria-pressed="true" data-bs-toggle="button">Insights on Projects lead by you</button>
+
+     
+    
+    {% endif %}
+</div>
+{% if flag %}
+  {% block ws_admin_dashboard %}
+  
+  {% endblock ws_admin_dashboard %}
+  {% endif %}
+ 
+<div id="personalInsights" class="highcharts-light mx-5 my-2 rounded" style="background-color:white;{% if flag %} display:none;{% endif %}">
+    <div class="row p-3" >
+      <div class="col-sm-4  h-100" >
+        <div id="treemap" class="shadow-sm rounded"></div>
+      </div>
+      <div class="col-sm-4 h-100">
+        <div id="pie_chart" class="shadow-sm rounded"></div>
+      </div>
+      <div class="col-sm-4">
+        <div id="scatter" class="shadow-sm rounded"></div>
+        
+      </div>
+    </div>
+    <div class="row p-3">
+      <div class="col-sm-12">
+        <div id="gantt" class="shadow-sm rounded"></div>
+      </div>
+    </div>
+</div>
+{% if is_project_lead %}
+<div id="projectInsights" style="display:none;">
+  <div class="container">
+  {% for a_project in project_details %}
+  <div class="accordion"  id="accordion-{{forloop.counter}}"  style="background-color: white;border-color: white;--bs-focus-ring-color: rgba(var(--bs-success-rgb), .0)">
+    <div class="accordion-item" style="border-color: white;--bs-focus-ring-color: rgba(var(--bs-success-rgb), .0);" >
+      <h2 class="accordion-header" >
+        <button class="accordion-button"   style="background-color: white;--bs-focus-ring-color: rgba(var(--bs-success-rgb), .0)" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-{{forloop.counter}}" aria-expanded="false" aria-controls="collapse-{{forloop.counter}}">
+          {{a_project.project_name}}
+        </button>
+      </h2>
+      <div id="collapse-{{forloop.counter}}" class="accordion-collapse collapse show" data-bs-parent="#accordion-{{forloop.counter}}">
+        <div class="accordion-body">
+          
+            <div class="row g-0 p-0" >
+                
+                <div class="col-sm-3 mt-5 mb-0" >
+                    <div class="card  l-bg-blue-dark shadow-sm  w-75 mb-0" style="height:50%;">
+                        <div class="card-statistic-3 p-4">
+                            <div class="card-icon card-icon-large"><i class="fa-solid fa-diagram-project" style="font-size:450%;"></i></div>
+                            <div class="mb-4">
+                                <h6 class="card-title mb-0 text-light">Active issues</h6>
+                            </div>
+                            <div class="row align-items-center mb-3 d-flex">
+                                <div class="col-8">
+                                    <h5 class="d-flex align-items-center mb-5 text-light pb-5">
+                                        {{a_project.active_issues}}
+                                    </h5>
+                                </div>
+                                
+                            </div>
+                            
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-4 mt-5">
+                    <div class="card l-bg-blue-dark shadow-sm  w-75 mb-0" style="height:50%;">
+                        <div class="card-statistic-3 p-4">
+                            <div class="card-icon card-icon-large"><i class="fa-solid fa-list-check"  style="font-size:450%;"></i></div>
+                            <div class="mb-4">
+                                <h6 class="card-title mb-0 text-light">Issues closed in the past week</h6>
+                            </div>
+                            <div class="row align-items-center mb-2 d-flex">
+                                <div class="col-8">
+                                    <h5 class="d-flex align-items-center text-light mb-5 pb-4">
+                                        {{a_project.tasks_closed_last_week_count}}
+                                    </h5>
+                                </div>
+                                
+                            </div>
+                            
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-4 mt-5">
+                    <div class="card l-bg-blue-dark shadow-sm  w-75 mb-0" style="height:50%;">
+                        <div class="card-statistic-3 p-4">
+                            <div class="card-icon card-icon-large"><i class="fa-solid fa-list-check"  style="font-size:450%;"></i></div>
+                            <div class="mb-4">
+                                <h6 class="card-title mb-0 text-light">Task Completion Rate</h6>
+                            </div>
+                            <div class="row align-items-center mb-2 d-flex">
+                                <div class="col-8">
+                                    <h6 class="d-flex align-items-center text-light mb-5 pb-4">
+                                        {{a_project.task_completion_rate}}%
+                                    </h6>
+                                </div>
+                                
+                            </div>
+                            
+                        </div>
+                    </div>
+                </div>
+                  
+          </div>
+            <!-- tasks closed last week per member -->
+            <div class="row m-2 highcharts-light  rounded"  style="margin-top: 0; padding-top: 0;" >
+              <div class="col-sm-4 " >
+                {% if a_project.tasks_completed_last_week|length > 0 %}
+                <div id="issues_closed_last_week_per_member-{{forloop.counter}}"></div>
+                {% endif %}
+              </div>
+              <div class="col-sm-4">
+                {% if a_project.work_division|length > 0 %}
+                <div id="workDivision-{{forloop.counter}}" class="shadow-sm rounded"></div>
+                {% endif %}
+              </div>
+              <div class="col-sm-4">
+                
+                {% if a_project.overdue_tasks|length > 0 %}
+                <ul class="list-group shadow-sm rounded">
+                  {% for task in a_project.overdue_tasks %}
+                  <li class="list-group-item list-group-item-action" >
+                    <div class="d-flex w-100 justify-content-between">
+                      <h6 class="mb-1">{{task.name}} </h6>
+                      <small class="text-danger">Overdue by {{task.overdue_days}} days</small>
+                    </div>
+                    
+                    <small>Assigned to: 
+                      {% for assignee in task.assignee.all %}
+                      {{assignee.user.first_name}}{% if not loop.last %},{% endif %}
+                      {% endfor %}
+                    </small>
+
+                  </li>
+                  {% endfor %}
+                </ul>
+                {% else %}
+                <span>No overdue issues in project!</span>
+                {% endif %}
+              </div>
+              <div class="col-sm-4">
+                {% if a_project.task_priorities|length > 0 %}
+                <div id="priority_chart-{{forloop.counter}}" class="shadow-sm rounded"></div>
+                {% endif %}
+              </div>
+              <div class="col-sm-4 p-4 ">
+                Team Morale (based on Comments)
+                <br />
+                <button type="button" class="btn btn-outline" disabled style="color:#004a7a"><i class="fa-regular fa-face-smile"></i> {{a_project.sentiment_summary.positive_percentage}} %</button>
+                <button type="button" class="btn btn-outline" disabled style="color:#004a7a;"><i class="fa-regular fa-face-meh"></i> {{a_project.sentiment_summary.neutral_percentage}} %</button>
+                <button type="button" class="btn btn-outline" disabled style="color:#004a7a;"><i class="fa-regular fa-face-frown"></i> {{a_project.sentiment_summary.negative_percentage}} %</button>
+               
+              
+               </div>
+
+            </div>
+            
+            
+      </div>
+    </div>
+  </div>
+
+  {% endfor %}
+</div>
+</div>
+{% endif %}
+</div>
+<!-- tasks closed last week per member: project insights -->
+{% for a_project in project_details %}
+<script>
+
+// Create the chart
+Highcharts.chart('issues_closed_last_week_per_member-{{forloop.counter}}', {
+    chart: {
+        type: 'column'
+    },
+    title: {
+        align: 'left',
+        text: 'Issues closed per member last week'
+    },
+  
+    accessibility: {
+        announceNewData: {
+            enabled: true
+        }
+    },
+    xAxis: {
+        type: 'category',
+        labels:{
+          useHTML: true,
+				style: {
+					color: 'black',
+          textDecoration: 'none'
+				},
+        formatter() {
+          return '<div style="white-space: break-spaces;color:black;text-decoration:none;" >'+this.value+'</div>';
+          //return this.point.name;
+        }
+
+        }
+    },
+    yAxis: {
+        title: {
+            text: 'Count'
+        }
+
+    },
+    legend: {
+        enabled: false
+    },
+    plotOptions: {
+        series: {
+            borderWidth: 0,
+            dataLabels: {
+                enabled: true,
+                
+                useHTML: true,
+				style: {
+          color: 'black',
+          textDecoration: 'none'
+				},
+        formatter() {
+          return '<div style="white-space: break-spaces;color:black;text-decoration:none;" >'+this.y+'</div>';
+          //return this.point.name;
+        }
+        
+            }//here
+        }
+    },
+
+    tooltip: {
+        headerFormat: '<span style="font-size:11px">{series.name}</span><br>',
+        pointFormat: '<span style="color:{point.color}">{point.name}</span>: ' +
+            '<b>{point.y}</b> '
+    },
+
+    series: [
+    {
+            name:'Member',
+            colorByPoint:true,
+            data: [
+            {% for data in a_project.tasks_completed_last_week %}
+            {
+                name:'{{data.assignee__user__first_name}}',
+                y:{{data.total_completed}}
+                
+            }{% if not loop.last %},{% endif %}
+            {% endfor %}
+            ]
+
+        }
+    ]
+}
+);
+
+
+// work division bar chart
+
+// Create the chart
+Highcharts.chart('workDivision-{{forloop.counter}}', {
+    chart: {
+        type: 'column'
+    },
+    title: {
+        align: 'left',
+        text: 'Issues assigned per member'
+    },
+  
+    accessibility: {
+        announceNewData: {
+            enabled: true
+        }
+    },
+    xAxis: {
+        type: 'category',
+        labels:{
+          useHTML: true,
+				style: {
+					color: 'black',
+          textDecoration: 'none'
+				},
+        formatter() {
+          return '<div style="white-space: break-spaces;color:black;text-decoration:none;" >'+this.value+'</div>';
+          //return this.point.name;
+        }
+
+        }
+    },
+    yAxis: {
+        title: {
+            text: 'Count'
+        }
+
+    },
+    legend: {
+        enabled: false
+    },
+    plotOptions: {
+        series: {
+            borderWidth: 0,
+            dataLabels: {
+                enabled: true,
+                
+                useHTML: true,
+				style: {
+          color: 'black',
+          textDecoration: 'none'
+				},
+        formatter() {
+          return '<div style="white-space: break-spaces;color:black;text-decoration:none;" >'+this.y+'</div>';
+          //return this.point.name;
+        }
+        
+            }//here
+        }
+    },
+
+    tooltip: {
+        headerFormat: '<span style="font-size:11px">{series.name}</span><br>',
+        pointFormat: '<span style="color:{point.color}">{point.name}</span>: ' +
+            '<b>{point.y}</b> '
+    },
+
+    series: [
+    {
+            name:'Member',
+            colorByPoint:true,
+            data: [
+            {% for data in a_project.work_division %}
+            {
+                name:'{{data.assignee__user__first_name}}',
+                y:{{data.issue_count}}
+                
+            }{% if not forloop.last %},{% endif %}
+            {% endfor %}
+            ]
+
+        }
+    ]
+}
+);
+// donut chart of priorities
+ Highcharts.chart('priority_chart-{{forloop.counter}}', {
+  
+  chart: {
+    type: 'pie'
+  },
+  title: {
+    text: 'Issue Priorities',
+    align:'left'
+  },
+  subtitle:{
+    text:'Click on slices to view breakdown issues by status ',
+    align:'left'
+  },
+  
+  tooltip: {
+    
+    borderColor: '#999',
+    backgroundColor: 'rgba(255, 255, 255, 0.93)'
+  },
+  plotOptions: {
+    pie: {
+      allowPointSelect: true,
+      cursor: 'pointer',
+      
+      borderRadius: 8,
+      dataLabels: {
+    distance: '-40%',
+    position: 'center',
+    enabled: true,
+    format: '<span style="font-size:0.80rem;color:black;"><b> {point.name}</b></span><br><span style="color:black;">{point.percentage:.1f}%</span>',
+    connectorColor: 'rgba(128,128,128,0.5)',
+    filter: {
+        property: 'percentage',
+        operator: '>',
+        value: 0
+    }
+}
+      
+    }
+  },
+  series: [
+    { borderRadius:5,
+      name: 'Issues',
+      colorByPoint: true,
+      innerSize: '75%',
+      data: [
+        {% for data in a_project.task_priorities %}
+        {
+          name: '{{data.priority__name}}',
+          y: {{data.total_issues}},
+          drilldown:'{{data.priority__name}}'
+        } {% if not forloop.last %},{% endif %}
+        {% endfor %}
+        
+      ]
+    }
+  ],
+  drilldown:{
+    activeDataLabelStyle: {
+            textDecoration: 'none'
+            },
+            dataLabels: [{
+        distance:'-1%',
+        position:'center',
+        enabled: true,
+        format: '<span style="font-size:0.5rem;color:black;"><b> {point.name}</b></span>' +
+                    '<br>' +
+                    '<span style="color:black;">{point.percentage:.1f}</span> ' +
+                    '%',
+                connectorColor: 'rgba(128,128,128,0.5)'}],
+    series:[
+      {% for data in a_project.task_priorities %}
+      {name:'{{data.priority__name}}',
+        id:'{{data.priority__name}}',
+        data:[
+        
+        ['Completed',{{data.completed_issues}}],
+        ['In progress',{{data.in_progress_issues}}]
+        ]
+        
+      }{% if not forloop.last %},{% endif %}
+      {% endfor %}
+    ]
+  }
+});
+
+</script>
+{% endfor %}
+<script>
+  let colors = ['#8B0000', '#ff4b33', '#ff4b33', '#D3D3D3'];
+
+let data = [
+    {% for priority, total_count in priority_count.items %}
+    {
+        name: '{{ priority }}',
+        value: {{ total_count }},
+        color: colors[{{ loop.index }} - 1], // This won't work directly
+        drilldown: '{{ priority }}'
+    } {% if not forloop.last %}, {% endif %}
+    {% endfor %}
+];
+
+
+data.forEach((item, index) => {
+    item.color = colors[index] || '#000000'; // Fallback to black if out of bounds
+});
+
+
+Highcharts.chart('treemap', {
+  
+  series: [
+    {
+      type: 'treemap',
+      layoutAlgorithm: 'squarified',
+      allowTraversingTree:true,  
+      levelIsConstant: false,
+      dataLabels:{
+        enabled:false
+      }  , 
+      levels:[{
+        level:1, 
+        layoutAlgorithm: 'squarified',
+        dataLabels:{
+          enabled:true,
+          useHTML: true,
+				style: {
+					
+				},
+        formatter() {
+          return '<div style="white-space: break-spaces;color:black;" >'+this.point.name+'</div>';
+          //return this.point.name;
+        }
+        }
+      }],
+      data: data
+    }
+  ],
+  drilldown: {
+    colorByPoint:true,
+    activeDataLabelStyle: {
+            textDecoration: 'none'
+            },
+    series: [
+      {% for priority, projects in treemap_data.items %}
+      {
+        id: '{{priority}}',
+        type:'treemap',
+        layoutAlgorithm:'squarified',
+        data: [
+          {% for project, count in projects.items %}
+          ['{{project}}',{{count}}]
+            {% if not forloop.last %},{% endif %}
+          {% endfor %}
+        ]
+      }{% if not forloop.last %},{% endif %}
+      {% endfor %}
+    ]
+  },
+  title: {
+    text: 'Your issues by priority'
+  },
+  
+  tooltip: {
+    useHTML: true,
+    pointFormat:
+    'There are <b>{point.value}</b> tasks of <b>{point.name}</b> '
+  }
+});
+// to do: show what these issues are by adding level in the drilldown option
+</script>
+<!-- piechart -->
+ <!-- possible issue: as time goes on the closed issues can increase and then it will be like 
+  close=50, pending=1 
+  solu: if closed, check the closing date(if in last 2 weeks) and add???  -->
+<script>
+  // Radialize the colors
+Highcharts.getOptions({
+    colors: Highcharts.getOptions().colors.map(function(color) {
+        return {
+          linearGradient: {
+            cx: 0.5,
+            cy: 0.5,
+            r: 0.7
+          },
+        
+            stops: [
+                [0, color],
+                [1, Highcharts.color(color).brighten(-0.3).get('rgb')] // darken
+            ]
+        };
+    })
+});
+  Highcharts.chart('pie_chart', {
+  
+  chart: {
+    type: 'pie'
+  },
+  title: {
+    text: 'Your Task Status',
+    align:'left'
+  },
+  subtitle:{
+    text:'Click on slices to view breakdown of status by project',
+    align:'left'
+  },
+  
+  tooltip: {
+    
+    borderColor: '#999',
+    backgroundColor: 'rgba(255, 255, 255, 0.93)'
+  },
+  plotOptions: {
+    pie: {
+      allowPointSelect: true,
+      cursor: 'pointer',
+      colors,
+      borderRadius: 8,
+      dataLabels: [{
+        distance:'-40%',
+        position:'center',
+        enabled: true,
+        format: '<span style="font-size:0.80rem;color:black;"><b> {point.name}</b></span>' +
+                    '<br>' +
+                    '<span style="color:black;">{point.percentage:.1f}%</span> ' 
+                    ,
+                connectorColor: 'rgba(128,128,128,0.5)',
+                filter: {
+                    property: 'percentage',
+                    operator: '>',
+                    value: 0
+                }
+      },
+    ],
+      
+    }
+  },
+  series: [
+    { borderRadius:5,
+      name: 'Issues',
+      colorByPoint: true,
+      innerSize: '75%',
+      data: [
+        {% for status,count in status_count.items %}
+        {
+          name: '{{status}}',
+          y: {{count}},
+          drilldown:'{{status}}'
+        } {% if not loop.last %},{% endif %}
+        {% endfor %}
+        
+      ]
+    }
+  ],
+  drilldown:{
+    activeDataLabelStyle: {
+            textDecoration: 'none'
+            },
+            dataLabels: [{
+        distance:'-1%',
+        position:'center',
+        enabled: true,
+        format: '<span style="font-size:0.5rem;color:black;"><b> {point.name}</b></span>' +
+                    '<br>' +
+                    '<span style="color:black;">{point.percentage:.1f}</span> ' +
+                    '%',
+                connectorColor: 'rgba(128,128,128,0.5)'}],
+    series:[
+      {% for status, projects in pie_data.items %}
+      {name:'{{status}}',
+        id:'{{status}}',
+        data:[
+        {% for project, count in projects.items %}
+        ['{{project}}',{{count}}]{% if not loop.last %},{% endif %}
+        {% endfor %}
+        ]
+        
+      }{% if not loop.last %},{% endif %}
+      {% endfor %}
+    ]
+  }
+});
+</script>
+
+<!-- gantt -->
+ <script>
+  function getDate(date) {
+      const dateParts = date.split('-');
+      const year = parseInt(dateParts[0], 10);
+      const month = parseInt(dateParts[1], 10) - 1; // JavaScript months are zero-indexed
+      const day = parseInt(dateParts[2], 10);
+      
+      // Return the date as a UTC timestamp
+      return Date.UTC(year, month, day);
+                }
+  const day = 24 * 36e5,
+    today = Math.floor(Date.now() / day) * day;
+
+const options = {
+    chart: {
+        plotBackgroundColor: 'rgba(128,128,128,0.02)',
+        plotBorderColor: 'rgba(128,128,128,0.1)',
+        plotBorderWidth: 1
+    },
+
+    plotOptions: {
+        series: {
+            borderRadius: '50%',
+            // connectors: {
+            //     dashStyle: 'ShortDot',
+            //     lineWidth: 2,
+            //     radius: 5,
+            //     startMarker: {
+            //         enabled: false
+            //     }
+            // },
+            groupPadding: 0,
+            dataLabels: [{
+                enabled: false,
+                align: 'left',
+                format: '{point.name}',
+                padding: 10,
+                style: {
+                    fontWeight: 'normal',
+                    textOutline: 'none',
+                    textOverflow: 'ellipsis',
+                    whiteSpace: 'nowrap',
+                    overflow: 'hidden',
+                    color: 'contrast',
+                     width: '80px'
+                }
+            }, {
+                enabled: true,
+                align: 'right',
+                format: '{#if point.completed}{(multiply ' +
+                    'point.completed.amount 100):.0f}%{/if}',
+                padding: 10,
+                style: {
+                    fontWeight: 'normal',
+                    textOutline: 'none',
+                    opacity: 0.6
+                }
+            }]
+        }
+    },
+
+    series: [ // project start 
+    {% for project,details in gantt.items %}
+    {
+      
+        name: '{{project}}',
+        data: [{
+            name: '{{project}}',
+            id: '{{project}}',
+            owner: {% if details.lead %}{% for lead in details.lead %}'{{lead.team_member.user.first_name}}'{% endfor %}{% else %}'na'{% endif %}
+        }, {% for issue,issues_details in details.issues.items %}
+        {
+            name: '{{issue}}',
+            id: '{{issue}}',
+            parent: '{{project}}',
+            start:  getDate('{{ issues_details.created_on }}') ,
+            
+            end: getDate('{{issues_details.deadline}}'),
+            completed: {
+                amount: {{issues_details.percent}}
+                
+            },
+            owner:  {% if issues_details.assignees %}{% for assignee in issues_details.assignees %}'{{assignee.assignee.user}}'{% endfor %}{% else %}'na'{% endif %}
+        }{% if not loop.last %},{% endif %} {% endfor %}
+        ]
+    }{% if not loop.last %},{% endif %}
+    {% endfor %}
+    // project end
+    ],
+  dataLabels: [{
+            enabled: true,
+            format: '<div style="width: 20px; height: 20px; overflow: ' +
+                'hidden; border-radius: 50%; margin-left: -25px;">' +
+                '<img src="https://github.com/jyosnaphilip.png" ' +
+                'style="width: 30px; margin-left: -5px; margin-top: -2px">' +
+                '</div>',
+            useHTML: true,
+            align: 'left'
+        }, {
+            enabled: true,
+            format: '<i class="fa fa-{point.fontSymbol}" style="font-size: ' +
+                '1.5em"></i>',
+            useHTML: true,
+            align: 'right'
+        }],
+        tooltip: {
+      outside:true,
+         
+        pointFormat: '<span style="font-weight: bold;color:white;">{point.name}<br>'+ 'Start: {point.start:%e %b %Y}<br>' +
+        'End: {point.end:%e %b %Y}<br>' +
+        'Completed: {point.completed.amount :.0%}<br>' +
+        'Owner: {point.owner}</span><br>' 
+           
+    },
+    title: {
+        text: 'Gantt Project Management To do: add dates, calculate time and try changing bg color'
+    },
+    xAxis: [{
+        currentDateIndicator: {
+            color: '#2caffe',
+            dashStyle: 'ShortDot',
+            width: 2,
+            label: {
+                format: ''
+            }
+        },
+        dateTimeLabelFormats: {
+            day: '%e<br><span style="opacity: 0.5; font-size: 0.7em">%a</span>'
+        },
+        grid: {
+            borderWidth: 0
+        },
+        gridLineWidth: 1,
+        min: today - 3 * day,
+        max: today + 18 * day,
+        custom: {
+            today,
+            weekendPlotBands: true
+        }
+    }],
+    yAxis: {
+        grid: {
+            borderWidth: 0
+        },
+        gridLineWidth: 0,
+        labels: {
+            symbol: {
+                width: 8,
+                height: 6,
+                x: -4,
+                y: -2
+            }
+        },
+        staticScale: 30
+    },
+  navigator: {
+    enabled: true,
+    liveRedraw: true,
+    series: {
+      type: 'gantt',
+      pointPlacement: 0.5,
+      pointPadding: 0.25,
+      accessibility: {
+        enabled: false
+      }
+    },
+    yAxis: {
+      min: 0,
+      max: 3,
+      reversed: true,
+      categories: []
+    }
+  },
+
+  scrollbar: {
+    enabled: true
+  },
+
+  rangeSelector: {
+    enabled: true,
+    selected: 0
+  },
+    accessibility: {
+        keyboardNavigation: {
+            seriesNavigation: {
+                mode: 'serialize'
+            }
+        },
+        point: {
+            descriptionFormatter: function (point) {
+                const completedValue = point.completed ?
+                        point.completed.amount || point.completed : null,
+                    completed = completedValue ?
+                        ' Task ' + Math.round(completedValue ) +
+                            '% completed.' :
+                        '',
+                    dependency = point.dependency &&
+                        point.series.chart.get(point.dependency).name,
+                    dependsOn = dependency ?
+                        ' Depends on ' + dependency + '.' : '';
+
+                return Highcharts.format(
+                    point.milestone ?
+                        '{point.yCategory}. Milestone at {point.x:%Y-%m-%d}. ' +
+                        'Owner: {point.owner}.{dependsOn}' :
+                        '{point.yCategory}.{completed} Start ' +
+                        '{point.x:%Y-%m-%d}, end {point.x2:%Y-%m-%d}. Owner: ' +
+                        '{point.owner}.{dependsOn}',
+                    { point, completed, dependsOn }
+                );
+            }
+        }
+    },
+    lang: {
+        accessibility: {
+            axis: {
+                xAxisDescriptionPlural: 'The chart has a two-part X axis ' +
+                    'showing time in both week numbers and days.'
+            }
+        }
+    }
+};
+
+// Plug-in to render plot bands for the weekends
+Highcharts.addEvent(Highcharts.Axis, 'foundExtremes', e => {
+    if (e.target.options.custom && e.target.options.custom.weekendPlotBands) {
+        const axis = e.target,
+            chart = axis.chart,
+            day = 24 * 36e5,
+            isWeekend = t => /[06]/.test(chart.time.dateFormat('%w', t)),
+            plotBands = [];
+
+        let inWeekend = false;
+
+        for (
+            let x = Math.floor(axis.min / day) * day;
+            x <= Math.ceil(axis.max / day) * day;
+            x += day
+        ) {
+            const last = plotBands.at(-1);
+            if (isWeekend(x) && !inWeekend) {
+                plotBands.push({
+                    from: x,
+                    color: {
+                        pattern: {
+                            path: 'M 0 10 L 10 0 M -1 1 L 1 -1 M 9 11 L 11 9',
+                            width: 10,
+                            height: 10,
+                            color: 'rgba(128,128,128,0.15)'
+                        }
+                    }
+                });
+                inWeekend = true;
+            }
+
+            if (!isWeekend(x) && inWeekend && last) {
+                last.to = x;
+                inWeekend = false;
+            }
+        }
+        axis.options.plotBands = plotBands;
+    }
+});
+
+Highcharts.ganttChart('gantt', options);
+
+ </script>
+
+<script>
+  Highcharts.setOptions({
+    colors: [
+        'rgba(5,141,199,0.5)', 'rgba(80,180,50,0.5)', 'rgba(237,86,27,0.5)'
+    ]
+});
+
+const series = [{
+    name: 'Urgent',
+    id:'1',
+    marker: {
+        symbol: 'circle'
+    }
+},
+{
+    name: 'High Priority',
+    id: '2',
+    marker: {
+        symbol: 'triangle'
+    }
+},
+{
+    name: 'Medium Priority',
+    id: '3',
+    marker: {
+        symbol: 'square'
+    }
+},
+{
+    name: 'Low Priority',
+    id: '4',
+    marker: {
+        symbol: 'diamond'
+    }
+},
+{
+    name: 'No Priority',
+    id: '5',
+    marker: {
+        symbol: 'diamond'
+    }
+}];
+
+const taskData = [
+  
+  {% for scatter_item in scatter %}
+  {
+    task:'{{scatter_item.name}}', category:'{{scatter_item.category}}', expected: {{scatter_item.expected_duration}}, actual: {{scatter_item.actual_duration}}
+  }{% if not loop.last %},{% endif %}
+  
+  {% endfor %}
+]
+
+// filter data by task priority
+const getData =  category => {
+  return taskData.filter(task=>parseInt(task.category) === parseInt(category)).map(task=>[task.expected,task.actual]);
+}; // output will be of an array of arrays
+
+series.forEach(s=>{s.data=getData(s.id);
+
+});
+
+
+
+    Highcharts.chart('scatter', {
+        chart: {
+            type: 'scatter',
+            zooming: {
+                type: 'xy'
+            }
+        },
+        title: {
+            text: 'Comparison of Expected vs. Actual Task Duration',
+            align: 'left'
+        },
+        subtitle: {
+            text:
+          'Tasks categorized by priority',
+            align: 'left'
+        },
+        xAxis: {
+            title: {
+                text: 'Expected Duration (Days)'
+            },
+            labels: {
+                format: '{value}'
+            },
+            startOnTick: true,
+            endOnTick: true,
+            showLastLabel: true
+        },
+        yAxis: {
+            title: {
+                text: 'Actual Duration (Days)'
+            },
+            labels: {
+                format: '{value}'
+            }
+        },
+        legend: {
+            enabled: true
+        },
+        plotOptions: {
+            scatter: {
+                marker: {
+                    radius: 4,
+                    symbol: 'circle',
+                    states: {
+                        hover: {
+                            enabled: true,
+                            lineColor: 'rgb(100,100,100)'
+                        }
+                    }
+                },
+                states: {
+                    hover: {
+                        marker: {
+                            enabled: false
+                        }
+                    }
+                },
+                jitter: {
+                    x: 0.005
+                }
+            }
+        },
+        tooltip: {
+            pointFormat: 'Expected: {point.x} days <br/> Actual: {point.y} days'
+        },
+        series
+    });
+
+
+</script>
+<script>
+  function showWorkspaceInsights() {
+     // Show Workspace Insights and hide Personal Insights
+     document.getElementById('workspaceInsights').style.display = 'block';
+     document.getElementById('personalInsights').style.display = 'none';
+     document.getElementById('projectInsights').style.display = 'none';
+     // Update button states
+     document.getElementById('viewWorkspaceBtn').classList.add('active');
+     document.getElementById('viewWorkspaceBtn').setAttribute('aria-pressed', 'true');
+     document.getElementById('viewProjectBtn').classList.remove('active');
+     document.getElementById('viewPersonalBtn').classList.remove('active');
+     document.getElementById('viewPersonalBtn').setAttribute('aria-pressed', 'false');
+     document.getElementById('viewProjectBtn').setAttribute('aria-pressed', 'false');
+
+ }
+
+ function showPersonalInsights() {
+     // Show Personal Insights and hide Workspace Insights
+     document.getElementById('personalInsights').style.display = 'block';
+     document.getElementById('workspaceInsights').style.display = 'none';
+     document.getElementById('projectInsights').style.display = 'none';
+
+     // Update button states
+     document.getElementById('viewPersonalBtn').classList.add('active');
+     document.getElementById('viewPersonalBtn').setAttribute('aria-pressed', 'true');
+     document.getElementById('viewProjectBtn').classList.remove('active');
+
+     document.getElementById('viewWorkspaceBtn').classList.remove('active');
+     document.getElementById('viewWorkspaceBtn').setAttribute('aria-pressed', 'false');
+     document.getElementById('viewProjectBtn').setAttribute('aria-pressed', 'false');
+
+ }
+
+ 
+ function showProjectInsights() {
+
+ 
+     // Show Workspace Insights and hide Personal Insights
+     document.getElementById('workspaceInsights').style.display = 'none';
+     document.getElementById('personalInsights').style.display = 'none';
+     document.getElementById('projectInsights').style.display = 'block';
+     // Update button states
+     document.getElementById('viewWorkspaceBtn').classList.remove('active');
+     document.getElementById('viewWorkspaceBtn').setAttribute('aria-pressed', 'false');
+     document.getElementById('viewProjectBtn').classList.add('active');
+     document.getElementById('viewProjectBtn').setAttribute('aria-pressed', 'true');
+
+
+     document.getElementById('viewPersonalBtn').classList.remove('active');
+     document.getElementById('viewPersonalBtn').setAttribute('aria-pressed', 'false');
+ }
+
+ // By default, show Workspace Insights
+ </script>
+ 
+<script>
+  
+// pie chart for resource allocation (ws_admin_dashboard.html)
+
+Highcharts.getOptions({
+    colors: Highcharts.getOptions().colors.map(function(color) {
+        return {
+          linearGradient: {
+            cx: 0.5,
+            cy: 0.5,
+            r: 0.7
+          },
+        
+            stops: [
+                [0, color],
+                [1, Highcharts.color(color).brighten(-0.3).get('rgb')] // darken
+            ]
+        };
+    })
+});
+  Highcharts.chart('pie_chart_resource_allocation', {
+  
+  chart: {
+    type: 'pie'
+  },
+  title: {
+    text: 'Team members per project',
+    align:'left'
+  },
+  subtitle:{
+    text:'Click on slices to view breakdown of status by project',
+    align:'left'
+  },
+  
+  tooltip: {
+    
+    borderColor: '#999',
+    backgroundColor: 'rgba(255, 255, 255, 0.93)'
+  },
+  plotOptions: {
+    pie: {
+      allowPointSelect: true,
+      cursor: 'pointer',
+      colors,
+      borderRadius: 8,
+      dataLabels: [{
+        distance:'-40%',
+        position:'center',
+        enabled: true,
+        format: '<span style="font-size:0.80rem;color:black;"><b> {point.name}</b></span>' +
+                    '<br>' +
+                    '<span style="color:black;">{point.y}</span> ' 
+                    ,
+                connectorColor: 'rgba(128,128,128,0.5)',
+                filter: {
+                    property: 'y',
+                    operator: '>',
+                    value: 0
+                }
+      },
+    ],
+      
+    }
+  },
+  series: [
+    { borderRadius:5,
+      name: 'Resource',
+      colorByPoint: true,
+      innerSize: '75%',
+      data: [
+        {% for project,count in resource_details.items %}
+        {
+          name: '{{project}}',
+          y: {{count}},
+        //   drilldown:'{{status}}'
+        } {% if not loop.last %},{% endif %}
+        {% endfor %}
+        
+      ]
+    }
+  ]
+  }
+);
+</script>
+
+<!-- barchart number of tasks closed by each project last week-->
+<script>
+  // Data retrieved from https://gs.statcounter.com/browser-market-share#monthly-202201-202201-bar
+
+// Create the chart
+Highcharts.chart('issues_closed_last_week_per_team', {
+    chart: {
+        type: 'column'
+    },
+    title: {
+        align: 'left',
+        text: 'Issues closed per project'
+    },
+    subtitle: {
+        align: 'left',
+        text: 'Click the columns to view issue priorities.'
+    },
+    accessibility: {
+        announceNewData: {
+            enabled: true
+        }
+    },
+    xAxis: {
+        type: 'category',
+        labels:{
+          useHTML: true,
+				style: {
+					color: 'black',
+          textDecoration: 'none'
+				},
+        formatter() {
+          return '<div style="white-space: break-spaces;color:black;text-decoration:none;" >'+this.value+'</div>';
+          //return this.point.name;
+        }
+
+        }
+    },
+    yAxis: {
+        title: {
+            text: 'Count'
+        }
+
+    },
+    legend: {
+        enabled: false
+    },
+    plotOptions: {
+        series: {
+            borderWidth: 0,
+            dataLabels: {
+                enabled: true,
+                
+                useHTML: true,
+				style: {
+          color: 'black',
+          textDecoration: 'none'
+				},
+        formatter() {
+          return '<div style="white-space: break-spaces;color:black;text-decoration:none;" >'+this.y+'</div>';
+          //return this.point.name;
+        }
+        
+            }//here
+        }
+    },
+
+    tooltip: {
+        headerFormat: '<span style="font-size:11px">{series.name}</span><br>',
+        pointFormat: '<span style="color:{point.color}">{point.name}</span>: ' +
+            '<b>{point.y}</b> '
+    },
+
+    series: [
+    {
+            name:'Projects',
+            colorByPoint:true,
+            data: [
+            {% for project in closed_tasks_last_week %}
+            {
+                name:'{{project.name}}',
+                y:{{project.closed_count}},
+                drilldown:'{{project.name}}'
+            }{% if not loop.last %},{% endif %}
+            {% endfor %}
+            ]
+
+        }
+    ],
+    drilldown: {
+        breadcrumbs: {
+            position: {
+                align: 'right'
+            }
+        },
+        series: [
+             {% for project in closed_tasks_last_week %}
+            {
+                id: '{{ project.name }}',
+                name: '{{ project.name }} - Priorities',
+                type:'pie',
+                data: [
+                ['Urgent Priority', {{ project.urgent_priority_count }}],
+                    ['High Priority', {{ project.high_priority_count }}],
+                    ['Medium Priority', {{ project.medium_priority_count }}],
+                    ['Low Priority', {{ project.low_priority_count }}],
+                    ['No Priority', {{ project.no_priority_count }}]
+                ]
+            }{% if not loop.last %},{% endif %}
+            {% endfor %}
+                ]
+    //         
+    }
+}
+);
+
+</script>
+
+
+
+{% endblock content %}

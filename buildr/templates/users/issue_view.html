@@ -259,7 +259,12 @@
                       </td>
                         <td>{% if issue.deadline %}{{issue.deadline}}{% endif %}</td>
                         <td><button class="btn " type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasExample" aria-controls="offcanvasExample" onclick="get_issueComments('{{issue.issue_id}}')">
-                            <i class="fa-regular fa-comment"></i>
+                            <i class="fa-regular fa-comment position-relative">
+                                {% if issue.unread_comments_count != 0 %}<span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 9px;">
+                                {{issue.unread_comments_count}}
+                                <span class="visually-hidden">unread messages</span>
+                              </span>
+                            {% endif %}</i>
                           </button></td>
                       </tr>
                       {% empty %}
