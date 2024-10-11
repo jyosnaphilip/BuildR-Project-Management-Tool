@@ -6,9 +6,12 @@
         <div class="row justify-content-center">
             <div class="">
                 <div class="d-flex justify-content-between   ">
-                    <div class="text">{{project}}</div>
-                    {% if flag_edit %}
+                    <div class="text p-0">{{project}}</div>
                     <button type="button" class="btn" data-bs-toggle="modal" data-bs-target="#editProject" data-bs-whatever="@mdo"><i class="fa-solid fa-pen pt-4" style="color: #004a7a;"></i></button>
+
+                    </div>
+                    <i class="mb-0    text-truncate d-inline-block">{{project.description|safe}}</i><br>
+                    {% if flag_edit %}
                     <!-- modal -->
                     <div class="modal fade" id="editProject" tabindex="-1" aria-labelledby="editProjectLabel" aria-hidden="true">
                         <div class="modal-dialog">
@@ -149,9 +152,9 @@
                
                 <!-- modal end -->
 
+               
 
-
-                <div class="row ms-2">
+                <div class="row mt-4">
                    
                     <div class="col-sm-2 mb-2">
                         <select  class=" project-priority-dropdown form-select custom-select rounded-pill" type="button" name="status" data-bs-toggle="dropdown"  aria-expanded="false" data-project-id="{{project.project_id}}">
@@ -226,7 +229,7 @@
 
 
             <!-- issues here -->
-             <div class="container">
+             <div class="container mt-4">
                 <table id="issueTable" class="table table-hover" style="background-color: rgb(41, 128, 185) ;">
                     <thead>
                       <tr >

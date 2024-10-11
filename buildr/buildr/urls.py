@@ -60,6 +60,7 @@ urlpatterns = [
     path('create_new_code/<str:custom_id>/<str:ws_id>', create_new_code, name='create_new_code'),
     path('get_project_insights/<str:project_id>',get_project_insights,name='show_project_insights'),
     path('toggle_ws_member/<str:user_custom_id>/<str:custom_id>/<str:ws_id>/', toggle_ws_member_status, name='toggle_ws_member'),
+     path('upload_file/', upload_file, name='upload_file'),
  
 ]   
 

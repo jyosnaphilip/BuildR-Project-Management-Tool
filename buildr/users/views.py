@@ -22,7 +22,9 @@ from highcharts_gantt.options import HighchartsGanttOptions
 from highcharts_gantt.options.plot_options.gantt import GanttOptions
 from highcharts_gantt.options.series.gantt import GanttSeries
 from users.tasks import get_sentiment_task
-
+from django.views.decorators.csrf import csrf_exempt
+from django.conf import settings
+import os
 # shared_options = SharedOptions.from_js_literal('buildr\\static\\scripts\\highcharts_config\\shared_options.js')
 # js_shared_options = shared_options.to_js_literal()
 def check_code(ws_code):
@@ -323,6 +325,21 @@ def add_project(request, custom_id):  # need to check again
                    'workspaces': ws, 'current_ws': current_ws,
                    'flag': flag, 'ws_code': code, 'projects': projects})
 
+
+def upload_file(request):
+    if request.method == 'POST' and request.FILES.get('file'):
+        print("hre")
+        file = request.FILES['file']
+        upload_path = os.path.join(settings.MEDIA_ROOT, 'uploads', file.name)
+        
+        with open(upload_path, 'wb+') as destination:
+            for chunk in file.chunks():
+                destination.write(chunk)
+        
+        file_url = request.build_absolute_uri(settings.MEDIA_URL + 'uploads/' + file.name)
+        return JsonResponse({'url': file_url})  # Return the URL to the editor
+    
+    return JsonResponse({'error': 'File upload failed'}, status=400)
 
 def get_priority_status_list():
     statuses = status.objects.all()
@@ -982,10 +999,42 @@ def active_issues(project_id):
     return issue.objects.filter(project=project, completed=False).count()
 
 def tasks_completion_rate(project_id):
-    """ get task completion rate """
-    pass
-def team_sentiment_analysis():
-    pass
+    """ get task completion rate (for project dashboard)"""
+
+    all_issues = issue.objects.filter(project=Project.objects.get(project_id=project_id))  # Get all tasks for the project
+    total_issues = all_issues.count()  # Get total number of tasks
+    completed_issues = all_issues.filter(status=4).count()  # Count only completed tasks
+    
+    if total_issues == 0:  # Avoid division by zero
+        return 0
+    
+    # Calculate completion rate as a percentage
+    completion_rate = (completed_issues / total_issues) * 100
+    return round(completion_rate, 2)  
+    
+def team_sentiment_analysis(project_id):
+    
+    # Assuming Comment model has a sentiment field storing 'positive', 'neutral', or 'negative'
+    comments = Comments.objects.filter(issue__project__project_id=project_id)  # Fetch all comments
+    if not comments.exists():
+        return "No comments available for analysis."
+    
+    # Aggregating sentiments
+    positive = comments.filter(sentiment_score=1).count()
+    neutral = comments.filter(sentiment_score=0).count()
+    negative = comments.filter(sentiment_score=-1).count()
+
+    total_comments = comments.count()
+    
+    # Calculate sentiment percentages
+    sentiment_summary = {
+        "positive_percentage":round( (positive / total_comments) * 100,2),
+        "neutral_percentage": round((neutral / total_comments) * 100,2),
+        "negative_percentage": round((negative / total_comments) * 100,2)
+    }
+    
+    return sentiment_summary
+
 
 
 
@@ -996,9 +1045,12 @@ def get_project_insights( project_id):
     work_division = tasks_assigned_per_member(project_id)
     overdue_tasks = check_overdue(project_id)
     task_priorities = task_priority(project_id)
+    task_completion_rate = tasks_completion_rate(project_id)
+    sentiment_summary = team_sentiment_analysis(project_id)
     context = {'active_issues':active_issues_, 'tasks_closed_last_week_count':tasks_closed_last_week_count,
                'tasks_completed_last_week':tasks_completed_last_week_by_member, 'work_division': work_division,
-               "overdue_tasks":overdue_tasks, 'task_priorities':task_priorities}
+               "overdue_tasks":overdue_tasks, 'task_priorities':task_priorities,'task_completion_rate':task_completion_rate,
+               'sentiment_summary': sentiment_summary}
     return context
 
 # dashboard

@@ -117,13 +117,13 @@
                         <div class="card-statistic-3 p-4">
                             <div class="card-icon card-icon-large"><i class="fa-solid fa-list-check"  style="font-size:450%;"></i></div>
                             <div class="mb-4">
-                                <h6 class="card-title mb-0 text-light">Active Issues</h6>
+                                <h6 class="card-title mb-0 text-light">Task Completion Rate</h6>
                             </div>
                             <div class="row align-items-center mb-2 d-flex">
                                 <div class="col-8">
-                                    <h5 class="d-flex align-items-center text-light mb-5 pb-4">
-                                        {{active_count}}
-                                    </h5>
+                                    <h6 class="d-flex align-items-center text-light mb-5 pb-4">
+                                        {{a_project.task_completion_rate}}%
+                                    </h6>
                                 </div>
                                 
                             </div>
@@ -174,12 +174,18 @@
                 <div id="priority_chart-{{forloop.counter}}" class="shadow-sm rounded"></div>
                 {% endif %}
               </div>
+              <div class="col-sm-4 p-4 ">
+                Team Morale (based on Comments)
+                <br />
+                <button type="button" class="btn btn-outline" disabled style="color:#004a7a"><i class="fa-regular fa-face-smile"></i> {{a_project.sentiment_summary.positive_percentage}} %</button>
+                <button type="button" class="btn btn-outline" disabled style="color:#004a7a;"><i class="fa-regular fa-face-meh"></i> {{a_project.sentiment_summary.neutral_percentage}} %</button>
+                <button type="button" class="btn btn-outline" disabled style="color:#004a7a;"><i class="fa-regular fa-face-frown"></i> {{a_project.sentiment_summary.negative_percentage}} %</button>
+               
+              
+               </div>
+
             </div>
-            <!-- <div class="row p-3">
-              <div class="col-sm-12">
-                <div id="" class="shadow-sm rounded"></div>
-              </div>
-            </div> -->
+            
             
       </div>
     </div>
