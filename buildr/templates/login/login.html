@@ -1,6 +1,8 @@
 {% extends 'login_base.html' %}
+{% load socialaccount %}
 {% load static %}
 {% block content %}
+
 
 
 <div class="container mt-0">
@@ -40,15 +42,20 @@
                             <a href="{% url 'register' %}" class="register-link">Don't have an account? Register Now</a>
                         </div>
                     </div>
-
                     <div>
-                        
-                            <button class="btn btn-google">
-                                <img src="https://www.google.com/url?sa=i&url=https%3A%2F%2Fdev.to%2Fsivaneshs%2Fadd-google-login-to-your-react-apps-in-10-mins-4del&psig=AOvVaw2QeRNCErHABD_R9umT6nKO&ust=1725779683053000&source=images&cd=vfe&opi=89978449&ved=0CBQQjRxqFwoTCOCllMaksIgDFQAAAAAdAAAAABAE"
-                                    alt="Google logo">Sign in
-                            </button>
-                        </a>
+                        <a href="{% provider_login_url 'google' %}"> <!--users will redirect to google -->
+                            <!-- In the callback, you would hide the gSignInWrapper element on a
+                            successful sign in -->
+                            <div id="gSignInWrapper">
+                              <div id="customBtn" class="customGPlusSignIn">
+                                <span class="icon"></span>
+                                <span class="buttonText"><img src="{% static 'images/google icon.png' %}" style="height:20px;width: 20px;">Sign in with Google</span>
+                              </div>
+                            </div>
+                            <div id="name"></div>
+
                     </div>
+
 
                 </form>
             </span>

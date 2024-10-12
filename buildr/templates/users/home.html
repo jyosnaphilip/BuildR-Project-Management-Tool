@@ -39,7 +39,7 @@
                           </div>
                       </th>
                       <td style="cursor: pointer;" class="col-sm-3">
-                          <a href="{% url 'issue_view' issue.issue_id  custom_id %}" class="link-light link-underline link-underline-opacity-0">{{issue}}
+                          <a href="{% url 'issue_view' issue.issue_id  custom_id %}" class="link-dark link-underline link-underline-opacity-0" style="color: black;">{{issue}}
                           
                           </a>
                       </td>
@@ -47,12 +47,12 @@
                               <div class=" dropdown rounded-pill" >
                                   <select  class="issue-priority-dropdown form-select custom-select rounded-pill btn btn-sm" type="button" name="status" data-bs-toggle="dropdown"  aria-expanded="false" data-issue-id="{{ issue.issue_id }}">
                                       {% for prior in priority %}
-                                      {% if issue.priority.id|stringformat:"s" == prior.id|stringformat:"s" %}
+                                        {% if issue.priority.id|stringformat:"s" == prior.id|stringformat:"s" %}
           
-                                      <option value="{{prior.id}}"  class="dropdown-item" selected>{{prior.name}}</option>
-                                      {% else %}
-                                      <option class="dropdown-item" value="{{prior.id}}"><i class="fa-regular fa-circle fa-l"></i> {{prior.name}}</option>
-                                      {% endif %}
+                                            <option value="{{prior.id}}"  class="dropdown-item" selected style="color: white;">{{prior.name}}</option>
+                                        {% else %}
+                                            <option class="dropdown-item" value="{{prior.id}}"><i class="fa-regular fa-circle fa-l"></i> {{prior.name}}</option>
+                                        {% endif %}
                                       {% endfor %}
                                  </select>
                               </div>

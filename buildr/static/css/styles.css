@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css?family=Poppins:400,500,600,700&display=swap');
 
 @media (max-width: 700px) {
   .container .text{
@@ -32,7 +33,8 @@ input::placeholder{
 }
 }
 .theme1 {
-    background-color: #e8d2bf;
+    background-color: #004a7a;
+    ;
 
 }
 
@@ -80,7 +82,6 @@ input::placeholder{
     display: block;
 }
 
-@import url('https://fonts.googleapis.com/css?family=Poppins:400,500,600,700&display=swap');
 *{
   margin: 0;
   padding: 0;
@@ -132,6 +133,7 @@ form .form-row .textarea{
     margin: auto;
     background-color: #fff;
     border-radius: 10px;
+    width: 850px;
 }
 
 .input-data input:focus ~ label, .textarea textarea:focus ~ label,
@@ -479,6 +481,20 @@ tfoot tr:nth-child(2) th {
 
 /*navbar*/
 
+#sidebar {
+  width: 20%;
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100%;
+  background-color: #004a7a;
+}
+
+.offcanvas {
+  display: block;
+  width: 20%;
+}
+
 .offcanvas-header {
   background-color:#004a7a
 }
@@ -488,7 +504,6 @@ tfoot tr:nth-child(2) th {
   font-weight: 400;
   font-style: normal;
   font-size: bold;
-
 }
 
 .offcanvas-body {
@@ -505,7 +520,6 @@ tfoot tr:nth-child(2) th {
 .current-workspace {
   color: #fff;
   text-decoration: none;
-
 }
 
 .offcanvas-body .join-workspace {

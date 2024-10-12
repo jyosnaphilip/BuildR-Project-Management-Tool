@@ -52,6 +52,9 @@
         {% endif %}
       </p>
       <a href = "{% url 'dashboard' %}" class="join-workspace">Dashboard</a>
+      <br>
+      <a href="{% url 'logout' %}">Logout</a>
+
     </div>
   </div>
   <div class="modal" id="codeModal" tabindex="-1">
@@ -84,8 +87,8 @@
       body: JSON.stringify({ 'ws_id': ws_id })
     }).then(response => window.location.reload());
   });
-
-  // document.getElementById('addMemberBtn').addEventListener('click', function() {
+</script>
+  <!-- // document.getElementById('addMemberBtn').addEventListener('click', function() {
   //     var myModal = new bootstrap.Modal(document.getElementById('workspaceCodeModal'), {
   //         keyboard: false
   //     });
@@ -101,6 +104,5 @@
 
   //     var copyMessage = document.getElementById('copyMessage');
   //     copyMessage.style.display = 'block';  // Show "Copied to clipboard!" message
-  // });
+  // }); -->
 
-</script>

@@ -32,6 +32,8 @@ ALLOWED_HOSTS = []
 
 # Application definition
 
+SITE_ID = 3  #or 1. 1 is for example.com. and 2 is for the website that we created
+
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -41,17 +43,26 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'users',
     'compressor',
-    'allauth',
-    # 'allauth.account',
-    'allauth.socialaccount',
-    # 'allauth.socialaccount.providers.google',
+    "django.contrib.sites",
+    "allauth",
+    "allauth.account",
+    "allauth.socialaccount",
+    "allauth.socialaccount.providers.google",
     
 ]
 
-AUTHENTICATION_BACKENDS = [
-    'allauth.account.auth_backends.AuthenticationBackend',  #Allauth Backend
-]
+#social login settings
 
+
+SOCIALACCOUNT_PROVIDERS = {
+    'google': {
+        "SCOPE": ["profile", "email"],
+        "AUTH_PARAMS": {"access_type": "online"},
+    }
+}
+
+SOCIALACCOUNT_LOGIN_ON_GET = True  # This shows google's authorization page, skipping a sign-in page that pops up
+SOCIALACCOUNT_AUTO_SIGNUP = True   # This automatically signs up a user after using google to sign in
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -66,30 +77,10 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'buildr.urls'
 
-#social login settings
-
-# SOCIALACCOUNT_PROVIDERS = {
-#     'google': {
-#         'APP' : {
-#             'client_id':'929543177955-eg3rq4afpomq5uc5419gfljpq88uga5o.apps.googleusercontent.com',
-#             'secret':'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'
-#         },
-#         'SCOPE': [
-#             'email',
-#             'profile'
-#         ],
-#         'AUTH_PARAMS':{
-#             'access_type':'online'
-#             },
-#             'METHOD':'oauth2',
-#             'VERIFIED_EMAIL':True,
-#     }
-# }
-
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': ['templates'],
+        'DIRS': [os.path.join(BASE_DIR,'templates')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -174,10 +165,17 @@ COMPRESS_PRECOMPILERS = (
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-LOGIN_REDIECT_URL = 'home'
+
+LOGIN_REDIRECT_URL = '/dashboard/'
+LOGOUT_REDIRECT_URL = "/login/"
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 
 
 #Email verification
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
 # EMAIL_HOST =
 
+AUTHENTICATION_BACKENDS = (
+    "django.contrib.auth.backends.ModelBackend", #django backend
+    "allauth.account.auth_backends.AuthenticationBackend" #Allauth backend
+)
