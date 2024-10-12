@@ -38,7 +38,7 @@
       <p><a href="{% url 'project_view' project.project_id custom_id %}" class="current-workspace">{{project.name}}</a></p>
       {% endfor %}
       <p><a href="{% url 'add_project' custom_id %}" class="join-workspace" ><i class="fa-solid fa-plus fa-l" style="color: #36089b;color: white;"></i>  Add Project</a></p>
-      <a href = "{% url 'dashboard' custom_id %}" class="join-workspace"><i class="fa-solid fa-chart-column" style="color: #f3f4f7;"></i> My Dashboard</a>
+      <a href = "{% url 'dashboard' %}" class="join-workspace"><i class="fa-solid fa-chart-column" style="color: #f3f4f7;"></i> My Dashboard</a>
     </div>
     <div class="">
       <p>{% if flag %}

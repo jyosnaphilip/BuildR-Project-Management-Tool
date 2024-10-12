@@ -1054,10 +1054,11 @@ def get_project_insights( project_id):
     return context
 
 # dashboard
-def dashboard(request,custom_id):
+def dashboard(request):
     """ sends user to dashboard based on their role """
     current_ws_id = request.session.get('current_ws', None)
-
+    user_id=request.user.id
+    custom_id=customUser.objects.get(user=user_id).custom_id
     ws, current_ws, projects, flag, code = req_for_navbar(
         custom_id, current_ws_id)
     
