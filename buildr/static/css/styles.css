@@ -538,19 +538,7 @@ tfoot tr:nth-child(2) th {
 
 /*navbar*/
 
-#sidebar {
-  width: 20%;
-  position: fixed;
-  top: 0;
-  left: 0;
-  height: 100%;
-  background-color: #004a7a;
-}
 
-.offcanvas {
-  display: block;
-  width: 20%;
-}
 
 .offcanvas-header {
   background-color:#004a7a

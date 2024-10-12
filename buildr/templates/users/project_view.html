@@ -152,6 +152,7 @@
                                 <div class="modal-footer" style="background-color: #004a7a;color:#fafafa; width: 848px;"></div>
                             </div>
                         </div>
+                        {% endif %}
                     </div>
                 </div>
                 <!-- modal end -->
@@ -205,12 +206,12 @@
                     </div>
                     <div class="col-sm-1 mb-2 ms-3">
                         <button class="btn btn-sm dropdown dropdown-toggle rounded-pill" type="button" data-bs-toggle="dropdown" aria-expanded="false" fdprocessedid="5bab4i">
-                            <i class="fa-solid fa-user " style="background-color: rgb(21, 67, 96); color: #e7eaee;"></i>
+                            <i class="fa-solid fa-user " style=" color: rgb(21, 67, 96);"></i>
                             Lead
                         </button>
-                        <ul class="dropdown-menu" style="background-color: rgb(21,67,96);">
+                        <ul class="dropdown-menu"style="color: rgb(21, 67, 96);">
                             {% for l in lead %}
-                            <li><a class="dropdown-item" href="#"><i class="fa-regular fa-user"></i>
+                            <li><a class="dropdown-item" href="#"><i class="fa-regular fa-user"  ></i>
                                 {{l.team_member.user.first_name}} {{l.team_member.user.last_name}}</a></li>
                             {% endfor %}
                             
@@ -278,25 +279,27 @@
                             {% if is_assignee %}   
                             <select id=""  class="status-dropdown form-select custom-select rounded-pill btn btn-sm" type="button" name="status" data-bs-toggle="dropdown" style="background-color: rgb(40, 116, 166); color: #e7eaee;"  aria-expanded="false" data-issue-id="{{issue.issue_id}}">
                                    {% for stat in status %}
-                                   {% if issue.status.id|stringformat:"s" == stat.id|stringformat:"s" %}
-       
-                                   <option value="{{stat.id}}"  style = "background-color: {% if stat.id == 1%}green{% elif stat.id == 2%}orange{% elif stat.id == 3%}#FF5733{% else %}rgb(191,87,0){% endif%};" class="dropdown-item" selected>{{stat.name}}</option>
-                                   {% else %}
-                                   <option class="dropdown-item" value="{{stat.id}}" style = "background-color: {% if stat.id == 1%}green{% elif stat.id == 2%}orange{% elif stat.id == 3%}#FF5733{% else %}rgb(191,87,0){% endif%};"><i class="fa-regular fa-circle fa-l"></i> {{stat.name}}</option>
-                                   {% endif %}
+                                       {% if issue.status.id|stringformat:"s" == stat.id|stringformat:"s" %}
+    
+                                            <option value="{{stat.id}}"  style = "background-color: {% if stat.id == 1 %}green{% elif stat.id == 2 %}orange{% elif stat.id == 3 %}#FF5733{% else %}rgb(191,87,0){% endif %};" class="dropdown-item" selected>{{stat.name}}</option>
+                                        {% else %}
+                                             <option class="dropdown-item" value="{{stat.id}}" style = "background-color: {% if stat.id == 1%}green{% elif stat.id == 2%}orange{% elif stat.id == 3%}#FF5733{% else %}rgb(191,87,0){% endif %};"><i class="fa-regular fa-circle fa-l"></i> {{stat.name}}</option>
+                                        {% endif %}
                                    {% endfor %}
                                
                                 </select>
                                 {% else %}
-                                    <select id="statusDropdown" class="status-dropdown form-select custom-select rounded-pill btn btn-sm" type="button" name="status" disabled style="background-color: rgb(200, 200, 200); color: #e7eaee;" aria-expanded="false">
-                                        {% for stat in status %}
-                                            {% if issue.status.id|stringformat:"s" == stat.id|stringformat:"s" %}
-                                                <option value="{{ stat.id }}" style="background-color: {% if stat.id == 1 %}green{% elif stat.id == 2 %}orange{% elif stat.id == 3 %}#FF5733{% else %}rgb(191,87,0){% endif %};" class="dropdown-item" selected>{{ stat.name }}</option>
-                                            {% else %}
-                                                <option class="dropdown-item" value="{{ stat.id }}" style="background-color: {% if stat.id == 1 %}green{% elif stat.id == 2 %}orange{% elif stat.id == 3 %}#FF5733{% else %}rgb(191,87,0){% endif %};">{{ stat.name }}</option>
-                                            {% endif %}
+                                <select id=""  class="status-dropdown form-select custom-select rounded-pill btn btn-sm" type="button" name="status" disabled data-bs-toggle="dropdown" style="background-color: rgb(40, 116, 166); color: #e7eaee;"  aria-expanded="false" data-issue-id="{{issue.issue_id}}">
+                                    {% for stat in status %}
+                                        {% if issue.status.id|stringformat:"s" == stat.id|stringformat:"s" %}
+        
+                                           <option value="{{ stat.id }}"  style = "background-color: {% if stat.id == 1 %}green{% elif stat.id == 2 %}orange{% elif stat.id == 3 %}#FF5733{% else %}rgb(191,87,0){% endif %};" class="dropdown-item" selected>{{stat.name}}</option>
+                                        {% else %}
+                                            <option class="dropdown-item" value="{{ stat.id }}" style = "background-color: {% if stat.id == 1 %}green{% elif stat.id == 2 %}orange{% elif stat.id == 3 %}#FF5733{% else %}rgb(191,87,0){% endif %};"><i class="fa-regular fa-circle fa-l"></i> {{stat.name}}</option>
+                                        {% endif %}
                                     {% endfor %}
-                                    </select>
+                                
+                                 </select>
                              {% endif %}
                             </div>
                         </th>

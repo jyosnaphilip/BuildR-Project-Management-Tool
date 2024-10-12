@@ -1,117 +1,112 @@
 <div class="d-flex justify-content-between  mb-5">
-<div id="sidebar-toggle" onclick="toggleSidebar()">
-  {% if workspaces %}
-<button  class="btn font" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasScrolling" aria-controls="offcanvasScrolling" style="color:#000000;"><i class="fa-solid fa-bars fa-2xl m-3 p-1" style="color: #050505"></i>{{current_ws.ws_name}}</button>
-</div>
-<div id="sidebar" class="hidden">
-  
-  <div class="offcanvas offcanvas-start theme1" style="width:20%; " data-bs-scroll="true" data-bs-backdrop="false" tabindex="-1" id="offcanvasScrolling" aria-labelledby="offcanvasScrollingLabel">
-    <div class="offcanvas-header">
-
-      <h5 class="offcanvas-title font" id="offcanvasScrollingLabel">
-        <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
-        <select id="workspaceDropdown" name="workspace" style="border:none;background-color: #004a7a;color: white;">
-
-          <option style="color:black;" value="{{current_ws}}">
-            {{current_ws.ws_name}}
-          </option>
-
-          {% for ws in workspaces %}
-          <option style="color:black;background-color: #f7f9fb; " value="{{ ws.workspace__ws_id }}">
-            {{ ws.workspace__ws_name }}
-          </option>
-          {% endfor %}
-        </select>
-      </h5>
-
-
-
-      {% endif %}
-      <button type="button" class="btn-close" onclick="toggleSidebar()" data-bs-dismiss="offcanvas"
-        aria-label="Close" style = "background-color:#fff"></button>
-    </div>
-    <div class="offcanvas-body d-flex align-items-start flex-column ">
-      <div class="mb-auto">
-      <p><a href="{% url 'home' custom_id %}" class="my-task">My tasks</a></p>
-      
-      {% for project in projects %}
-      <p><a href="{% url 'project_view' project.project_id custom_id %}" class="current-workspace">{{project.name}}</a></p>
-      {% endfor %}
-      <p><a href="{% url 'add_project' custom_id %}" class="join-workspace" ><i class="fa-solid fa-plus fa-l" style="color: #36089b;color: white;"></i>  Add Project</a></p>
-      <a href = "{% url 'dashboard' %}" class="join-workspace"><i class="fa-solid fa-chart-column" style="color: #f3f4f7;"></i> My Dashboard</a>
-    </div>
-    <div class="">
-      <p>{% if flag %}
-        
-        <button type="button" class="btn btn-outline-light" onclick="location.href='{% url 'manage_ws' custom_id current_ws.ws_id %}'" >
-          Manage Workspace
-        </button>
-        
-
-        {% endif %}
-      </p>
-    <p>
-    <a href="{% url 'new_workspace' custom_id %}" class="join-workspace" >Create Workspace</a>
-    </p>
-    <p>
-      <a href="{% url 'join-workspace' custom_id %}" class="join-workspace" >Join Workspace</a>
-    </p>
-      <p><a href="{% url 'add_project' custom_id %}" class="join-workspace" ><i class="fa-solid fa-plus fa-2xl" style="color: #36089b;color: white;"></i> Add Project</a></p>
-     
-      
-      <br>
-      <a href="{% url 'logout' %}">Logout</a>
-
-      
-    </div>
-    </div>
+  <div id="sidebar-toggle" onclick="toggleSidebar()">
+    {% if workspaces %}
+  <button  class="btn font" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasScrolling" aria-controls="offcanvasScrolling" style="color:#000000;"><i class="fa-solid fa-bars fa-2xl m-3 p-1" style="color: #050505"></i>{{current_ws.ws_name}}</button>
   </div>
-  <!-- Modal -->
-  
-</div>
-
-<div class="dropdown mt-3 me-4" style="background:none;">
-  
-    <!-- avatar -->
-<i class="fa-solid fa-circle-user fa-2xl " style="color: #004a7a;" data-bs-toggle="dropdown"  aria-expanded="false"></i>
-
-  <!-- avatar end -->
-  <ul class="dropdown-menu">
-    <li><a class="dropdown-item" href="{% url 'user-profile' custom_id %}">Profile</a></li>
+  <div id="sidebar" class="hidden">
     
-    <li><a class="dropdown-item" href="{% url 'logout_user' %}">Logout</a></li>
-  </ul>
-</div>
-
+    <div class="offcanvas offcanvas-start theme1" style="width:20%; " data-bs-scroll="true" data-bs-backdrop="false" tabindex="-1" id="offcanvasScrolling" aria-labelledby="offcanvasScrollingLabel">
+      <div class="offcanvas-header">
+  
+        <h5 class="offcanvas-title font" id="offcanvasScrollingLabel">
+          <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+          <select id="workspaceDropdown" name="workspace" style="border:none;background-color: #004a7a;color: white;">
+  
+            <option style="color:black;" value="{{current_ws}}">
+              {{current_ws.ws_name}}
+            </option>
+  
+            {% for ws in workspaces %}
+            <option style="color:black;background-color: #f7f9fb; " value="{{ ws.workspace__ws_id }}">
+              {{ ws.workspace__ws_name }}
+            </option>
+            {% endfor %}
+          </select>
+        </h5>
+  
+  
+  
+        {% endif %}
+        <button type="button" class="btn-close" onclick="toggleSidebar()" data-bs-dismiss="offcanvas"
+          aria-label="Close" style = "background-color:#fff"></button>
+      </div>
+      <div class="offcanvas-body d-flex align-items-start flex-column ">
+        <div class="mb-auto">
+        <p><a href="{% url 'home' custom_id %}" class="my-task">My tasks</a></p>
+        
+        {% for project in projects %}
+        <p><a href="{% url 'project_view' project.project_id custom_id %}" class="current-workspace">{{project.name}}</a></p>
+        {% endfor %}
+        <p><a href="{% url 'add_project' custom_id %}" class="join-workspace" ><i class="fa-solid fa-plus fa-l" style="color: #36089b;color: white;"></i>  Add Project</a></p>
+        <a href = "{% url 'dashboard' %}" class="join-workspace"><i class="fa-solid fa-chart-column" style="color: #f3f4f7;"></i> My Dashboard</a>
+      </div>
+      <div class="">
+        <p>{% if flag %}
+          
+          <button type="button" class="btn btn-outline-light" onclick="location.href='{% url 'manage_ws' custom_id current_ws.ws_id %}'" >
+            Manage Workspace
+          </button>
+          
+  
+          {% endif %}
+        </p>
+      <p>
+      <a href="{% url 'new_workspace' custom_id %}" class="join-workspace" >Create Workspace</a>
+      </p>
+      <p>
+        <a href="{% url 'join-workspace' custom_id %}" class="join-workspace" >Join Workspace</a>
+      </p>
+        
+      </div>
+      </div>
+    </div>
+    <!-- Modal -->
+    
   </div>
-<script>
-  document.getElementById('workspaceDropdown').addEventListener('change', function () {
-    const ws_id = this.value;
-    fetch("{% url 'switch_ws' %}", {
-      method: 'POST',
-      headers: {
-        'X-CSRFToken': '{{ csrf_token }}',
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ 'ws_id': ws_id })
-    }).then(response => window.location.reload());
-  });
-</script>
-  <!-- // document.getElementById('addMemberBtn').addEventListener('click', function() {
-  //     var myModal = new bootstrap.Modal(document.getElementById('workspaceCodeModal'), {
-  //         keyboard: false
-  //     });
-  //     myModal.show();
-  // });
-
-  // document.getElementById('copyCodeBtn').addEventListener('click', function() {
-  //     var codeInput = document.getElementById('workspaceCodeInput');
-  //     codeInput.select();
-  //     codeInput.setSelectionRange(0, 99999);  // For mobile devices
-
-  //     document.execCommand('copy');
-
-  //     var copyMessage = document.getElementById('copyMessage');
-  //     copyMessage.style.display = 'block';  // Show "Copied to clipboard!" message
-  // }); -->
-
+  
+  <div class="dropdown mt-3 me-4" style="background:none;">
+    
+      <!-- avatar -->
+  <i class="fa-solid fa-circle-user fa-2xl " style="color: #004a7a;" data-bs-toggle="dropdown"  aria-expanded="false"></i>
+  
+    <!-- avatar end -->
+    <ul class="dropdown-menu">
+      <li><a class="dropdown-item" href="{% url 'user-profile' custom_id %}">Profile</a></li>
+      
+      <li><a class="dropdown-item" href="{% url 'logout' %}">Logout</a></li>
+    </ul>
+  </div>
+  
+    </div>
+  <script>
+    document.getElementById('workspaceDropdown').addEventListener('change', function () {
+      const ws_id = this.value;
+      fetch("{% url 'switch_ws' %}", {
+        method: 'POST',
+        headers: {
+          'X-CSRFToken': '{{ csrf_token }}',
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ 'ws_id': ws_id })
+      }).then(response => window.location.reload());
+    });
+  
+    // document.getElementById('addMemberBtn').addEventListener('click', function() {
+    //     var myModal = new bootstrap.Modal(document.getElementById('workspaceCodeModal'), {
+    //         keyboard: false
+    //     });
+    //     myModal.show();
+    // });
+  
+    // document.getElementById('copyCodeBtn').addEventListener('click', function() {
+    //     var codeInput = document.getElementById('workspaceCodeInput');
+    //     codeInput.select();
+    //     codeInput.setSelectionRange(0, 99999);  // For mobile devices
+  
+    //     document.execCommand('copy');
+  
+    //     var copyMessage = document.getElementById('copyMessage');
+    //     copyMessage.style.display = 'block';  // Show "Copied to clipboard!" message
+    // });
+  
+  </script>

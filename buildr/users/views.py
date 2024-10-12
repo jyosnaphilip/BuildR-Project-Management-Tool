@@ -61,7 +61,9 @@ def req_for_navbar(custom_id, current_ws_id):
     ws = get_ws(custom_id, current_ws_id)  # all ws #nav
     current_ws = workspace.objects.get(ws_id=current_ws_id) #retrieves current_ws based on current_ws_id
     projects = get_projects(current_ws)  # nav #retrieve projects associated with the current workspace.
-    if str(current_ws.admin.custom_id) == custom_id:  # nav
+   
+    if (current_ws.admin.custom_id) == custom_id: 
+        print("hre2") # nav
         flag = True #indicating whether the current user is the admin of the workspace or not.
         ws_code = workspaceCode.objects.filter(
             ws=current_ws_id, is_active=True).values('code', 'ws_id')
@@ -190,6 +192,7 @@ def user_login(request):
             return redirect('login')
 
     else:
+        
         return render(request, 'login/login.html')
 
 
@@ -467,7 +470,7 @@ def project_view(request, project_id, custom_id):
 
     issues = issue.objects.filter(project_id=project_id, parent_task__isnull=True).annotate(
         subissue_count=Count('child'), unread_comments_count=Count('comments', filter=~Q(comments__read_by=customUser.objects.get(user=request.user))),is_closed=Case(
-            When(status=4, then=1), default=0, output_field=IntegerField())).order_by( 'is_closed','priority__id').order_by('priority__id','is_closed')
+            When(status=4, then=1), default=0, output_field=IntegerField())).order_by('is_closed','priority__id')
     context = {'project': project, 'lead': lead, 'team': team, 'status': statuses,
                'priority': priorities, 'issues': issues, 'workspace_memb': workspace_members,
                'lead_user_ids': lead_user_ids, 'team_ids': team_ids, 'workspaces': ws, 'current_ws': current_ws,
@@ -1294,9 +1297,20 @@ def get_project_insights( project_id):
 # dashboard
 def dashboard(request):
     """ sends user to dashboard based on their role """
+    
+    user_id=request.user.id 
+    custom_user=customUser.objects.get(user=user_id)
+    custom_id = custom_user.custom_id
+    if custom_user.last_ws: #already joined workspace
+        request.session['current_ws'] = str(custom_user.last_ws.ws_id) #the last_ws id is stored in session as current_ws
+    else:
+        first_workspace = workspaceMember.objects.filter(customUser=custom_user).first() #retrieves the first workspace the user is a member of.
+        if first_workspace: #atleast one workspace
+            request.session['current_ws'] = str(first_workspace.workspace.ws_id)
+            
+        else:
+            return redirect('first-signin', custom_id)
     current_ws_id = request.session.get('current_ws', None)
-    user_id=request.user.id
-    custom_id=customUser.objects.get(user=user_id).custom_id
     ws, current_ws, projects, flag, code = req_for_navbar(
         custom_id, current_ws_id)
     
@@ -1315,6 +1329,7 @@ def dashboard(request):
  
     is_project_lead = check_if_project_lead(custom_id,current_ws_id)
        #  Additional data for workspace admins
+    print("flag",flag)
     if flag:
        
         admin_specific_data = load_admin_specific_insights(custom_id,current_ws_id)

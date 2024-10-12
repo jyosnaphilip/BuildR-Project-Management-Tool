@@ -3,7 +3,7 @@ function toggleSidebar() {
     const sidebar = document.getElementById('sidebar');
     const content = document.getElementById('content');
     const sidebarToggle = document.getElementById('sidebar-toggle');
-    
+    console.log("sidebar called");
   
     
     if (sidebar.classList.contains('hidden')) {
@@ -12,6 +12,7 @@ function toggleSidebar() {
         sidebar.classList.add('visible');
         content.classList.remove('expanded');
         content.classList.add('compressed');
+        console.log("sidebar called 1");
         sidebarToggle.style.display = 'none'; // Hide the toggle button
     } else {
         // Hide the sidebar and adjust content
