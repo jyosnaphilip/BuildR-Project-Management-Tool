@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% include 'partials/error_message.html' %}
 {% load static %}
 {% block content %}
 <div id="content" class="expanded_comments">
@@ -7,155 +8,152 @@
             <div class="">
                 <div class="d-flex justify-content-between   ">
                     <div class="text p-0">{{project}}</div>
-                    <button type="button" class="btn" data-bs-toggle="modal" data-bs-target="#editProject" data-bs-whatever="@mdo"><i class="fa-solid fa-pen pt-4" style="color: #004a7a;"></i></button>
-
-                    </div>
-                    <div class="description-container">
-                        <div class="description-content">
-                            {{ project.description|safe }} 
-                        </div>
-                        <div class="fade-effect"></div>
-                        <button class="toggle-btn">▼ Show more</button>
-                    </div>
                     {% if flag_edit %}
+                    <button type="button" class="btn" data-bs-toggle="modal" data-bs-target="#editProject" data-bs-whatever="@mdo"><i class="fa-solid fa-pen pt-4" style="color: #004a7a;"></i></button>
+                    {% endif %}
+                </div>
+                <div class="description-container">
+                    <div class="description-content">
+                        {{ project.description|safe }} 
+                    </div>
+                    <div class="fade-effect"></div>
+                    <button class="toggle-btn">▼ Show more</button>
+                </div>
+                {% if flag_edit %}
                     <!-- modal -->
                     <div class="modal fade" id="editProject" tabindex="-1" aria-labelledby="editProjectLabel" aria-hidden="true">
                         <div class="modal-dialog">
-                          <div class="modal-content">
-                            <div class="modal-header" style="background-color: #004a7a;color:#fafafa;">
-                              <h1 class="modal-title fs-5" id="editProjectLabel">Edit Project</h1>
-                              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" style="color:white;"></button>
-                            </div>
-                            <div class="modal-body form-box">
-                                <form method="POST" action="{% url 'edit_project'  project.project_id custom_id %}">
-                                    {% csrf_token %}
-                                    <div class="">
-                    
-                                        <div class="form-row">
-                                            <div class="input-data">
-                                                <input type="text" name="name" id="name" value="{{project.name}}">
-                                                <div class="underline"></div>
-                                                <label for="name">Project Name</label>
-                                            </div>
-                    
-                                        </div>
-                    
-                                        <div class="form-row">
-                                            <div class="input-data textarea">
-                                                <textarea rows="8" cols="80" name="desc" value="{{project.desc}}"></textarea>
-                                                <br />
-                                                <div class="underline"></div>
-                                                <label for="desc">Add description</label>
-                                                <br />
-                                            </div>
-                                        </div>
-                                        
-                                        <div class="form-row justify-content-center">
-                                            
-                                              
-                                              <div class="dropdown rounded-pill me-2">
-                                                <select  class=" form-select custom-select rounded-pill" type="button" name="priority" data-bs-toggle="dropdown"  aria-expanded="false" data-project-id="{{project.project_id}}">
-                                                    {% for prior in priority %}
-                                                    {% if project.priority.id|stringformat:"s" == prior.id|stringformat:"s" %}
-                        
-                                                    <option value="{{prior.id}}"  class="dropdown-item" selected>{{prior.name}}</option>
-                                                    {% else %}
-                        
-                                                    <option class="dropdown-item" value="{{prior.id}}"><i class="fa-regular fa-circle fa-l"></i> {{prior.name}}</option>
-                                                    {% endif %}
-                                                {% endfor %}
-                                                </select>
-                                              </div>
-                                              <div class="dropdown rounded-pill me-2">
-                                                <select  class="  form-select custom-select rounded-pill" type="button" name="status" data-bs-toggle="dropdown"  aria-expanded="false" data-project-id="{{project.project_id}}">
-                                                    {% for stat in status %}
-                                                    {% if project.status.id|stringformat:"s" == stat.id|stringformat:"s" %}
-                        
-                                                    <option value="{{stat.id}}"  class="dropdown-item" selected>{{stat.name}}</option>
-                                                    {% else %}
-                        
-                                                    <option class="dropdown-item" value="{{stat.id}}"><i class="fa-regular fa-circle fa-l"></i> {{stat.name}}</option>
-                                                    {% endif %}
-                                                {% endfor %}
-                                                </select>
-                                                              
-                                              </div>
-                                              <div class="col-sm-4">
-                                              <div class="input-group input-daterange " style="color:white;">
-                                                
-                                                <input type="text" id="end" class="form-control   rounded-pill  w-25 me-2"  placeholder="Start" value="{{project.created_on|date:'d-m-Y'}}" style="color:#ffff; background-color: #004a7a; ">
-                                                <label class="ml-3 form-control-placeholder" id="end-p" for="end" ></label>
-                                                <!-- <span class="fa fa-calendar fa-xs" id="fa-2"></span> -->
-                                                <input type="text" id="start" name="deadline" class="form-control rounded-pill w-25" placeholder="Target" value="{{project.deadline|date:'d-m-Y'}}" style="background-color: #004a7a;border-color: #004a7a;color:white;">
-                                                <label class=" form-control-placeholder" id="start-p" for="start"></label>
-                                                <!-- <span class="fa fa-calendar" id="fa-1" ></span> -->
-                                              </div>
-                                            </div>
-                                              
-                                        </div>
-                                        <div class="col-sm-4 w-25 rounded-pill m-1">
-                                            <div class="rounded-pill">
-                                                <select id="choices-multiple-remove-button" name="lead" placeholder="Select Lead"
-                                                    class="rounded-pill" multiple>
-                                                    {% for user in workspace_memb %}
+                            <div class="modal-content">
+                                <div class="modal-header" style="background-color: #004a7a;color:#fafafa;width: 848px;">
+                                    <h1 class="modal-title fs-5" id="editProjectLabel">Edit Project</h1>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" style="background-color:white;"></button>
+                                </div>
+                                <div class="modal-body form-box">
+                                    <form method="POST" action="{% url 'edit_project'  project.project_id custom_id %}" id="editProjectForm">
+                                        {% csrf_token %}
+                                        <div class="">
 
-                                                    <option value="{{ user.customUser.custom_id }}" 
-                                                        {% if user.customUser.custom_id in lead_user_ids %}selected{% endif %}>
-                                                        {{ user.customUser.user.first_name }} {{ user.customUser.user.last_name }}
-                                                        
-                                                    </option>
-                                                    {% endfor %}
-                
-                                                </select>
+                                            <div class="form-row">
+                                                <div class="input-data">
+                                                    <input type="text" name="name" id="name" value="{{project.name}}">
+                                                    <div class="underline"></div>
+                                                    <label for="name">Project Name</label>
+                                                </div>
+
                                             </div>
+
+                                            <div class="form-row">
+                                                <!-- <label for="des">Description</label>
+                                                <div><br></div> -->
+                                                <!--<label for="desc">Add description</label>
+                                                <div><br /></div> -->
+                                                <!-- <div id="description"> -->
+
+                                                    <!-- <textarea rows="8" cols="80" name="desc"
+                                                        value="{{project.desc}}"></textarea> -->
+                                                    <!-- <br /> -->
+                                                    <!-- <div class="underline"></div> -->
+                                                    <!-- <label for="desc">Add description</label> -->
+                                                    <!-- <br /> -->
+
+                                                    <textarea class="form-control" id="description" name="description" value="{{ project.description }}"></textarea>
+                                                </div>
                                         </div>
-                                        <div class="form-row justify-content-center">
-                                            <div class="col-sm-5 w-50 rounded-pill m-1  ">
-                                                <div class="rounded-pill  " >
-                                                    <select id="choices-multiple-remove-button" name="team" class="rounded-pill" multiple>
-                                                        {% for user in workspace_memb %}
-                                                            <option value="{{ user.customUser.custom_id }}" 
-                                                                {% if user.customUser.custom_id in team_ids %}selected{% endif %}>
-                                                                {{ user.customUser.user.first_name }} {{ user.customUser.user.last_name }}
-                                                                                                                            </option>
+
+
+                                            <div class="form-row justify-content-center">
+                                                <div class="dropdown rounded-pill me-2">
+                                                    <select class=" form-select custom-select rounded-pill"
+                                                        type="button" name="priority" data-bs-toggle="dropdown"
+                                                        aria-expanded="false" data-project-id="{{project.project_id}}">
+                                                        {% for prior in priority %}
+                                                            {% if project.priority.id|stringformat:"s" == prior.id|stringformat:"s" %}
+                                                                <option value="{{prior.id}}" class="dropdown-item" selected>{{prior.name}}</option>
+                                                            {% else %}
+                                                                <option class="dropdown-item" value="{{prior.id}}"><i class="fa-regular fa-circle fa-l"></i> {{prior.name}}
+                                                                </option>
+                                                            {% endif %}
                                                         {% endfor %}
                                                     </select>
                                                 </div>
-                                                
-                                            </div>
-                    
-                                            
-                                        
-                                            
-                    
-                                           
-                                        </div>
-                    
-                                        
-                    
-                                        
-                                        
-                                        <div class="form-row submit-btn justify-content-center">
-                                            <div class="input-data rounded-pill">
-                                                <div class="inner"></div>
-                                                <input type="submit" value="submit">
-                                            </div>
-                                        </div>
-                                    </div>
-                                   
-                    
-                                </form>
-                    
-                            </div>
-                            <div class="modal-footer" style="background-color: #004a7a;color:#fafafa;">
-                            </div>
+                                                <div class="dropdown rounded-pill me-2">
+                                                    <select class="  form-select custom-select rounded-pill"
+                                                        type="button" name="status" data-bs-toggle="dropdown"
+                                                        aria-expanded="false" data-project-id="{{project.project_id}}">
+                                                        {% for stat in status %}
+                                                            {% if project.status.id|stringformat:"s" == stat.id|stringformat:"s" %}
+                                                            <option value="{{stat.id}}" class="dropdown-item" selected>{{stat.name}}</option>
+                                                            {% else %}
+                                                            <option class="dropdown-item" value="{{stat.id}}"><i class="fa-regular fa-circle fa-l"></i> {{stat.name}}</option>
+                                                            {% endif %}
+                                                        {% endfor %}
+                                                    </select>
 
-                          </div>
+                                                </div>
+                                                <div class="col-sm-4">
+                                                    <div class="input-group input-daterange " style="color:white;">
+                                                        <input type="text" id="end" class="form-control   rounded-pill  w-25 me-2" placeholder="Start" value="{{project.created_on|date:'d-m-Y'}}" style="color:#ffff; background-color: #004a7a; " readonly required>
+                                                        <label class="ml-3 form-control-placeholder" id="end-p"
+                                                            for="end"></label>
+                                                        <!-- <span class="fa fa-calendar fa-xs" id="fa-2"></span> -->
+
+                                                         <input type="text" id="start" name="deadline" class="form-control rounded-pill w-50" placeholder="Target" value="{{project.deadline|date:'d-m-Y'}}" style="background-color: #004a7a;border-color: #004a7a;color:white;" >
+                                                        <label class=" form-control-placeholder" id="start-p" for="start" ></label>
+                                                        <!-- <span class="fa fa-calendar" id="fa-1" ></span> -->
+
+                                                        <!-- <select id="deadlineDropdown start" class="form-control rounded-pill btn btn-sm" name = "deadline" style="background-color: rgb(21, 67, 96); color: #e7eaee;">
+                                                        <option value="{{ project.deadline|date:'d-m-Y' }}" id ="start-p" for="start">{{ project.deadline|date:'d-m-Y' }}</option> -->
+                                                    </div>
+                                                </div>
+
+                                            </div>
+                                            <div class="col-sm-4 w-25 rounded-pill m-1">
+                                                <div class="rounded-pill">
+                                                    <select id="choices-multiple-remove-button" name="lead" placeholder="Select Lead" class="rounded-pill" multiple>
+                                                        {% for user in workspace_memb %}
+                                                            <option value="{{ user.customUser.custom_id }}" 
+                                                            {% if user.customUser.custom_id in lead_user_ids %}
+                                                                selected
+                                                            {% endif %}>
+                                                            {{ user.customUser.user.first_name }} {{ user.customUser.user.last_name }}
+                                                            </option>
+                                                        {% endfor %}
+
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div class="form-row justify-content-center">
+                                                <div class="col-sm-5 w-50 rounded-pill m-1  ">
+                                                    <div class="rounded-pill  ">
+                                                        <select id="choices-multiple-remove-button" name="team" placeholder="Select members"
+                                                            class="rounded-pill" multiple>
+                                                            {% for user in workspace_memb %}
+                                                                <option value="{{ user.customUser.custom_id }}"
+                                                                {% if user.customUser.custom_id in team_ids %}
+                                                                    selected
+                                                                {% endif %}>
+                                                            
+                                                                {{ user.customUser.user.first_name }} {{ user.customUser.user.last_name }}
+                                                                </option>
+                                                            {% endfor %}
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="form-row submit-btn justify-content-center">
+                                                <div class="input-data rounded-pill">
+                                                    <div class="inner"></div>
+                                                    <input type="submit" value="submit">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </form>
+                                </div>
+                                <div class="modal-footer" style="background-color: #004a7a;color:#fafafa; width: 848px;"></div>
+                            </div>
                         </div>
-                        {% endif %}
-                      </div>
+                    </div>
                 </div>
-               
                 <!-- modal end -->
 
                
@@ -163,70 +161,95 @@
                 <div class="row mt-4">
                    
                     <div class="col-sm-2 mb-2">
-                        <select  class=" project-priority-dropdown form-select custom-select rounded-pill" type="button" name="status" data-bs-toggle="dropdown"  aria-expanded="false" data-project-id="{{project.project_id}}">
+                        <select class=" project-priority-dropdown form-select custom-select rounded-pill" type="button" name="status" data-bs-toggle="dropdown" aria-expanded="false" data-project-id="{{project.project_id}}">
                             {% for prior in priority %}
-                            {% if project.priority.id|stringformat:"s" == prior.id|stringformat:"s" %}
-
-                            <option value="{{prior.id}}"  class="dropdown-item" selected>{{prior.name}}</option>
-                            {% else %}
-
-                            <option class="dropdown-item" value="{{prior.id}}"><i class="fa-regular fa-circle fa-l"></i> {{prior.name}}</option>
-                            {% endif %}
-                        {% endfor %}
-                        </select>
-                        
-                    </div>  
-                    <div class="col-sm-2 mb-2 ">
-                        <div class="dropdown rounded-pill me-2">
-                            <select  class=" project-status-dropdown dropdown dropdown-toggle form-select custom-select rounded-pill" type="button" name="status" data-bs-toggle="dropdown"  aria-expanded="false" data-project-id="{{project.project_id}}">
-                                {% for stat in status %}
-                                {% if project.status.id|stringformat:"s" == stat.id|stringformat:"s" %}
-    
-                                <option value="{{stat.id}}"  class="dropdown-item" selected>{{stat.name}}</option>
-                                {% else %}
-    
-                                <option class="dropdown-item" value="{{stat.id}}"><i class="fa-regular fa-circle fa-l"></i> {{stat.name}}</option>
+                                {% if project.priority.id|stringformat:"s" == prior.id|stringformat:"s" %}
+                                    
+                                        <option value="{{prior.id}}" class="dropdown-item" style="background-color: {% if prior.id == 1%}green{% elif prior.id == 2%}orange{% elif prior.id == 3%}#FF5733{% elif prior.id == 4%}rgb(191,87,0){% elif prior.id == 5%}rgb(21,67,96){% endif %};" selected>{{prior.name}}</option>
+                                    {% else %}
+                                    {% if flag_edit %}
+                                        <option value="{{prior.id}}" class="dropdown-item" style="background-color: {% if prior.id == 1%}green{% elif prior.id == 2%}orange{% elif prior.id == 3%}#FF5733{% elif prior.id == 4%}rgb(191,87,0){% elif prior.id == 5%}rgb(21,67,96){% endif %};" >{{prior.name}}</option>
+                                        <!-- <div class="dpriority-badge" style="background-color: {% if prior.id == 1%}green{% elif prior.id == 2%}orange{% elif prior.id == 3%}#FF5733{% elif prior.id == 4%}rgb(191,87,0){% elif prior.id == 5%}rgb(21,67,96){% endif %};" readonly>{{prior.name}}</div> -->
+                                    {% endif %}
                                 {% endif %}
                             {% endfor %}
-                            </select>
-                            
-                          </div>
+                        </select>
                     </div>
-                    
-                       
-                    
+                    <div class="col-sm-2 mb-2 ">
+                        <div class="dropdown rounded-pill me-2">
+                            <select
+                                class="project-status-dropdown dropdown dropdown-toggle form-select custom-select rounded-pill" type="button" name="status" data-bs-toggle="dropdown" aria-expanded="false" data-project-id="{{project.project_id}}">
+                                {% for stat in status %}
+                                    {% if project.status.id|stringformat:"s" == stat.id|stringformat:"s" %}
+                                        {% if flag_edit %}
+                                            <option value="{{stat.id}}" class="dropdown-item" style="background-color: {% if stat.id == 1%}green{% elif stat.id == 2%}orange{% elif stat.id == 3%}#FF5733{% else %}rgb(191,87,0){% endif%};" selected>{{stat.name}}</option>
+                                        {% else %}
+                                            <option class="dropdown-item" value="{{stat.id}}" style="background-color: {% if stat.id == 1%}green{% elif stat.id == 2%}orange{% elif stat.id == 3%}#FF5733{% else %}rgb(191,87,0){% endif%};" ><i class="fa-regular fa-circle fa-l"></i> {{stat.name}}</option>
+                                        {% endif %}
+                                    {% endif %}
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
                     <div class="col-sm-3 mb-2">
-                            <span class="input-group input-daterange  " style="color:white;">
-                                                        
-                                <button type="text" id="end" class="form-control btn btn-sm  rounded-pill   me-2"  placeholder="Start" style="background-color: rgb(21, 67, 96); color: #e7eaee;">{{project.created_on|date:'d-m-Y'}}</button>
-                                <!-- <span class="fa fa-calendar fa-xs" id="fa-2"></span> -->
-                                <button type="text" id="start" class="form-control rounded-pill btn btn-sm " style="background-color: rgb(21, 67, 96); color: #e7eaee;">{{project.deadline|date:'d-m-Y'}}</button>
-                                <!-- <span class="fa fa-calendar" id="fa-1" ></span> -->
-                            </span>
+                        <span class="input-group input-daterange  " style="color:white;">
+
+                            <button type="text" id="end" class="form-control btn btn-sm  rounded-pill   me-2" placeholder="Start" style="background-color: rgb(21, 67, 96); color: #e7eaee;width: 97px;">{{project.created_on|date:'d-m-Y'}}</button>
+                            <!-- <span class="fa fa-calendar fa-xs" id="fa-2"></span> -->
+                            {% if flag_edit %}
+                            <button type="text" id="start" class="form-control rounded-pill btn btn-sm " style="background-color: rgb(21, 67, 96); color: #e7eaee; width: 98px;">{{project.deadline|date:'d-m-Y'}}</button>
+                            {% else %}
+                                <button type="text" class="form-control rounded-pill btn btn-sm" style="background-color: rgb(21, 67, 96); color: #e7eaee;width: 98px;" disabled>{{project.deadline|date:'d-m-Y'}}</button>
+                            {% endif %}
+                        </span>
                     </div>
                     <div class="col-sm-1 mb-2 ms-3">
                         <button class="btn btn-sm dropdown dropdown-toggle rounded-pill" type="button" data-bs-toggle="dropdown" aria-expanded="false" fdprocessedid="5bab4i">
-                            <i class="fa-solid fa-user " style="background-color: rgb(21, 67, 96); color: #e7eaee;"></i> Lead
+                            <i class="fa-solid fa-user " style="background-color: rgb(21, 67, 96); color: #e7eaee;"></i>
+                            Lead
                         </button>
-                        <ul class="dropdown-menu" >
+                        <ul class="dropdown-menu" style="background-color: rgb(21,67,96);">
                             {% for l in lead %}
-                            <li><a class="dropdown-item" href="#"><i class="fa-regular fa-user"></i> {{l.team_member.user.first_name}} {{l.team_member.user.last_name}}</a></li>
+                            <li><a class="dropdown-item" href="#"><i class="fa-regular fa-user"></i>
+                                {{l.team_member.user.first_name}} {{l.team_member.user.last_name}}</a></li>
                             {% endfor %}
+                            
+                            {% if flag_edit %}
+                            <!-- <li><hr class="dropdown-divider"></li> -->
+                            <li>
+                                <a class="dropdown-item text-light" href="#" data-bs-toggle="modal" data-bs-target="#editProject">Change Lead</a>          
+                            </li>
+                        {% endif %}
                         </ul>
                     </div>
                     <div class="col-sm-1 mb-2 ms-0">
                         <button class="btn btn-sm dropdown dropdown-toggle rounded-pill" type="button" data-bs-toggle="dropdown" aria-expanded="false" fdprocessedid="5bab4i">
                             <i class="fa-solid fa-user-group " style="background-color: rgb(21, 67, 96); color: #e7eaee;"></i> Members
                         </button>
-                        <ul class="dropdown-menu" >
+                        <ul class="dropdown-menu">
                             {% for member in team %}
-                            <li><a class="dropdown-item" href="#"><i class="fa-solid fa-users"></i> {{member.team_member.user.first_name}} {{member.team_member.user.last_name}}</a></li>
+                            <li><a class="dropdown-item" href="#"><i class="fa-solid fa-users"></i>
+                                {{member.team_member.user.first_name}} {{member.team_member.user.last_name}}</a>
+                            </li>
                             {% endfor %}
+                            
+                            {% if flag_edit %}
+                            <!-- <li><hr class="dropdown-divider"></li> -->
+                            <li>
+                            
+                                <a class="dropdown-item text-light" href="#" data-bs-toggle="modal" data-bs-target="#editProject"><i class="fa-regular fa-user" style="background-color: rgb(21, 67, 96); color: #e7eaee;"></i>Add Members</a>
+                                
+                            </li>
+                            {% endif %}
                         </ul>
                     </div>
-                    <div class=" col-sm-2 offset-sm-2 ms-4 mb-2 ">    
-                        <a class="rounded-pill btn btn-sm " href="{% url 'add_issue' custom_id project.project_id %}" style="background-color: rgb(21, 67, 96); color: #e7eaee;"><i
-                                class="fa-solid fa-plus" style="color: #f5f7fa;"></i> Add issue</a>
+                    <div class=" col-sm-2 offset-sm-2 ms-4 mb-2 ">
+                        {% if project.project_id %}
+                        <a class="rounded-pill btn btn-sm " href="{% url 'add_issue' custom_id project.project_id %}" style="background-color: rgb(21, 67, 96); color: #e7eaee;"><i class="fa-solid fa-plus" style="color: #f5f7fa;"></i> Add issue
+                        </a>
+                        {% else %}
+                            <p>Project ID not available</p>
+                        {% endif %}
                     </div>
                 </div>
                 </div>
@@ -240,21 +263,20 @@
                     <thead>
                       <tr >
                         <th scope="col-sm-1">Status</th>
-
                         <th scope="col-sm-6">Issue</th>
                         <th scope="col-sm-1">Priority</th>
                         <th scope="col-sm-1">Assignee</th>
                         <th scope="col-sm-1">Deadline</th>
                         <th scope="col-sm-1"></th>
-                        
-                      </tr>
-                    </thead>
-                    <tbody>
-                        {% for issue in issues %}
-                      <tr>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for issue in issues %}
+                    <tr>
                         <th scope="row">
                            <div class="w-53 dropdown rounded-pill ">
-                               <select id=""  class="status-dropdown form-select custom-select rounded-pill btn btn-sm" type="button" name="status" data-bs-toggle="dropdown" style="background-color: rgb(40, 116, 166); color: #e7eaee;"  aria-expanded="false" data-issue-id="{{issue.issue_id}}">
+                            {% if is_assignee %}   
+                            <select id=""  class="status-dropdown form-select custom-select rounded-pill btn btn-sm" type="button" name="status" data-bs-toggle="dropdown" style="background-color: rgb(40, 116, 166); color: #e7eaee;"  aria-expanded="false" data-issue-id="{{issue.issue_id}}">
                                    {% for stat in status %}
                                    {% if issue.status.id|stringformat:"s" == stat.id|stringformat:"s" %}
        
@@ -265,43 +287,57 @@
                                    {% endfor %}
                                
                                 </select>
+                                {% else %}
+                                    <select id="statusDropdown" class="status-dropdown form-select custom-select rounded-pill btn btn-sm" type="button" name="status" disabled style="background-color: rgb(200, 200, 200); color: #e7eaee;" aria-expanded="false">
+                                        {% for stat in status %}
+                                            {% if issue.status.id|stringformat:"s" == stat.id|stringformat:"s" %}
+                                                <option value="{{ stat.id }}" style="background-color: {% if stat.id == 1 %}green{% elif stat.id == 2 %}orange{% elif stat.id == 3 %}#FF5733{% else %}rgb(191,87,0){% endif %};" class="dropdown-item" selected>{{ stat.name }}</option>
+                                            {% else %}
+                                                <option class="dropdown-item" value="{{ stat.id }}" style="background-color: {% if stat.id == 1 %}green{% elif stat.id == 2 %}orange{% elif stat.id == 3 %}#FF5733{% else %}rgb(191,87,0){% endif %};">{{ stat.name }}</option>
+                                            {% endif %}
+                                    {% endfor %}
+                                    </select>
+                             {% endif %}
                             </div>
                         </th>
                         <td style="cursor: pointer;" class="col-sm-3">
-                            <a href="{% url 'issue_view' issue.issue_id  custom_id %}" class="link-dark link-underline link-underline-opacity-0">{{issue}}
-                            {% if issue.subissue_count > 0 %}
-                            <small>({{ issue.subissue_count }})</small>
-                            {% endif %}
+                            <a href="{% url 'issue_view' issue.issue_id  custom_id %}"
+                                class="link-dark link-underline link-underline-opacity-0">{{issue}}
+                                {% if issue.subissue_count > 0 %}
+                                <small>({{ issue.subissue_count }})</small>
+                                {% endif %}
                             </a>
                         </td>
-                            <td >
-                                <div class=" dropdown rounded-pill" >
-                                    <select  class="priority-dropdown form-select custom-select rounded-pill btn btn-sm" type="button" name="status" data-bs-toggle="dropdown" style="background-color: rgb(40, 116, 166); color: #e7eaee;"  aria-expanded="false" data-issue-id="{{ issue.issue_id }}">
-                                        {% for prior in priority %}
+                        <td>
+                            <div class=" dropdown rounded-pill">
+                                <select class="priority-dropdown form-select custom-select rounded-pill btn btn-sm" type="button" name="status" data-bs-toggle="dropdown" style="color: #e7eaee;" aria-expanded="false" data-issue-id="{{ issue.issue_id }}">
+                                    {% for prior in priority %}
                                         {% if issue.priority.id|stringformat:"s" == prior.id|stringformat:"s" %}
-            
-                                        <option value="{{prior.id}}"  class="dropdown-item" selected>{{prior.name}}</option>
+
+                                            <option value="{{prior.id}}" class="dropdown-item" style="background-color: {% if prior.id == 1%}green{% elif prior.id == 2%}orange{% elif prior.id == 3%}#FF5733{% elif prior.id == 4%}rgb(191,87,0){% elif prior.id == 5%}rgb(21,67,96){% endif %};"selected>{{prior.name}}</option>
                                         {% else %}
-                                        <option class="dropdown-item" value="{{prior.id}}"><i class="fa-regular fa-circle fa-l"></i> {{prior.name}}</option>
+                                            <option class="dropdown-item" value="{{prior.id}}" style="background-color: {% if prior.id == 1%}green{% elif prior.id == 2%}orange{% elif prior.id == 3%}#FF5733{% elif prior.id == 4%}rgb(191,87,0){% elif prior.id == 5%}rgb(21,67,96){% endif %};"><i class="fa-regular fa-circle fa-l"></i> {{prior.name}}</option>
                                         {% endif %}
-                                        {% endfor %}
-                                   </select>
-                                </div>
-                            </td>
-                        
-                        <td> 
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </td>
+                        <td>
                             <div class="col-sm-7 mb-2 ms-0">
                                 {% if issue.assignee.count > 0 %}
-                                <button class="btn btn-sm dropdown dropdown-toggle rounded-pill" type="button" data-bs-toggle="dropdown" aria-expanded="false" fdprocessedid="5bab4i">
+                                <button class="btn btn-sm dropdown dropdown-toggle rounded-pill" type="button"
+                                    data-bs-toggle="dropdown" aria-expanded="false" fdprocessedid="5bab4i">
                                     <i class="fa-solid fa-user-group " style="color: #e7eaee;"></i>Assignees
                                 </button>
-                                <ul class="dropdown-menu" >
+                                <ul class="dropdown-menu">
                                     {% for assignee in issue.assignee.all %}
-                                    <li><a class="dropdown-item" href="#" style="background-color: #004a7a;"><i class="fa-regular fa-circle fa-l"></i> {{assignee.user.first_name}} {{assignee.user.last_name}}</a></li>
+                                    <li><a class="dropdown-item" href="#" style="background-color: #004a7a;"><i
+                                                class="fa-regular fa-circle fa-l"></i> {{assignee.user.first_name}}
+                                            {{assignee.user.last_name}}</a></li>
                                     {% endfor %}
                                 </ul>
                                 {% else %}
-                                <button class="btn btn-sm  rounded-pill" type="button"  fdprocessedid="5bab4i">
+                                <button class="btn btn-sm  rounded-pill" type="button" fdprocessedid="5bab4i">
                                     <i class="fa-solid fa-user-group " style="color: #e7eaee;"></i>Not assigned
                                 </button>
                                 {% endif %}
@@ -312,15 +348,16 @@
                         <td><button class="btn " type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasExample" aria-controls="offcanvasExample" onclick="get_issueComments('{{issue.issue_id}}')">
                             <i class="fa-regular fa-comment position-relative">
                                 {% if issue.unread_comments_count != 0 %}<span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 9px;">
-                                {{issue.unread_comments_count}}
-                                <span class="visually-hidden">unread messages</span>
-                              </span>
-                            {% endif %}</i>
-                          </button>
-                          {% if issue.overall_sentiment_score < 0.0 %} 
-                          <button type="button" class="btn" onclick="get_morale('{{issue.issue_id}}')"><i  class="fa-solid fa-bolt-lightning" style="color:rgb(157, 30, 30)"></i></button></td>
-                          {% endif %}
-                        </tr>
+                                    {{issue.unread_comments_count}}
+                                    <span class="visually-hidden">unread messages</span>
+                                  </span>
+                                {% endif %}
+                            </i>
+                        </button>
+                        {% if issue.overall_sentiment_score < 0.0 %} 
+                        <button type="button" class="btn" onclick="get_morale('{{issue.issue_id}}')"><i  class="fa-solid fa-bolt-lightning" style="color:rgb(157, 30, 30)"></i></button></td>
+                        {% endif %}
+                      </tr>
                       {% empty %}
                       <tr><td colspan="6">No issues found.</td></tr>
                      
@@ -337,7 +374,8 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.js"></script>
 
 <script>
-$(document).ready( function () {
+     // Function to send AJAX request to update a field
+     $(document).ready( function () {
     $('#issueTable').DataTable({
         lengthMenu: [
         [10, 25, 50, -1],
@@ -376,7 +414,7 @@ $(document).ready( function () {
     // ]
 });
 } );
-     // Function to send AJAX request to update a field
+
      function updateIssueField(issueId, fieldName, value) {
             $.ajax({
                 url: "{% url 'update_issue_field' %}",
@@ -398,91 +436,377 @@ $(document).ready( function () {
             });
         }
 
-        // Status Change
-        $(document).on('change', '.status-dropdown', function() {
-    var issueId = $(this).data('issue-id');
-    var newStatus = $(this).val();
-    updateIssueField(issueId, 'status', newStatus);});
-        // Priority Change
-        $(document).on('change', '.priority-dropdown', function() {
-    var issueId = $(this).data('issue-id');
-    var newPriority = $(this).val();
-    updateIssueField(issueId, 'priority', newPriority);
-});
-
-      
-</script>
-<script>
-     function updateProjectField(projectId, fieldName, value) {
-            $.ajax({
-                url: "{% url 'update_project_field' %}",
-                method: "POST",
-                data: {
-                    'project_id': projectId,
-                    'field_name': fieldName,
-                    'value': value,
-                    'csrfmiddlewaretoken': '{{ csrf_token }}'
-                },
-                success: function(response) {
-                    alert('Field updated successfully!');
-                    if (fieldName === 'status') {
-                        $('#editProject select[name="status"]').val(value);
-                    } else if (fieldName === 'priority') {
-                        $('#editProject select[name="priority"]').val(value);
-                    }
-                },
-               
-                error: function() {
-                    alert('An error occurred while updating the field.');
-                }
-            });
+    // Status Change
+    $(document).on('change', '.status-dropdown', function () {
+        if ($(this).prop('disabled')) { // If the dropdown is disabled, do not proceed  
+            return; 
         }
 
-        // Status Change
-        $('.project-status-dropdown').change(function() {
-            var projectId = $(this).data('project-id');
-            var newStatus = $(this).val();
-            updateProjectField(projectId, 'status', newStatus);
-        });
+        var issueId = $(this).data('issue-id'); //retrieving issuesId
+        var newStatus = $(this).val(); //retrieving new status value
+        updateIssueField(issueId, 'status', newStatus);
+    });
 
-        // Priority Change
-        $('.project-priority-dropdown').change(function() {
-            var projectId = $(this).data('project-id');
-            var newPriority = $(this).val();
-            updateProjectField(projectId, 'priority', newPriority);
-        });
+    // Priority Change
+    $(document).on('change', '.priority-dropdown', function () {
+        var issueId = $(this).data('issue-id');
+        var newPriority = $(this).val();
+        updateIssueField(issueId, 'priority', newPriority);
+    });
+
 
 </script>
 
 <script>
+    //updating project thorugh modal
+    function updateProjectField(projectId, fieldName, value) { 
+        console.log('Project ID:', projectId);
+        console.log('Field Name:', fieldName);
+        console.log('Value:', value);
 
-// changing status color
-document.addEventListener('DOMContentLoaded', function() {
-    // Function to update the background color of all select elements
-    function updateDropdownColors() {
-        const dropdowns = document.querySelectorAll('.status-dropdown');
-
-        dropdowns.forEach(function(dropdown) {
-            const selectedOption = dropdown.options[dropdown.selectedIndex];
-            const selectedColor = selectedOption.style.backgroundColor || 'transparent';
-            dropdown.style.backgroundColor = selectedColor;
-            dropdown.style.color = '#fff'; // Adjust text color for better readability
+        $.ajax({ 
+            url: "{% url 'update_project_field' %}",
+            method: "POST",
+            data: {
+                'project_id': projectId,
+                'field_name': fieldName,
+                'value': value,
+                'csrfmiddlewaretoken': '{{ csrf_token }}'
+            },
+            success: function (response) { //if the request is successful, callback function
+                alert('Field updated successfully!');
+                if (fieldName === 'status') { //updating in the UI part if the following fields are updated
+                    $('#editProject select[name="status"]').val(value); //updates the status drop-down
+                } else if (fieldName === 'priority') {
+                    $('#editProject select[name="priority"]').val(value);
+                } else if (fieldName === 'deadline') {
+                    $('#editProject input[name="deadline"]').val(value); // Update the deadline in the UI
+                } else {
+                    alert(response.error || 'An error occurred.');
+                }
+            },
+            error: function () {
+                alert('An error occurred while updating the field.');
+            }
         });
     }
 
-    // Initialize color for all dropdowns on page load
-    updateDropdownColors();
+    // Project Status Change 
+    $('.project-status-dropdown').change(function () {
+        var projectId = $(this).data('project-id');
+        var newStatus = $(this).val();
+        updateProjectField(projectId, 'status', newStatus);
+    });
 
-    // Update color when any dropdown selection changes
-    document.addEventListener('change', function(event) {
-        if (event.target.classList.contains('status-dropdown')) {
-            updateDropdownColors();
-        }
+    // Project Priority Change
+    $('.project-priority-dropdown').change(function () {
+        var projectId = $(this).data('project-id');
+        var newPriority = $(this).val();
+        updateProjectField(projectId, 'priority', newPriority);
+    });
+
+    $(document).ready(function() {
+    $('#deadline').datepicker({
+        format: 'dd-mm-yyyy', // Ensure your format matches the expected input
+        autoclose: true,
+        todayHighlight: true
     });
 });
+</script>
+
+<!-- <script>
+    $(document).ready(function() {
+        // Initialize the datepicker for the deadline button
+        $('#start').datepicker({
+            format: 'dd-mm-yyyy',
+            autoclose: true
+        }).on('changeDate', function(e) {
+            var newDeadline = e.format();  // Get the new deadline date
+            var projectId = '{{ project.id }}';  // Send the project ID for reference
+            var csrftoken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+            // Make AJAX request to update the project field in the backend
+            $.ajax({
+                url: '/update_project_field/',  // Ensure this URL matches your Django route
+                type: 'POST',
+                headers: { 'X-CSRFToken': csrftoken },
+                data: {
+                    'project_id': projectId,
+                    'field_name': 'deadline',  // Specify the field name for the deadline
+                    'value': newDeadline
+                },
+                success: function(response) {
+                    // Reflect the change on the frontend
+                    $('#start').text(newDeadline);  // Update button text with new date
+                    alert('Deadline updated successfully!');
+                },
+                error: function(xhr) {
+                    console.log('Error:', xhr.responseText);
+                    alert('Failed to update deadline.');
+                }
+            });
+        });
+
+        // Updating project priority from project_view
+        document.addEventListener('change', function (event) {
+            if (event.target.classList.contains('project-priority-dropdown')) {
+                const selectedOption = event.target.options[event.target.selectedIndex];
+                const newPriority = selectedOption.value;
+                const projectId = event.target.getAttribute('data-project-id');
+                const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+                // Check if editing is allowed (if user is admin)
+                const canEdit = "{{ flag_edit }}";  // Ensure the flag is passed as a string from Django
+
+                if (canEdit === "True") {
+                    // Make an AJAX request to update the project priority for admins only
+                    fetch(`/update_project_field/`, {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRFToken': csrfToken,
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ 
+                            project_id: projectId,
+                            field_name: 'priority',  // Specify the field name for priority
+                            value: newPriority
+                        })
+                    })
+                    .then(response => {
+                        if (response.ok) {
+                            return response.json();
+                        }
+                        throw new Error('Failed to update priority.');
+                    })
+                    .then(data => {
+                        console.log('Priority updated successfully:', data);
+                    })
+                    .catch(error => {
+                        console.error('Error updating priority:', error);
+                    });
+                } else {
+                    // Non-admins should not trigger the update or change the dropdown
+                    event.target.disabled = true;
+                }
+            }
+        });
+    });
+</script> -->
+
+<script>
+    // rich text editor
+    var config = {};
+
+    config.file_upload_handler = function (file, callback, optionalIndex, optionalFiles) {
+        console.log("File being uploaded:", file);  // Add this for debugging
+        var uploadhandlerpath = "/upload/";  // Ensure this points to your Django view
 
 
+        console.log("upload", file, "to", uploadhandlerpath)
 
+        function append(parent, tagname, csstext) {
+            var tag = parent.ownerDocument.createElement(tagname);
+            if (csstext) tag.style.cssText = csstext;
+            parent.appendChild(tag);
+            return tag;
+        }
+
+        var uploadcancelled = false;
+
+        var dialogouter = append(document.body, "div", "display:flex;align-items:center;justify-content:center;z-index:999999;position:fixed;left:0px;top:0px;width:100%;height:100%;background-color:rgba(128,128,128,0.5)");
+        var dialoginner = append(dialogouter, "div", "background-color:white;border:solid 1px gray;border-radius:15px;padding:15px;min-width:600px;box-shadow:2px 2px 6px #7777");
+
+        var line1 = append(dialoginner, "div", "text-align:center;font-size:1.2em;margin:0.5em;");
+        line1.innerText = "Uploading...";
+
+        var totalsize = file.size;
+        var sentsize = 0;
+
+        if (optionalFiles && optionalFiles.length > 1) {
+            totalsize = 0;
+            for (var i = 0; i < optionalFiles.length; i++) {
+                totalsize += optionalFiles[i].size;
+                if (i < optionalIndex) sentsize = totalsize;
+            }
+            console.log(totalsize, optionalIndex, optionalFiles)
+            line1.innerText = "Uploading..." + (optionalIndex + 1) + "/" + optionalFiles.length;
+        }
+
+        var line2 = append(dialoginner, "div", "text-align:center;font-size:1.0em;margin:0.5em;");
+        line2.innerText = "0%";
+
+        var progressbar = append(dialoginner, "div", "border:solid 1px gray;margin:0.5em;");
+        var progressbg = append(progressbar, "div", "height:12px");
+
+        var line3 = append(dialoginner, "div", "text-align:center;font-size:1.0em;margin:0.5em;");
+        var btn = append(line3, "button");
+        btn.className = "btn btn-primary";
+        btn.innerText = "cancel";
+        btn.onclick = function () {
+            uploadcancelled = true;
+            xh.abort();
+        }
+
+        var xh = new XMLHttpRequest();
+        xh.open("POST", uploadhandlerpath + "?name=" + encodeURIComponent(file.name) + "&type=" + encodeURIComponent(file.type) + "&size=" + file.size, true);
+        xh.onload = xh.onabort = xh.onerror = function (pe) {
+            console.log(pe);
+            console.log(xh);
+            dialogouter.parentNode.removeChild(dialogouter);
+            if (pe.type == "load") {
+                if (xh.status != 200) {
+                    console.log("uploaderror", pe);
+                    if (xh.responseText.startsWith("ERROR:")) {
+                        callback(null, "http-error-" + xh.responseText.substring(6));
+                    }
+                    else {
+                        callback(null, "http-error-" + xh.status);
+                    }
+                }
+                else if (xh.responseText.startsWith("READY:")) {
+                    console.log("File uploaded to " + xh.responseText.substring(6));
+                    callback(xh.responseText.substring(6));
+                }
+                else {
+                    callback(null, "http-error-" + xh.responseText);
+                }
+            }
+            else if (uploadcancelled) {
+                console.log("uploadcancelled", pe);
+                callback(null, "cancelled");
+            }
+            else {
+                console.log("uploaderror", pe);
+                callback(null, pe.type);
+            }
+        }
+        xh.upload.onprogress = function (pe) {
+            console.log(pe);
+            //pe.total
+            var percent = Math.floor(100 * (sentsize + pe.loaded) / totalsize);
+            line2.innerText = percent + "%";
+
+            progressbg.style.cssText = "background-color:green;width:" + (percent * progressbar.offsetWidth / 100) + "px;height:12px;";
+        }
+        xh.send(file);
+    }
+
+    var editor1 = new RichTextEditor("#description", config);
+    enterKeyTag = "br";
+</script>
+
+<script>
+    //updating status of project from project_view
+    document.addEventListener('DOMContentLoaded', function () {
+        // Function to update the background color of all select elements
+        function updateDropdownColors() {
+            const dropdowns = document.querySelectorAll('.project-status-dropdown');
+            dropdowns.forEach(function (dropdown) {
+                const selectedOption = dropdown.options[dropdown.selectedIndex];
+                const selectedColor = selectedOption.style.backgroundColor || 'transparent';
+                dropdown.style.backgroundColor = selectedColor;
+                dropdown.style.color = '#fff'; // Adjust text color for better readability
+            });
+        }
+
+        // Initialize color for all dropdowns on page load
+        updateDropdownColors();
+
+        // Update color when any dropdown selection changes
+        document.addEventListener('change', function (event) {
+            if (event.target.classList.contains('project-status-dropdown')) {
+                updateDropdownColors();
+            }
+        });
+
+        // Handle the update status button click
+        document.getElementById('update-status-btn').addEventListener('click', function () {
+            const form = document.getElementById('project-status-form');
+            const formData = new FormData(form);
+            const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+            fetch(form.action, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': csrfToken // Set the CSRF token here
+                },
+                body: formData
+            })
+            .then(response => {
+                if (response.ok) {
+                    return response.json(); // Assuming you're returning JSON from your view
+                }
+                throw new Error('Network response was not ok.');
+            })
+            .then(data => {
+                // Handle successful response here (e.g., update the UI)
+                console.log(data);
+                // You can redirect or update the status without reloading the page
+            })
+            .catch(error => {
+                console.error('There was a problem with the fetch operation:', error);
+            });
+        });
+    });
+</script>
+
+
+<script>
+
+    // changing status color of project
+    document.addEventListener('DOMContentLoaded', function () {  //runs once the page content is available.
+        // Function to update the background color of all select elements
+
+        function updateDropdownColors() { //changing background colour of the dropdown elemnts
+            const dropdowns = document.querySelectorAll('.project-status-dropdown');
+
+            dropdowns.forEach(function (dropdown) { //loops through dropdowns
+                const selectedOption = dropdown.options[dropdown.selectedIndex];
+                const selectedColor = selectedOption.style.backgroundColor || 'transparent';
+                dropdown.style.backgroundColor = selectedColor;
+                dropdown.style.color = '#fff'; // Adjust text color for better readability
+            });
+        }
+
+        // Initialize color for all dropdowns on page load
+        updateDropdownColors(); //ensures that dropdowns are correctly coloured
+
+        // Update color when any dropdown selection changes
+        document.addEventListener('change', function (event) {
+            if (event.target.classList.contains('project-status-dropdown')) {
+                updateDropdownColors();
+            }
+        });
+    });
+</script>
+
+<script>
+
+    // changing priority color of issue
+    document.addEventListener('DOMContentLoaded', function () {  //runs once the page content is available.
+        // Function to update the background color of all select elements
+
+        function updateDropdownColors() { //changing background colour of the dropdown elemnts
+            const dropdowns = document.querySelectorAll('.priority-dropdown');
+
+            dropdowns.forEach(function (dropdown) { //loops through dropdowns
+                const selectedOption = dropdown.options[dropdown.selectedIndex];
+                const selectedColor = selectedOption.style.backgroundColor || 'transparent';
+                dropdown.style.backgroundColor = selectedColor;
+                dropdown.style.color = '#fff'; // Adjust text color for better readability
+            });
+        }
+
+        // Initialize color for all dropdowns on page load
+        updateDropdownColors(); //ensures that dropdowns are correctly coloured
+
+        // Update color when any dropdown selection changes
+        document.addEventListener('change', function (event) {
+            if (event.target.classList.contains('priority-dropdown')) {
+                updateDropdownColors();
+            }
+        });
+    });
 </script>
 
 

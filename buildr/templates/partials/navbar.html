@@ -56,6 +56,12 @@
     <p>
       <a href="{% url 'join-workspace' custom_id %}" class="join-workspace" >Join Workspace</a>
     </p>
+      <p><a href="{% url 'add_project' custom_id %}" class="join-workspace" ><i class="fa-solid fa-plus fa-2xl" style="color: #36089b;color: white;"></i> Add Project</a></p>
+     
+      
+      <br>
+      <a href="{% url 'logout' %}">Logout</a>
+
       
     </div>
     </div>
@@ -90,8 +96,8 @@
       body: JSON.stringify({ 'ws_id': ws_id })
     }).then(response => window.location.reload());
   });
-
-  // document.getElementById('addMemberBtn').addEventListener('click', function() {
+</script>
+  <!-- // document.getElementById('addMemberBtn').addEventListener('click', function() {
   //     var myModal = new bootstrap.Modal(document.getElementById('workspaceCodeModal'), {
   //         keyboard: false
   //     });
@@ -107,6 +113,5 @@
 
   //     var copyMessage = document.getElementById('copyMessage');
   //     copyMessage.style.display = 'block';  // Show "Copied to clipboard!" message
-  // });
+  // }); -->
 
-</script>
