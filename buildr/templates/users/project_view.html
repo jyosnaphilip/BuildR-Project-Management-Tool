@@ -2,7 +2,7 @@
 {% include 'partials/error_message.html' %}
 {% load static %}
 {% block content %}
-<div id="content" class="expanded_comments">
+<div id="content" class="expanded">
     <div class="container">
         <div class="row justify-content-center">
             <div class="">
@@ -277,7 +277,7 @@
                         <th scope="row">
                            <div class="w-53 dropdown rounded-pill ">
                             {% if is_assignee %}   
-                            <select id=""  class="status-dropdown form-select custom-select rounded-pill btn btn-sm" type="button" name="status" data-bs-toggle="dropdown" style="background-color: rgb(40, 116, 166); color: #e7eaee;"  aria-expanded="false" data-issue-id="{{issue.issue_id}}">
+                            <select id="status-dropdown"  class="status-dropdown form-select custom-select rounded-pill btn btn-sm" type="button" name="status" data-bs-toggle="dropdown" style="background-color: rgb(40, 116, 166); color: #e7eaee;"  aria-expanded="false" data-issue-id="{{issue.issue_id}}">
                                    {% for stat in status %}
                                        {% if issue.status.id|stringformat:"s" == stat.id|stringformat:"s" %}
     
@@ -289,7 +289,7 @@
                                
                                 </select>
                                 {% else %}
-                                <select id=""  class="status-dropdown form-select custom-select rounded-pill btn btn-sm" type="button" name="status" disabled data-bs-toggle="dropdown" style="background-color: rgb(40, 116, 166); color: #e7eaee;"  aria-expanded="false" data-issue-id="{{issue.issue_id}}">
+                                <select id="status-dropdown"  class="status-dropdown form-select custom-select rounded-pill btn btn-sm" type="button" name="status" disabled data-bs-toggle="dropdown" style="background-color: rgb(40, 116, 166); color: #e7eaee;"  aria-expanded="false" data-issue-id="{{issue.issue_id}}">
                                     {% for stat in status %}
                                         {% if issue.status.id|stringformat:"s" == stat.id|stringformat:"s" %}
         
@@ -313,7 +313,7 @@
                         </td>
                         <td>
                             <div class=" dropdown rounded-pill">
-                                <select class="priority-dropdown form-select custom-select rounded-pill btn btn-sm" type="button" name="status" data-bs-toggle="dropdown" style="color: #e7eaee;" aria-expanded="false" data-issue-id="{{ issue.issue_id }}">
+                                <select id="priority-dropdown" class="priority-dropdown form-select custom-select rounded-pill btn btn-sm" type="button" name="status" data-bs-toggle="dropdown" style="color: #e7eaee;" aria-expanded="false" data-issue-id="{{ issue.issue_id }}">
                                     {% for prior in priority %}
                                         {% if issue.priority.id|stringformat:"s" == prior.id|stringformat:"s" %}
 
@@ -357,8 +357,13 @@
                                 {% endif %}
                             </i>
                         </button>
+                        {% if flag_lead %}
                         {% if issue.overall_sentiment_score < 0.0 %} 
-                        <button type="button" class="btn" onclick="get_morale('{{issue.issue_id}}')"><i  class="fa-solid fa-bolt-lightning" style="color:rgb(157, 30, 30)"></i></button></td>
+                        <button type="button" class="btn" data-bs-toggle="popover" data-bs-title="Sentiment analysis" data-bs-content="Negative sentiments found for issue. You might want to check the comments!"><i  class="fa-solid fa-bolt-lightning" style="color:rgb(157, 30, 30)"></i></button></td>
+                        {% else %}
+                        <button type="button" class="btn" data-bs-toggle="popover" data-bs-title="Sentiment analysis" data-bs-content="Nothing to worry here"><i  class="fa-solid fa-bolt-lightning" style="color:rgb(140, 184, 165)"></i></button></td>
+
+                        {% endif %}
                         {% endif %}
                       </tr>
                       {% empty %}
@@ -461,7 +466,7 @@
 </script>
 
 <script>
-    //updating project thorugh modal
+
     function updateProjectField(projectId, fieldName, value) { 
         console.log('Project ID:', projectId);
         console.log('Field Name:', fieldName);
@@ -697,7 +702,7 @@
     var editor1 = new RichTextEditor("#description", config);
     enterKeyTag = "br";
 </script>
-
+<!-- 
 <script>
     //updating status of project from project_view
     document.addEventListener('DOMContentLoaded', function () {
@@ -782,7 +787,7 @@
         });
     });
 </script>
-
+ -->
 <script>
 
     // changing priority color of issue
@@ -810,7 +815,7 @@
             }
         });
     });
-</script>
+</script> 
 
 
 {% endblock content %}

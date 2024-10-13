@@ -171,7 +171,7 @@ COMPRESS_PRECOMPILERS = (
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
-LOGIN_REDIRECT_URL = '/dashboard/'
+LOGIN_REDIRECT_URL = '/g_login/'
 LOGOUT_REDIRECT_URL = "/login/"
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 

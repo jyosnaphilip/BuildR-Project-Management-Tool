@@ -61,8 +61,8 @@ def req_for_navbar(custom_id, current_ws_id):
     ws = get_ws(custom_id, current_ws_id)  # all ws #nav
     current_ws = workspace.objects.get(ws_id=current_ws_id) #retrieves current_ws based on current_ws_id
     projects = get_projects(current_ws)  # nav #retrieve projects associated with the current workspace.
-   
-    if (current_ws.admin.custom_id) == custom_id: 
+    
+    if str(current_ws.admin.custom_id) == custom_id or current_ws.admin.custom_id == custom_id: 
         print("hre2") # nav
         flag = True #indicating whether the current user is the admin of the workspace or not.
         ws_code = workspaceCode.objects.filter(
@@ -397,6 +397,15 @@ def access_control(team, lead, custom_id, current_ws):
                 break
         
     return flag_edit
+def access_control_lead(custom_id,lead):
+    """ returns true if the 'custom_id' is among the project leads """
+    flag_lead = False
+    for leader in lead:
+        if str(custom_id) == str(leader.team_member.custom_id):
+            flag_lead = True
+            print(f"Flag edit granted to project lead: {custom_id}")
+            break
+    return flag_lead
 
 def access_control_admin(custom_id, current_ws):
     flag_edit = False
@@ -408,8 +417,7 @@ def access_control_admin(custom_id, current_ws):
         print(f"Flag edit is: {flag_edit}") 
     return flag_edit
     # Check if the user is a lead 
-    
-    return flag_edit
+ 
 
 def access_control_assignee(issue, custom_id):
     # Checking if the current user is the assignee of the issue
@@ -457,7 +465,7 @@ def project_view(request, project_id, custom_id):
         project_id=project_id, role="Team member", active=True) #retrieves all the team members related to that project
     lead = project_member_bridge.objects.filter(
         project_id=project_id, role="Lead", active=True) #fetches lead of the project
-    
+    flag_lead = access_control_lead(custom_id,lead)
 
     flag_edit = access_control(team, lead, custom_id, current_ws)
 
@@ -474,7 +482,7 @@ def project_view(request, project_id, custom_id):
     context = {'project': project, 'lead': lead, 'team': team, 'status': statuses,
                'priority': priorities, 'issues': issues, 'workspace_memb': workspace_members,
                'lead_user_ids': lead_user_ids, 'team_ids': team_ids, 'workspaces': ws, 'current_ws': current_ws,
-               'flag': flag, 'ws_code': code, 'projects': projects, 'custom_id': custom_id, 'flag_edit': flag_edit}
+               'flag': flag, 'ws_code': code, 'projects': projects, 'custom_id': custom_id, 'flag_edit': flag_edit, 'flag_lead': flag_lead}
             #    'flag': flag, 'ws_code': code, 'projects': projects, 'custom_id': custom_id}
 
     return render(request, 'users\project_view.html', context)
@@ -1293,14 +1301,11 @@ def get_project_insights( project_id):
                "overdue_tasks":overdue_tasks, 'task_priorities':task_priorities,'task_completion_rate':task_completion_rate,
                'sentiment_summary': sentiment_summary}
     return context
-
-# dashboard
-def dashboard(request):
-    """ sends user to dashboard based on their role """
-    
+def g_login(request):
     user_id=request.user.id 
     custom_user=customUser.objects.get(user=user_id)
     custom_id = custom_user.custom_id
+    print(custom_id)
     if custom_user.last_ws: #already joined workspace
         request.session['current_ws'] = str(custom_user.last_ws.ws_id) #the last_ws id is stored in session as current_ws
     else:
@@ -1310,6 +1315,18 @@ def dashboard(request):
             
         else:
             return redirect('first-signin', custom_id)
+    current_ws_id = request.session.get('current_ws', None)
+    ws, current_ws, projects, flag, code = req_for_navbar(
+        custom_id, current_ws_id)
+    return redirect('dashboard')
+# dashboard
+def dashboard(request):
+    """ sends user to dashboard based on their role """
+    
+    user_id=request.user.id 
+    custom_user=customUser.objects.get(user=user_id)
+    custom_id = custom_user.custom_id
+   
     current_ws_id = request.session.get('current_ws', None)
     ws, current_ws, projects, flag, code = req_for_navbar(
         custom_id, current_ws_id)
@@ -1455,6 +1472,7 @@ def gantt_data(projects):
             gantt[project.name]['issues'][issue_.name] = {'issue':issue_,'assignees':assignees,'created_on':issue_.created_on.date().strftime('%Y-%m-%d'),'deadline':deadline.strftime('%Y-%m-%d'),'percent':percent} # sending created on separately cos otherwise, too much processing in front end
             gantt[project.name]['completion_percent']=project_completion_percent
     return gantt
+
 
 def scatter_plot_with_time(custom_id,ws_id):
     issues_=issue.objects.filter(completed=True,assignee=custom_id,project__ws=ws_id)

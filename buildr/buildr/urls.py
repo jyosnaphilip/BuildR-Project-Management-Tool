@@ -19,7 +19,7 @@ from django.urls import path
 from users.views import *
 from django.contrib.auth import views as auth_views
 from django.urls import include
-from users.views import register,user_logout,join_workspace,new_workspace
+from users.views import register,user_logout,join_workspace,new_workspace,g_login
 
 from users.views import home,add_project,project_view,issue_view,add_issue,add_subIssue,user_login,first_signin,change_ws,update_issue_field,update_project_field,edit_project,edit_issue, get_issueComments,submit_comment,submit_replies,file_upload_view, change_issue_status,dashboard,user_profile,edit_profile, manage_workspace, remove_ws_member, deactivate_ws_member, toggle_ws_member_status, create_new_code, get_project_insights, toggle_ws_member_status, upload_file
 
@@ -66,7 +66,7 @@ urlpatterns = [
     path('toggle_ws_member/<str:user_custom_id>/<str:custom_id>/<str:ws_id>/', toggle_ws_member_status, name='toggle_ws_member'),
     path('upload_file/', upload_file, name='upload_file'),
     path('change-issue-status/', change_issue_status, name='change_issue_status'),  # Add this line
-    
+    path('g_login/',g_login,name='g_login')
 ]   
 
 if settings.DEBUG:

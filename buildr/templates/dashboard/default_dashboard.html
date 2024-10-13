@@ -655,7 +655,7 @@ Highcharts.getOptions({
 </script>
 
 <!-- gantt -->
- <script>
+<script>
   function getDate(date) {
       const dateParts = date.split('-');
       const year = parseInt(dateParts[0], 10);
@@ -724,7 +724,7 @@ const options = {
         data: [{
             name: '{{project}}',
             id: '{{project}}',
-            owner: {% if details.lead %}{% for lead in details.lead %}'{{lead.team_member.user.first_name}}'{% endfor %}{% else %}'na'{% endif %}
+            owner: {% if details.lead %}'{% for lead in details.lead %}{{lead.team_member.user.first_name}}{% if not loop.last %},{% endif %}{% endfor %}'{% else %}'na'{% endif %}
         }, {% for issue,issues_details in details.issues.items %}
         {
             name: '{{issue}}',
@@ -737,7 +737,7 @@ const options = {
                 amount: {{issues_details.percent}}
                 
             },
-            owner:  {% if issues_details.assignees %}{% for assignee in issues_details.assignees %}'{{assignee.assignee.user}}'{% endfor %}{% else %}'na'{% endif %}
+            owner:  {% if issues_details.assignees %}'{% for assignee in issues_details.assignees %}{{assignee.assignee.user}}{% if not forloop.last %},{% endif %}{% endfor %}' {% else %}'na'{% endif %}
         }{% if not loop.last %},{% endif %} {% endfor %}
         ]
     }{% if not loop.last %},{% endif %}
@@ -770,7 +770,7 @@ const options = {
            
     },
     title: {
-        text: 'Gantt Project Management To do: add dates, calculate time and try changing bg color'
+        text: 'Gantt Project Management '
     },
     xAxis: [{
         currentDateIndicator: {
@@ -922,6 +922,7 @@ Highcharts.addEvent(Highcharts.Axis, 'foundExtremes', e => {
 Highcharts.ganttChart('gantt', options);
 
  </script>
+
 
 <script>
   Highcharts.setOptions({

@@ -1,4 +1,6 @@
+
 {% extends 'base.html' %}
+{% include 'partials/error_message.html' %}
 {% load static %}
 {% block content %}
 <div id="content" class="expanded">
@@ -7,7 +9,16 @@
             <div class="">
                 <div class="d-flex justify-content-between   ">
                     <span class="text">{{issue}}</span>
-                    <button type="button" class="btn" data-bs-toggle="modal" data-bs-target="#editIssue" data-bs-whatever="@mdo"><i class="fa-solid fa-pen pt-4" style="color: #004a7a;"></i></button>
+                    <button type="button" class="btn" data-bs-toggle="modal" data-bs-target="#editIssue" data-bs-whatever="@mdo"><i class="fa-solid fa-pen pt-4" style="color: #004a7a;"></i></button>      
+                </div>
+                <div class="description-container">
+                    <div class="description-content">
+                        {{ project.description|safe }} 
+                    </div>
+                    <div class="fade-effect"></div>
+                    <button class="toggle-btn">▼ Show more</button>
+                </div>
+                    
                     <!-- modal -->
                     <div class="modal fade" id="editIssue" tabindex="-1" aria-labelledby="editIssueLabel" aria-hidden="true">
                         <div class="modal-dialog">
@@ -436,5 +447,34 @@
     
     
     </script>
+    <script>
+
+        // changing priority color of issue
+        document.addEventListener('DOMContentLoaded', function () {  //runs once the page content is available.
+            // Function to update the background color of all select elements
+    
+            function updateDropdownColors() { //changing background colour of the dropdown elemnts
+                const dropdowns = document.querySelectorAll('.subissue-priority-dropdown');
+    
+                dropdowns.forEach(function (dropdown) { //loops through dropdowns
+                    const selectedOption = dropdown.options[dropdown.selectedIndex];
+                    const selectedColor = selectedOption.style.backgroundColor || 'transparent';
+                    dropdown.style.backgroundColor = selectedColor;
+                    dropdown.style.color = '#fff'; // Adjust text color for better readability
+                });
+            }
+    
+            // Initialize color for all dropdowns on page load
+            updateDropdownColors(); //ensures that dropdowns are correctly coloured
+    
+            // Update color when any dropdown selection changes
+            document.addEventListener('change', function (event) {
+                if (event.target.classList.contains('subissue-priority-dropdown')) {
+                    updateDropdownColors();
+                }
+            });
+        });
+    </script> 
+    
     
 {% endblock content %}
