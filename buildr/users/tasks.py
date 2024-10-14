@@ -10,11 +10,13 @@ def get_sentiment_task(self, comment_id): # DO NOT, I REPEAT, DO NOT REMOVE THE 
     """ Get sentiment score for new comment"""
     
     comment = Comments.objects.get(id=comment_id)
-
+    print("before pipe")
     pipe = pipeline("text-classification", model="finiteautomata/bertweet-base-sentiment-analysis")  # output labels: POS, NEG, NEU
+    print("adter pipe")
 
     # Save sentiment score back to the database
     result = pipe(comment.comment)
+    print("adter result")
     label = result[0]['label'] 
     if label == 'NEG':
         comment.sentiment_score = -1
@@ -22,7 +24,7 @@ def get_sentiment_task(self, comment_id): # DO NOT, I REPEAT, DO NOT REMOVE THE 
         comment.sentiment_score = 0
     else:
         comment.sentiment_score = 1
-
+    print("adter assign")
     
     comment.save()
     
