@@ -276,8 +276,8 @@
                     <tr>
                         <th scope="row">
                            <div class="w-53 dropdown rounded-pill ">
-                            {% if is_assignee %}   
-                            <select id="status-dropdown"  class="status-dropdown form-select custom-select rounded-pill btn btn-sm" type="button" name="status" data-bs-toggle="dropdown" style="background-color: rgb(40, 116, 166); color: #e7eaee;"  aria-expanded="false" data-issue-id="{{issue.issue_id}}">
+                             
+                            <select  class="status-dropdown form-select custom-select rounded-pill btn btn-sm" type="button" name="status" data-bs-toggle="dropdown" style="background-color: rgb(40, 116, 166); color: #e7eaee;"  aria-expanded="false" data-issue-id="{{issue.issue_id}}">
                                    {% for stat in status %}
                                        {% if issue.status.id|stringformat:"s" == stat.id|stringformat:"s" %}
     
@@ -288,19 +288,7 @@
                                    {% endfor %}
                                
                                 </select>
-                                {% else %}
-                                <select id="status-dropdown"  class="status-dropdown form-select custom-select rounded-pill btn btn-sm" type="button" name="status" disabled data-bs-toggle="dropdown" style="background-color: rgb(40, 116, 166); color: #e7eaee;"  aria-expanded="false" data-issue-id="{{issue.issue_id}}">
-                                    {% for stat in status %}
-                                        {% if issue.status.id|stringformat:"s" == stat.id|stringformat:"s" %}
-        
-                                           <option value="{{ stat.id }}"  style = "background-color: {% if stat.id == 1 %}green{% elif stat.id == 2 %}orange{% elif stat.id == 3 %}#FF5733{% else %}rgb(191,87,0){% endif %};" class="dropdown-item" selected>{{stat.name}}</option>
-                                        {% else %}
-                                            <option class="dropdown-item" value="{{ stat.id }}" style = "background-color: {% if stat.id == 1 %}green{% elif stat.id == 2 %}orange{% elif stat.id == 3 %}#FF5733{% else %}rgb(191,87,0){% endif %};"><i class="fa-regular fa-circle fa-l"></i> {{stat.name}}</option>
-                                        {% endif %}
-                                    {% endfor %}
                                 
-                                 </select>
-                             {% endif %}
                             </div>
                         </th>
                         <td style="cursor: pointer;" class="col-sm-3">
@@ -424,6 +412,9 @@
 } );
 
      function updateIssueField(issueId, fieldName, value) {
+        console.log('Project ID:', issueId);
+        console.log('Field Name:', fieldName);
+        console.log('Value:', value);
             $.ajax({
                 url: "{% url 'update_issue_field' %}",
                 method: "POST",
@@ -446,9 +437,6 @@
 
     // Status Change
     $(document).on('change', '.status-dropdown', function () {
-        if ($(this).prop('disabled')) { // If the dropdown is disabled, do not proceed  
-            return; 
-        }
 
         var issueId = $(this).data('issue-id'); //retrieving issuesId
         var newStatus = $(this).val(); //retrieving new status value
