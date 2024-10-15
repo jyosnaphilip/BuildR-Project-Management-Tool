@@ -81,6 +81,7 @@ def home(request, custom_id):
     # if request.user.is_authenticated:
     # print("i am here")
     # return redirect('dashboard')
+    print("home view")
     current_ws_id = request.session.get('current_ws', None)  # nav #session store and retrieve data of a particular user.
     ws, current_ws, projects, flag, code = req_for_navbar(
         custom_id, current_ws_id)  # use whenevr navbar is needed in a page
@@ -289,8 +290,13 @@ def new_workspace(request, custom_id):
             #             expires_on=expires_on
             #         )
             #         code.save()
-
-            return render(request, 'users/home.html', {'custom_id': custom_id, "ws_id": ws, 'code': code})
+            request.session['current_ws'] = str(ws.ws_id)
+            current_ws_id = request.session.get('current_ws', None)
+            workspaces, current_ws, projects, flag, code = req_for_navbar(
+        custom_id, current_ws_id)
+            print(workspaces)
+            return render(request, 'users/home.html', {'custom_id': custom_id, "ws_id": ws, 'code': code, 'workspaces': workspaces, 'current_ws': current_ws,
+                   'flag': flag, 'ws_code': code, 'projects': projects})
         else:
             messages.error(request, 'Workspace name already exists!')
             return redirect('new_workspace', custom_id)
