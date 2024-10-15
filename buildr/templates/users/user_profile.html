@@ -31,7 +31,7 @@
                     <div class="col-md-6"><label class="labels">Surname</label><input  type="text" class="form-control" value="{{custom_user.user.last_name}}" placeholder="surname" disabled></div>
                 </div>
                 <div class="row mt-3">
-                    <div class="col-md-12"><label class="labels">Email ID</label><input name="email" type="email" class="form-control" placeholder="enter email id" value="{% if custom_user.email %}{{custom_user.email}}{% endif %}"></div>
+                    <div class="col-md-12"><label class="labels">Email ID</label><input name="email" type="email" class="form-control" placeholder="enter email id" value="{% if custom_user.user.email %}{{custom_user.user.email}}{% endif %}"></div>
                 </div>
                 <div class="mt-5 text-center"><button class="btn profile-button" style="background-color: #004a7a;color:white;" type="submit" value="submit" >Save Profile</button></div>
             </div>

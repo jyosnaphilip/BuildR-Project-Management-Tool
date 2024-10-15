@@ -6,11 +6,11 @@ from .models import customUser
 @receiver(user_signed_up)
 def create_custom_user(sender, request, user, **kwargs):
     custom_user, created = customUser.objects.get_or_create(user=user)
+    
     if created:
         social_account = user.socialaccount_set.filter(provider='google').first()
         if social_account:
             custom_user.profile_pic = social_account.get_avatar_url()
-            custom_user.email = social_account.extra_data.get('email', user.email)
             custom_user.save()
 
 @receiver(user_logged_in)

@@ -326,7 +326,9 @@ def add_project(request, custom_id):  # need to check again
 
         lead = request.POST.getlist('lead')
         members = request.POST.getlist('members')
-
+        for lead_ in lead:  # otherwise unique constraint failed
+            if lead_ in members:
+                members.remove(lead_)
         project = Project(name=project_name, description=desc, ws=current_ws)
         if deadline != None and deadline!="": #deadline is given.
             deadline = datetime.strptime(deadline, '%d-%m-%Y').date() #converting the deadline string into d-m-y.
@@ -495,7 +497,6 @@ def project_view(request, project_id, custom_id):
 
 
 def edit_project(request, project_id, custom_id):
-    print("edit_project view is triggered") 
     project = get_object_or_404(Project, project_id=project_id) #raises an error if project doesn't exist.
 
     current_ws = project.ws #getting the current workspace the project belongs to
@@ -504,16 +505,13 @@ def edit_project(request, project_id, custom_id):
 
      # Check access control by passing the correct arguments: lead, custom_id, and current_ws
     flag_edit = access_control_admin(custom_id, current_ws)
-    print(f"Custom ID: {custom_id}, Workspace ID: {current_ws}, Admin: {current_ws.admin.custom_id}")
-
-    
+   
     # Ensure only the workspace admin can edit
     if not flag_edit:
         messages.error(request, "You do not have permission to edit this project.")
         return redirect('project_view', project_id=project_id, custom_id=custom_id)
     
     if request.method == 'POST':
-        print("POST request received")
         name = request.POST.get('name')
         desc = request.POST.get('description')
         prior_id = request.POST.get('priority')
@@ -522,13 +520,9 @@ def edit_project(request, project_id, custom_id):
         lead_ids = request.POST.getlist('lead')
         team_ids = request.POST.getlist('team')
 
-        print(f"Received name: {name}, description: {desc}, priority ID: {prior_id}, status ID: {status_id}, deadline: {deadline}")
-
 # Update
         project.name = name
         project.description = desc
-        print(f"Received name: {project.name}, description: {project.description}")
-
 
         if prior_id != None:
             project.priority = get_object_or_404(priority, id=prior_id)
@@ -542,18 +536,13 @@ def edit_project(request, project_id, custom_id):
                 deadline_date = datetime.strptime(deadline, '%d-%m-%Y').date()
 
                 project.deadline = deadline_date  # Update the deadline in the project instance
-                print(f'Deadline updated to: {deadline_date}')
             except ValueError as ve:
                 # Handle invalid date format
                 messages.error(request, 'Invalid date format. Please use dd-mm-yyyy.')
-                print(f'Error: {ve}')
-                return redirect('edit_project', project_id=project_id, custom_id=custom_id)
+                return redirect('project_view', project_id=project_id, custom_id=custom_id)
         project.save()
-        print(f'Updated project with deadline: {project.deadline}')
-
-
     # update lead
-        project_member_bridge.objects.filter(project=project, role='Lead').update(
+        project_member_bridge.objects.filter(project=project).update(
             active=False)  # Remove current leads
         for lead_id in lead_ids:
             lead = get_object_or_404(customUser, custom_id=lead_id)
@@ -566,10 +555,13 @@ def edit_project(request, project_id, custom_id):
                 lead_instance.save()
 
         # Update team members
-        project_member_bridge.objects.filter(project=project, role='Team member').update(
-            active=False)  # Remove current team members
+        # project_member_bridge.objects.filter(project=project, role='Team member').update(
+            # active=False)  # Remove current team members
         for team_id in team_ids:
             team_memb = get_object_or_404(customUser, custom_id=team_id)
+            if str(team_memb.custom_id) in lead_ids:
+                messages.warning(request, f"User {team_memb.user.first_name} is a lead and cannot be added as a team member.")
+                continue  
             if team_memb:
                 team_instance, create = project_member_bridge.objects.get_or_create(
                     team_member=team_memb, project=project)

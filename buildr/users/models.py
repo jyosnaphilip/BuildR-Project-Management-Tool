@@ -11,7 +11,6 @@ class customUser(models.Model):
     profile_pic=models.ImageField(upload_to='user_dp',null=True,blank=True)
     gameMode=models.BooleanField(default=True,blank=False)
     last_ws=models.ForeignKey("workspace",null=True,blank=True,on_delete=models.SET_NULL)
-    email=models.EmailField(null=True,blank=True,unique=True)
     def __str__(self) :
         return self.user
 class workspace(models.Model):
