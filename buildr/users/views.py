@@ -12,7 +12,7 @@ from django.db.models.functions import ExtractDay
 import json
 from datetime import datetime
 from django.http import JsonResponse
-from django.db.models import Count, Q, Sum, Case, When, IntegerField, F, ExpressionWrapper, fields
+from django.db.models import Count, Q, Sum, Case, When, IntegerField, F, ExpressionWrapper, fields, Exists, OuterRef
 from django.core.exceptions import PermissionDenied, ValidationError
 from django.core.mail import send_mail
 import random
@@ -81,30 +81,23 @@ def req_for_navbar(custom_id, current_ws_id):
     return ws, current_ws, projects, flag, code #returning flag to check whether the user is admin or not.
 
 def home(request, custom_id):
-    # if request.user.is_authenticated:
-    # print("i am here")
-    # return redirect('dashboard')
     current_ws_id = request.session.get('current_ws', None)  # nav #session store and retrieve data of a particular user.
-    print("current",current_ws_id)
     ws, current_ws, projects, flag, code = req_for_navbar(
         custom_id, current_ws_id)  # use whenevr navbar is needed in a page
     user_issues = issue.objects.filter(
         project__ws__ws_id=current_ws_id, issue_assignee_bridge__assignee=custom_id) #fetches all issues assigned to the current user for current workspace.
+    
     return render(request, 'users\home.html', {'custom_id': custom_id, 'workspaces': ws, 'current_ws': current_ws, 'flag': flag, 'ws_code': code, 'projects': projects, 'user_issues': user_issues}) #renders home page including custom ID, workspaces, current workspace. projects, user issues, flag for admin status
 
 def change_ws(request):
     if request.method == 'POST' and request.user.is_authenticated:
-        print("called")
         data = json.loads(request.body) #loading the request body as json data
         ws_id = data.get('ws_id')
-        print("ws_id",ws_id)
         custom_user = customUser.objects.get(user=request.user) #retrieves customuser object for authenticated user
         if workspaceMember.objects.filter(customUser=custom_user, workspace__ws_id=ws_id).exists(): #customUser in workspaceMember 
-            print("exists")
             request.session['current_ws'] = ws_id #updating the current workspace id in the users session
             custom_id = customUser.objects.get(user=request.user).custom_id
             home_url = reverse('home', args=[custom_id])  # Adjust 'workspace_home' and args as needed
-        
             return JsonResponse({'url': home_url})
     return JsonResponse({'status': 'error'}, status=400)
 
@@ -143,7 +136,6 @@ def register(request):
                 return redirect('login')
 
         else:
-            print("Password not matching")
             return redirect('register')
     else:
         return render(request, 'login/register.html')
@@ -238,7 +230,11 @@ def join_workspace(request):
             actual_code = check_code(ws_code) #validating the code and storing it in actual_code.
 
             if (code == actual_code):
-
+                # check if the person is already part of this workspace
+                if workspaceMember.objects.filter(workspace=workspace.objects.get(ws_id=ws_code[0]['ws_id']), customUser=customUser_,active=True).exists():
+                    request.session['current_ws'] = str(ws_code[0]['ws_id'])
+                    return redirect('home',customUser_)
+                
                 ws_member = workspaceMember(workspace=workspace.objects.get(
                     ws_id=ws_code[0]['ws_id']), customUser=customUser_) #creating a ws_member
                 ws_member.save()
@@ -306,7 +302,6 @@ def new_workspace(request, custom_id):
             current_ws_id = request.session.get('current_ws', None)
             workspaces, current_ws, projects, flag, code = req_for_navbar(
         custom_id, current_ws_id)
-            print(workspaces)
             return render(request, 'users/home.html', {'custom_id': custom_id, "ws_id": ws, 'code': code, 'workspaces': workspaces, 'current_ws': current_ws,
                    'flag': flag, 'ws_code': code, 'projects': projects})
         else:
@@ -316,15 +311,16 @@ def new_workspace(request, custom_id):
     return render(request, 'partials/new_workspace.html', {'custom_id': custom_id})
 
 
-def add_project(request, custom_id):  # need to check again
+def add_project(request, custom_id): 
+    # no need for access control, already controlling add prjct option in navabr
     current_ws_id = request.session.get('current_ws', None) #retrieves current_ws_id from session. no ws_id , default to None.
     ws, current_ws, projects, flag, code = req_for_navbar(
         custom_id, current_ws_id)  # use whenevr navbar is needed in a page
     
     # Restrict project creation to the workspace admin only
-    if not access_control_admin(custom_id, current_ws):
-        messages.error(request, "You do not have permission to create a project.")
-        return redirect('home', custom_id=custom_id)  # Redirect to project view after creation
+    # if not access_control_admin(custom_id, current_ws):
+    #     messages.error(request, "You do not have permission to create a project.")
+    #     return redirect('home', custom_id=custom_id)  # Redirect to project view after creation
 
     
     ws_members = workspaceMember.objects.filter(workspace=current_ws, active=True)
@@ -372,7 +368,6 @@ def add_project(request, custom_id):  # need to check again
 @csrf_exempt
 def upload_file(request):
     if request.method == 'POST' and request.FILES.get('file'):
-        print("hre")
         file = request.FILES['file']
         upload_path = os.path.join(settings.MEDIA_ROOT, 'uploads', file.name)
         
@@ -388,89 +383,100 @@ def upload_file(request):
 def get_priority_status_list():
     statuses = status.objects.all()
     priorities = priority.objects.all()
-
     return statuses, priorities
 
-def access_control(team, lead, custom_id, current_ws):
+def access_control(team, lead, custom_id):
+    """
+    rules:
+    a workspace admin can change anything in the workspace (flag)
+    project leads can change anything in their project (flag_lead)
+    assignees can edit issues assigned to them (flag_assignee)
+    in this function w only include access control for project related stuff
+    """
     # Checking whether the user can edit or not
-    flag_edit = False 
-
+    flag_lead = False 
+    flag_member=False
     # Check if the user is the workspace admin
-    if str(custom_id) == str(current_ws.admin.custom_id):
-        flag_edit = True
-        print(f"Flag edit is: {flag_edit}") 
+    # if str(custom_id) == str(current_ws.admin.custom_id):
+    #     flag_edit = True
+    #     print(f"Flag edit is: {flag_edit}") 
 
     # Check if the user is a lead 
-    else:
-        for leader in lead:
-            if str(custom_id) == str(leader.team_member.custom_id):
-                flag_edit = True
-                print(f"Flag edit granted to project lead: {custom_id}")
-                break
     
-    # Check if the user is a team member in the project
-    if not flag_edit:
-        for member in team:
-            if str(custom_id) == str(member.team_member.custom_id):
-                flag_edit = True
-                print(f"Flag edit granted to project member: {custom_id}")
-                break
-        
-    return flag_edit
-def access_control_lead(custom_id,lead):
-    """ returns true if the 'custom_id' is among the project leads """
-    flag_lead = False
     for leader in lead:
         if str(custom_id) == str(leader.team_member.custom_id):
             flag_lead = True
-            print(f"Flag edit granted to project lead: {custom_id}")
             break
-    return flag_lead
+    
+    # Check if the user is a team member in the project
+    for member in team:
+        if str(custom_id) == str(member.team_member.custom_id):
+            flag_member = True
+            break
+        
+    return flag_lead, flag_member
 
-def access_control_admin(custom_id, current_ws):
-    flag_edit = False
-    # Checking whether the user can edit or not
+def access_control_issues(issue_id,custom_id):
+    """ rules: project leads must be able to change details of top level issues (flag_lead)
+    issue assignees can change details related to child issues. (flag_assignee)
+    """
+    flag_lead = False
+    # for top level issues
+    issue_ = issue.objects.get(issue_)
+    # for issues with parent issues
+# def access_control_lead(custom_id,lead):
+#     """ returns true if the 'custom_id' is among the project leads """
+#     flag_lead = False
+#     for leader in lead:
+#         if str(custom_id) == str(leader.team_member.custom_id):
+#             flag_lead = True
+#             print(f"Flag edit granted to project lead: {custom_id}")
+#             break
+#     return flag_lead
 
-    # Check if the user is the workspace admin
-    if str(custom_id) == str(current_ws.admin.custom_id):
-        flag_edit = True
-        print(f"Flag edit is: {flag_edit}") 
-    return flag_edit
-    # Check if the user is a lead 
+# def access_control_admin(custom_id, current_ws):
+#     flag_edit = False
+#     # Checking whether the user can edit or not
+
+#     # Check if the user is the workspace admin
+#     if str(custom_id) == str(current_ws.admin.custom_id):
+#         flag_edit = True
+#         print(f"Flag edit is: {flag_edit}") 
+#     return flag_edit
+#     # Check if the user is a lead 
  
 
 def access_control_assignee(issue, custom_id):
     # Checking if the current user is the assignee of the issue
     return issue.assignee.filter(custom_id=str(custom_id)).exists()
 
-def change_issue_status(request, project_id):
-    print("change issue status is triggered")
-    try:
-        issues = issue.objects.filter(project_id=project_id)
-        custom_id = request.user.customuser.custom_id  # Fetch the current user's custom_id
+# def change_issue_status(request, project_id):
+#     try:
+#         issues = issue.objects.filter(project_id=project_id)
+#         custom_id = request.user.customuser.custom_id  # Fetch the current user's custom_id
 
-        # Prepare a list to hold issue details with assignee status for each issue
-        issue_list = []
-        for issue_instance in issues:
-            # Check if the current user is an assignee for each issue using the helper function
-            is_assignee = access_control_assignee(issue_instance, custom_id)
+#         # Prepare a list to hold issue details with assignee status for each issue
+#         issue_list = []
+#         for issue_instance in issues:
+#             # Check if the current user is an assignee for each issue using the helper function
+#             is_assignee = access_control_assignee(issue_instance, custom_id)
 
-            # Add issue data along with assignee status to the list
-            issue_list.append({
-                'issue': issue_instance,
-                'is_assignee': is_assignee,
-            })
+#             # Add issue data along with assignee status to the list
+#             issue_list.append({
+#                 'issue': issue_instance,
+#                 'is_assignee': is_assignee,
+#             })
 
-        # Pass the issues along with assignee status to the template
-        context = {
-            'issue_list': issue_list,
-            'status': status.objects.all(),  # Assuming you have this passed from your view
-            'priority': priority.objects.all(),  
-        }
-        return render(request, 'project_view.html', context)
+#         # Pass the issues along with assignee status to the template
+#         context = {
+#             'issue_list': issue_list,
+#             'status': status.objects.all(),  # Assuming you have this passed from your view
+#             'priority': priority.objects.all(),  
+#         }
+#         return render(request, 'project_view.html', context)
 
-    except issue.DoesNotExist:
-        return JsonResponse({'success': False, 'error': 'Issue does not exist.'})
+#     except issue.DoesNotExist:
+#         return JsonResponse({'success': False, 'error': 'Issue does not exist.'})
 
 
 def project_view(request, project_id, custom_id):
@@ -485,25 +491,29 @@ def project_view(request, project_id, custom_id):
         project_id=project_id, role="Team member", active=True) #retrieves all the team members related to that project
     lead = project_member_bridge.objects.filter(
         project_id=project_id, role="Lead", active=True) #fetches lead of the project
-    flag_lead = access_control_lead(custom_id,lead)
 
-    flag_edit = access_control(team, lead, custom_id, current_ws)
-
+    flag_lead,flag_member = access_control(team, lead, custom_id)
+    
     statuses, priorities = get_priority_status_list() #fetches status and priority
     lead_user_ids = lead.values_list('team_member__custom_id', flat=True) #flat = true returns list instead of tuples. 
     team_ids = team.values_list('team_member__custom_id', flat=True) #to differentiate lead and team members
 
     # Get all users in the workspace
     workspace_members = workspaceMember.objects.filter(workspace=current_ws)
-
+    user_assignee_flag = issue_assignee_bridge.objects.filter(
+    issue=OuterRef('pk'), 
+    assignee=customUser.objects.get(custom_id=custom_id), 
+    active=True
+)
+    
     issues = issue.objects.filter(project_id=project_id, parent_task__isnull=True).annotate(
         subissue_count=Count('child'), unread_comments_count=Count('comments', filter=~Q(comments__read_by=customUser.objects.get(user=request.user))),is_closed=Case(
-            When(status=4, then=1), default=0, output_field=IntegerField())).order_by('is_closed','priority__id')
+            When(status=4, then=1), default=0, output_field=IntegerField()),is_assigned_to_user=Exists(user_assignee_flag)).order_by('is_closed','priority__id')
     context = {'project': project, 'lead': lead, 'team': team, 'status': statuses,
                'priority': priorities, 'issues': issues, 'workspace_memb': workspace_members,
                'lead_user_ids': lead_user_ids, 'team_ids': team_ids, 'workspaces': ws, 'current_ws': current_ws,
-               'flag': flag, 'ws_code': code, 'projects': projects, 'custom_id': custom_id, 'flag_edit': flag_edit, 'flag_lead': flag_lead}
-            #    'flag': flag, 'ws_code': code, 'projects': projects, 'custom_id': custom_id}
+               'flag': flag, 'ws_code': code, 'projects': projects, 'custom_id': custom_id, 'flag_member': flag_member, 'flag_lead': flag_lead}
+         
 
     return render(request, 'users\project_view.html', context)
 
@@ -516,12 +526,12 @@ def edit_project(request, project_id, custom_id):
     team = project_member_bridge.objects.filter(project=project, active=True)  # Get all active team members
 
      # Check access control by passing the correct arguments: lead, custom_id, and current_ws
-    flag_edit = access_control_admin(custom_id, current_ws)
+    # flag_edit = access_control_admin(custom_id, current_ws)
    
-    # Ensure only the workspace admin can edit
-    if not flag_edit:
-        messages.error(request, "You do not have permission to edit this project.")
-        return redirect('project_view', project_id=project_id, custom_id=custom_id)
+    # # Ensure only the workspace admin can edit
+    # if not flag_edit:
+    #     messages.error(request, "You do not have permission to edit this project.")
+    #     return redirect('project_view', project_id=project_id, custom_id=custom_id)
     
     if request.method == 'POST':
         name = request.POST.get('name')
@@ -572,7 +582,7 @@ def edit_project(request, project_id, custom_id):
         for team_id in team_ids:
             team_memb = get_object_or_404(customUser, custom_id=team_id)
             if str(team_memb.custom_id) in lead_ids:
-                messages.warning(request, f"User {team_memb.user.first_name} is a lead and cannot be added as a team member.")
+                messages.warning(request, f"User {team_memb.user.first_name} is a lead and cannot be added as a team member.") # for maintaing unique constraint in model
                 continue  
             if team_memb:
                 team_instance, create = project_member_bridge.objects.get_or_create(
@@ -585,11 +595,10 @@ def edit_project(request, project_id, custom_id):
         messages.success(request, 'Project updated successfully!')
         return redirect('project_view', project_id=project_id, custom_id=custom_id)
         
-    return render(request, 'users/project_view.html', {'project': project, 'custom_id': custom_id, 'flag_edit':flag_edit})
+    return redirect('project_view.html', project_id=project_id, custom_id=custom_id)
 
 
 def edit_issue(request, issue_id, custom_id):
-    print("edit issue is triggered")
     _issue = get_object_or_404(issue, issue_id=issue_id)
     if request.method == 'POST':
         name = request.POST.get('name')
@@ -624,10 +633,10 @@ def edit_issue(request, issue_id, custom_id):
 
         messages.success(request, 'Issue updated successfully!')
         return redirect('issue_view', issue_id, custom_id)
+    return redirect('issue_view', issue_id, custom_id)
 
 
 def update_issue_field(request):
-    print("update issue field is triggered")
     if request.method == "POST":
         issue_id = request.POST.get('issue_id')
         field_name = request.POST.get('field_name')
@@ -677,16 +686,13 @@ from datetime import datetime
 
 # Combined function to update project fields (status, priority, deadline)
 def update_project_field(request):
-    print("update project_field view is triggered")
     if request.method == "POST":
         project_id = request.POST.get('project_id')
         field_name = request.POST.get('field_name')
         value = request.POST.get('value')
         the_project = Project.objects.get(project_id=project_id)
         # Get the current workspace and check for admin access
-        current_ws = the_project.ws
-        print(f"Received project id: {project_id}, field name: {field_name}, priority : {the_project},  value: {value}")
-        
+        current_ws = the_project.ws        
         try:
             # Fetch the custom user instance
             custom_user = customUser.objects.get(user=request.user)  # Get the custom user instance associated with the logged-in user
@@ -695,13 +701,10 @@ def update_project_field(request):
             return JsonResponse({'success': False, 'error': 'User does not have a custom profile.'}, status=404)
             
         # Access control: Only the admin of the workspace can edit the project
-        is_admin = access_control_admin(custom_id, current_ws)
         is_member = project_member_bridge.objects.filter(project=the_project,team_member=custom_user).exists()
 
         # Handle deadline updates
         if field_name == 'deadline':
-            if not is_admin:
-                return JsonResponse({'success': False, 'error': 'Only the workspace admin can change the deadline.'}, status=403)
             try:
                 # Convert the deadline to a date object
                 deadline_date = datetime.strptime(value, '%d-%m-%Y').date()
@@ -710,21 +713,13 @@ def update_project_field(request):
                 return JsonResponse({'success': False, 'error': 'Invalid date format.'}, status=400)
 
         else:
-            # For status or priority, check if the user is a project member
-            if not is_member:
-                return JsonResponse({'success': False, 'error': 'You do not have permission to update this project.'}, status=403)
-
         # Update the appropriate field
             if field_name == 'status':
-                if not access_control_admin(custom_id, current_ws):
-                    return JsonResponse({'success': False, 'error': 'You do not have permission to change the status.'}, status=403)
                 previous_stat=the_project.status_id
                 the_project.status_id = value
                 if value==4 and previous_stat!=4:
                     the_project.mark_completed()
             elif field_name == 'priority':
-                if not access_control_admin(custom_id, current_ws):
-                    return JsonResponse({'success': False, 'error': 'You do not have permission to change the priority.'}, status=403)
                 the_project.priority_id = value
             else:
                 return JsonResponse({'success': False, 'error': 'Invalid field.'}, status=400)
@@ -737,31 +732,9 @@ def update_project_field(request):
     return JsonResponse({'success': False}, status=400)
 
 
-# #updating deadline from project_view
-# def update_deadline(request):
-#     print("update_deadline triggered")
-#     if request.method == 'POST':
-#         project_id = request.POST.get('project_id')
-#         new_deadline = request.POST.get('new_deadline')
-
-#         try:
-#             project = Project.objects.get(id=project_id)
-#             project.deadline = datetime.strptime(new_deadline, '%d-%m-%Y')
-#             project.save()
-
-#             return JsonResponse({'success': True})
-#         except Project.DoesNotExist:
-#             return JsonResponse({'error': 'Project not found'}, status=404)
-#         except Exception as e:
-#             return JsonResponse({'error': str(e)}, status=500)
-
-#     return JsonResponse({'error': 'Invalid request'}, status=400)
-
-
 #richtexteditor file uploading
 @csrf_exempt  # Exempt from CSRF checks if handling via frontend directly
 def file_upload_view(request):
-    print("file upload vie / rich text editor is triggered")
     if request.method == 'POST' and request.FILES.get('file'):
         uploaded_file = request.FILES['file']
         # You can save the file to the filesystem or the database
@@ -772,45 +745,27 @@ def file_upload_view(request):
     return JsonResponse({'error': 'Invalid file upload'}, status=400)
 
 
-# updates status of the project by admin
-@require_POST
-def update_status(request, project_id):
-    print("update status is triggered from form")
-    project = get_object_or_404(Project, project_id=project_id)
+# # updates status of the project by admin
+# @require_POST
+# def update_status(request, project_id):
+#     print("update status is triggered from form")
+#     project = get_object_or_404(Project, project_id=project_id)
 
-    # Check if the user is the workspace admin
-    current_ws_id = request.session.get('current_ws', None)
-    if current_ws_id is not None:
-        current_ws = get_object_or_404(workspace, ws_id=current_ws_id)  # Assuming you have a Workspace model
-        if str(request.user.customUser.custom_id) != str(current_ws.admin.custom_id):
-            return JsonResponse({'success': False, 'error': 'You do not have permission to edit the project status.'}, status=403)
-
-
-    new_status_id = request.POST.get('status_id')
-    if new_status_id:
-        new_status = get_object_or_404(status, id=new_status_id)
-        project.status = new_status
-        project.save()
-        return JsonResponse({'success': True, 'new_status': new_status.name})
-    return JsonResponse({'success': False, 'error': 'invalid_status'})
-
-#updates project status from project_view
-def update_project_status(request, project_id):
-    print("update_project_status trigerred")
-    if request.method == 'POST':
-        the_project = Project.objects.get(project_id=project_id)
-        current_ws = the_project.ws
-        custom_user = customUser.objects.get(user=request.user)  # Get the custom user instance associated with the logged-in user
-        custom_id = custom_user.custom_id
-        project = get_object_or_404(Project, project_id=project_id)
-        if access_control_admin(custom_id,current_ws):  # Ensure only admin can change status
-            new_status = request.POST.get('status')
-            project.status = new_status  # Assuming status_id is the foreign key
-            project.save()
-            return JsonResponse({'success': True, 'new_status': new_status})  # Return a JSON response
-    return JsonResponse({'success': False}, status=400)
+#     # Check if the user is the workspace admin
+#     current_ws_id = request.session.get('current_ws', None)
+#     if current_ws_id is not None:
+#         current_ws = get_object_or_404(workspace, ws_id=current_ws_id)  # Assuming you have a Workspace model
+#         if str(request.user.customUser.custom_id) != str(current_ws.admin.custom_id):
+#             return JsonResponse({'success': False, 'error': 'You do not have permission to edit the project status.'}, status=403)
 
 
+#     new_status_id = request.POST.get('status_id')
+#     if new_status_id:
+#         new_status = get_object_or_404(status, id=new_status_id)
+#         project.status = new_status
+#         project.save()
+#         return JsonResponse({'success': True, 'new_status': new_status.name})
+# #     return JsonResponse({'success': False, 'error': 'invalid_status'})
 
 def issue_view(request, issue_id, custom_id):
 
@@ -826,7 +781,7 @@ def issue_view(request, issue_id, custom_id):
     assignees = issue_assignee_bridge.objects.filter(
         active=True, issue=the_issue)
     assignee_ids = assignees.values_list('assignee__custom_id', flat=True)
-
+    
     subIssues = issue.objects.filter(parent_task=issue_id).order_by('priority__id')
     statuses, priorities = get_priority_status_list()
     context = {'subIssues': subIssues, 'issue': the_issue, 'issue_id': issue_id,
