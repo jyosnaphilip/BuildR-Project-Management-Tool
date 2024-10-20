@@ -190,10 +190,10 @@
                                 {% for stat in status %}
                                     {% if project.status.id|stringformat:"s" == stat.id|stringformat:"s" %}
                                        
-                                            <option value="{{stat.id}}" class="dropdown-item" style="background-color: {% if stat.id == 1%}green{% elif stat.id == 2%}orange{% elif stat.id == 3%}#FF5733{% else %}rgb(191,87,0){% endif%};" selected>{{stat.name}}</option>
+                                            <option value="{{stat.id}}" class="dropdown-item" style="background-color: {% if stat.id == 1%}red{% elif stat.id == 2%}orange{% elif stat.id == 3%}#FF5733{% else %}rgb(191,87,0){% endif%};" selected>{{stat.name}}</option>
                                         {% else %}
                                         {% if flag_lead or flag %}
-                                            <option class="dropdown-item" value="{{stat.id}}" style="background-color: {% if stat.id == 1%}green{% elif stat.id == 2%}orange{% elif stat.id == 3%}#FF5733{% else %}rgb(191,87,0){% endif%};" ><i class="fa-regular fa-circle fa-l"></i> {{stat.name}}</option>
+                                            <option class="dropdown-item" value="{{stat.id}}" style="background-color: {% if stat.id == 1%}red{% elif stat.id == 2%}orange{% elif stat.id == 3%}#FF5733{% else %}rgb(191,87,0){% endif%};" ><i class="fa-regular fa-circle fa-l"></i> {{stat.name}}</option>
                                         {% endif %}
                                     {% endif %}
                                 {% endfor %}
@@ -253,11 +253,10 @@
                         </ul>
                     </div>
                     <div class=" col-sm-2 offset-sm-2 ms-4 mb-2 ">
-                        {% if project.project_id %}
+                        {% if flag_lead or flag %}
                         <a class="rounded-pill btn btn-sm " href="{% url 'add_issue' custom_id project.project_id %}" style="background-color: rgb(21, 67, 96); color: #e7eaee;"><i class="fa-solid fa-plus" style="color: #f5f7fa;"></i> Add issue
                         </a>
-                        {% else %}
-                            <p>Project ID not available</p>
+                        
                         {% endif %}
                     </div>
                 </div>
@@ -316,10 +315,10 @@
                                     {% for prior in priority %}
                                         {% if issue.priority.id|stringformat:"s" == prior.id|stringformat:"s" %}
 
-                                            <option value="{{prior.id}}" class="dropdown-item" style="background-color: {% if prior.id == 1%}green{% elif prior.id == 2%}orange{% elif prior.id == 3%}#FF5733{% elif prior.id == 4%}rgb(191,87,0){% elif prior.id == 5%}rgb(21,67,96){% endif %};"selected>{{prior.name}}</option>
+                                            <option value="{{prior.id}}" class="dropdown-item" style="background-color: {% if prior.id == 1%}red{% elif prior.id == 2%}#FF5733{% elif prior.id == 3%}orange{% elif prior.id == 4%}rgb(191,87,0){% elif prior.id == 5%}rgb(21,67,96){% endif %};"selected>{{prior.name}}</option>
                                         {% else %}
                                             {% if flag or flag_lead or issue.is_assigned_to_user %}
-                                            <option class="dropdown-item" value="{{prior.id}}" style="background-color: {% if prior.id == 1%}green{% elif prior.id == 2%}orange{% elif prior.id == 3%}#FF5733{% elif prior.id == 4%}rgb(191,87,0){% elif prior.id == 5%}rgb(21,67,96){% endif %};"><i class="fa-regular fa-circle fa-l"></i> {{prior.name}}</option>
+                                            <option class="dropdown-item" value="{{prior.id}}" style="background-color: {% if prior.id == 1%}red{% elif prior.id == 2%}#FF5733{% elif prior.id == 3%}orange{% elif prior.id == 4%}rgb(191,87,0){% elif prior.id == 5%}rgb(21,67,96){% endif %};"><i class="fa-regular fa-circle fa-l"></i> {{prior.name}}</option>
                                         
                                             {% endif %}
                                         {% endif %}
@@ -741,6 +740,35 @@
         });
     });
 </script> 
+<script>
 
+    // changing status color
+    document.addEventListener('DOMContentLoaded', function() {
+        // Function to update the background color of all select elements
+        function updateDropdownColors() {
+            const dropdowns = document.querySelectorAll('.status-dropdown');
+    
+            dropdowns.forEach(function(dropdown) {
+                const selectedOption = dropdown.options[dropdown.selectedIndex];
+                const selectedColor = selectedOption.style.backgroundColor || 'transparent';
+                dropdown.style.backgroundColor = selectedColor;
+                dropdown.style.color = '#fff'; // Adjust text color for better readability
+            });
+        }
+    
+        // Initialize color for all dropdowns on page load
+        updateDropdownColors();
+    
+        // Update color when any dropdown selection changes
+        document.addEventListener('change', function(event) {
+            if (event.target.classList.contains('.status-dropdown')) {
+                updateDropdownColors();
+            }
+        });
+    });
+    
+    
+    
+    </script>
 
 {% endblock content %}

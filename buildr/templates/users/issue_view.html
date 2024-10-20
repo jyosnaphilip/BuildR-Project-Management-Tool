@@ -7,9 +7,18 @@
     <div class="container">
         <div class="row justify-content-center">
             <div class="">
+                {% if messages %}
+                {% for message in messages %}
+                <p {% if message.tags %} class="{{ message.tags }}" {% endif %}>{{ message }}</p>
+                {% endfor %}
+
+                {% endif %}
                 <div class="d-flex justify-content-between   ">
                     <span class="text">{{issue}}</span>
+                    {% if flag or flag_lead %} 
+                    <!-- only admin or lead can change details like issues, deadline and description -->
                     <button type="button" class="btn" data-bs-toggle="modal" data-bs-target="#editIssue" data-bs-whatever="@mdo"><i class="fa-solid fa-pen pt-4" style="color: #004a7a;"></i></button>      
+                    {% endif %}
                 </div>
                 <div class="description-container">
                     <div class="description-content">
@@ -18,7 +27,7 @@
                     <div class="fade-effect"></div>
                     <button class="toggle-btn">▼ Show more</button>
                 </div>
-                    
+                {% if flag or flag_lead %} 
                     <!-- modal -->
                     <div class="modal fade" id="editIssue" tabindex="-1" aria-labelledby="editIssueLabel" aria-hidden="true">
                         <div class="modal-dialog modal-lg">
@@ -132,7 +141,7 @@
                       </div>
                 </div>
                 <!-- modal end -->
-
+                {% endif %}
 
 
                 <div class="row ms-2">
@@ -144,8 +153,11 @@
 
                             <option value="{{prior.id}}"  class="dropdown-item" selected>{{prior.name}}</option>
                             {% else %}
-
+                            {% if flag_lead or flag or flag_assignee %}
+                            <!-- assignees can also change this -->
                             <option class="dropdown-item" value="{{prior.id}}"><i class="fa-regular fa-circle fa-l"></i> {{prior.name}}</option>
+                            {% endif %}
+                            
                             {% endif %}
                         {% endfor %}
                         </select>
@@ -159,8 +171,11 @@
     
                                 <option value="{{stat.id}}"  class="dropdown-item " selected>{{stat.name}}</option>
                                 {% else %}
-    
+                                {% if flag_lead or flag or flag_assignee %}
+
                                 <option class="dropdown-item" value="{{stat.id}}"><i class="fa-regular fa-circle fa-l"></i> {{stat.name}}</option>
+                                {% endif %}
+                                
                                 {% endif %}
                             {% endfor %}
                             </select>
@@ -188,12 +203,21 @@
                             {% for assignee in assignees %}
                             <li><a class="dropdown-item" href="#"><i class="fa-regular fa-circle fa-l"></i> {{assignee.assignee.user.first_name}} {{assignee.assignee.user.last_name}}</a></li>
                             {% endfor %}
+                            {% if flag_lead or flag %}
+                            <!-- <li><hr class="dropdown-divider"></li> -->
+                            <li>
+                                <a class="dropdown-item text-light" href="#" data-bs-toggle="modal" data-bs-target="#editIssue">Change Assignees</a>          
+                            </li>
+                        {% endif %}
                         </ul>
                     </div>
-                    <div class=" col-sm-2 offset-sm-2 ms-4 mb-2 ">    
+
+                    <div class=" col-sm-2 offset-sm-2 ms-4 mb-2 ">  
+                        {% if flag_lead or flag_assignee %}  
                         <a class="rounded-pill btn btn-sm " href="{% url 'add_subIssue' issue.issue_id custom_id  %}" style="background-color: #004a7a; color:#f5f7fa;"><i
                                 class="fa-solid fa-plus" style="color: #f5f7fa;"></i> Add sub-Issue</a>
-                    </div>
+                            {% endif %}
+                            </div>
                 </div>
                 </div>
                 
@@ -218,17 +242,21 @@
                       <tr>
                         <th scope="row">
                            <div class="w-50 dropdown rounded-pill ">
-                               <select  class="subissue-status-dropdown form-select custom-select rounded-pill text-light btn btn-sm" type="button" name="status" data-bs-toggle="dropdown"  aria-expanded="false" data-subissue-id="{{issue.issue_id}}">
-                                   {% for stat in status %}
-                                   {% if issue.status.id|stringformat:"s" == stat.id|stringformat:"s" %}
-       
-                                   <option value="{{stat.id}}"  class="dropdown-item"  style = "background-color: {% if stat.id == 1%}green{% elif stat.id == 2%}orange{% elif stat.id == 3%}#FF5733{% else %}rgb(191,87,0){% endif%};" class="dropdown-item" selected>{{stat.name}}</option>
-                                   {% else %}
-                                   <option class="dropdown-item" value="{{stat.id}}"  style = "background-color: {% if stat.id == 1%}green{% elif stat.id == 2%}orange{% elif stat.id == 3%}#FF5733{% else %}rgb(191,87,0){% endif%};" ><i class="fa-regular fa-circle fa-l"></i> {{stat.name}}</option>
-                                   {% endif %}
-                                   {% endfor %}
-                               
-                                </select>
+                            <select class="subissue-status-dropdown form-select custom-select rounded-pill text-light btn btn-sm" type="button" name="status" data-bs-toggle="dropdown" aria-expanded="false" data-subissue-id="{{issue.issue_id}}">
+                                {% for stat in status %}
+                                    {% if issue.status.id|stringformat:"s" == stat.id|stringformat:"s" %}
+                                        <option value="{{stat.id}}" class="dropdown-item" style="background-color: {% if stat.id == 1 %}green{% elif stat.id == 2 %}orange{% elif stat.id == 3 %}#FF5733{% else %}rgb(191,87,0){% endif %};" selected>
+                                           {{stat.name}}
+                                        </option>
+                                    {% else %}
+                                        {% if flag_lead or flag_assignee %}
+                                            <option class="dropdown-item" value="{{stat.id}}" style="background-color: {% if stat.id == 1 %}green{% elif stat.id == 2 %}orange{% elif stat.id == 3 %}#FF5733{% else %}rgb(191,87,0){% endif %};">
+                                                <i class="fa-regular fa-circle fa-l"></i> {{stat.name}}
+                                            </option>
+                                        {% endif %}
+                                    {% endif %}
+                                {% endfor %}
+                            </select>
                             </div>
                         </th>
                         <td style="cursor: pointer;" class="col-sm-3">
@@ -242,9 +270,13 @@
                                         {% for prior in priority %}
                                         {% if issue.priority.id|stringformat:"s" == prior.id|stringformat:"s" %}
             
-                                        <option value="{{prior.id}}"  class="dropdown-item" selected>{{prior.name}}</option>
+                                        <option value="{{prior.id}}"  class="dropdown-item" style="background-color: {% if prior.id == 1%}red{% elif prior.id == 2%}orange{% elif prior.id == 3%}#FF5733{% elif prior.id == 4%}rgb(191,87,0){% elif prior.id == 5%}rgb(21,67,96){% endif %};" selected>{{prior.name}}</option>
                                         {% else %}
-                                        <option class="dropdown-item" value="{{prior.id}}"><i class="fa-regular fa-circle fa-l"></i> {{prior.name}}</option>
+                                            {% if flag_lead or flag_assignee %}
+
+                                            <option class="dropdown-item" value="{{prior.id}}" style="background-color: {% if prior.id == 1%}red{% elif prior.id == 2%}orange{% elif prior.id == 3%}#FF5733{% elif prior.id == 4%}rgb(191,87,0){% elif prior.id == 5%}rgb(21,67,96){% endif %};"><i class="fa-regular fa-circle fa-l"></i> {{prior.name}}</option>
+                                            {% endif %}
+                                        
                                         {% endif %}
                                         {% endfor %}
                                    </select>
@@ -540,7 +572,7 @@
     
         // Update color when any dropdown selection changes
         document.addEventListener('change', function(event) {
-            if (event.target.classList.contains('subissue-status-dropdown')) {
+            if (event.target.classList.contains('.subissue-status-dropdown')) {
                 updateDropdownColors();
             }
         });

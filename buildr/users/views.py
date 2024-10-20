@@ -34,7 +34,7 @@ from django.conf import settings
 import os
 from django.core.mail import send_mail
 from django.urls import reverse
-
+import uuid
 
 
 def check_code(ws_code):
@@ -391,7 +391,9 @@ def access_control(team, lead, custom_id):
     a workspace admin can change anything in the workspace (flag)
     project leads can change anything in their project (flag_lead)
     assignees can edit issues assigned to them (flag_assignee)
+    only assignees should be able to change their issues
     in this function w only include access control for project related stuff
+    add_issue,add_subissue option should be abailable to admin,team lead and respective members
     """
     # Checking whether the user can edit or not
     flag_lead = False 
@@ -417,12 +419,26 @@ def access_control(team, lead, custom_id):
     return flag_lead, flag_member
 
 def access_control_issues(issue_id,custom_id):
-    """ rules: project leads must be able to change details of top level issues (flag_lead)
-    issue assignees can change details related to child issues. (flag_assignee)
+    """ rules: project leads must be able to change details of top level issues (flag_lead) (this is done in project view, because thy will be top level anyways)
+    it should also be done in the top level issues' issue view (the upper part only)
+    issue assignees can change details related to child issues. (flag_assignee)(this should be done in issue view, cos these are seen in that page only)
+    this fn deals with access control on the issue page
+    flag_assignee is done in the issue_view func
     """
     flag_lead = False
+    
     # for top level issues
-    issue_ = issue.objects.get(issue_)
+    issue_ = issue.objects.get(issue_id=issue_id)
+
+    if issue_.parent_task == None: # top level
+        issue_project = issue_.project
+        flag_lead = project_member_bridge.objects.filter(
+                    project=issue_project,
+                    team_member=customUser.objects.get(custom_id=custom_id),
+                    role='Lead',
+                    active=True).exists()
+    
+    return flag_lead
     # for issues with parent issues
 # def access_control_lead(custom_id,lead):
 #     """ returns true if the 'custom_id' is among the project leads """
@@ -480,7 +496,6 @@ def access_control_assignee(issue, custom_id):
 
 
 def project_view(request, project_id, custom_id):
-    print(" project view is triggered")
     # stuff for navbar
     current_ws_id = request.session.get('current_ws', None) #if no current_ws key, it defaults is None. to display the current ws
     ws, current_ws, projects, flag, code = req_for_navbar(
@@ -781,12 +796,19 @@ def issue_view(request, issue_id, custom_id):
     assignees = issue_assignee_bridge.objects.filter(
         active=True, issue=the_issue)
     assignee_ids = assignees.values_list('assignee__custom_id', flat=True)
-    
+   
+    if uuid.UUID(custom_id) in assignee_ids:
+        flag_assignee=True
+    else:
+        flag_assignee = False
+    flag_lead = access_control_issues(issue_id,custom_id)
     subIssues = issue.objects.filter(parent_task=issue_id).order_by('priority__id')
     statuses, priorities = get_priority_status_list()
+    print("here",statuses)
+    print(priorities)
     context = {'subIssues': subIssues, 'issue': the_issue, 'issue_id': issue_id,
                "custom_id": custom_id, 'priority': priorities, 'status': statuses, 'workspaces': ws, 'current_ws': current_ws,
-               'flag': flag, 'ws_code': code, 'projects': projects, 'project_members': project_members, 'assignee_id': assignee_ids, 'assignees': assignees}
+               'flag': flag,'flag_lead':flag_lead,'flag_assignee':flag_assignee, 'ws_code': code, 'projects': projects, 'project_members': project_members, 'assignee_id': assignee_ids, 'assignees': assignees}
     return render(request, 'users\issue_view.html', context)
 
 
