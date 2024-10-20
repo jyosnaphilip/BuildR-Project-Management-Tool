@@ -6,7 +6,7 @@
 <div class="container">
 <div class="row-sm">
     <div class="col-sm-3">
-        <button type="button" class="btn btn-outline-dark" data-bs-toggle="modal" data-bs-target="#codeModal">
+        <button type="button" class="btn btn-sm  btn-outline-light" style="color:#004a7a;border-color:#004a7a;" data-bs-toggle="modal" data-bs-target="#codeModal">
             Add members
           </button>
     </div>
@@ -37,7 +37,7 @@
               <tr>
                 <th scope="row">
                   <i class="fa-solid {% if member.active %}fa-toggle-on{% else %}fa-toggle-off{% endif %} fa-xl" 
-  style="cursor:pointer; {% if not member.active %}color: #7e7f81;{% endif %}" 
+  style="cursor:pointer; {% if not member.active %}color: #7e7f81;{% else %}color:#004a7a;{% endif %}" 
   onclick="toggleMemberStatus('{{ member.customUser.custom_id }}', '{{ current_ws.ws_id }}', '{{ custom_id }}', this)">
 </i>
                 </th>
@@ -47,7 +47,7 @@
                 </td>
                     <td >
                     
-                        {{member.customUser.email}}
+                        {{member.customUser.user.email}}
                     </td>
                 
                 <td> 
@@ -57,7 +57,7 @@
                     </div>
                     
               </td>
-                <td><i class="fa-solid fa-trash" style="cursor:pointer;" data-bs-toggle="modal" data-bs-target="#delete-{{forloop.counter0}}"></i>  </td>
+                <td><i class="fa-solid fa-trash " style="cursor:pointer;color:#004a7a;" data-bs-toggle="modal" data-bs-target="#delete-{{forloop.counter0}}"></i>  </td>
                 <!-- modal -->
                 <div class="modal" id="delete-{{forloop.counter0}}" tabindex="-1">
                   <div class="modal-dialog">
@@ -80,7 +80,7 @@
                 <!-- end modal -->
                 </tr>
               {% empty %}
-              <tr><td colspan="6">No issues found.</td></tr>
+              <tr><td colspan="6">No members found</td></tr>
              
               
               {% endfor %}
@@ -104,11 +104,25 @@
             <button style=" border: none;background-color: white;" onclick="copyTextClipboard()"><i class="fas fa-copy fa-xs" style="color:#7c93bb" ></i></button> <!-- Copy icon -->
         </span>
         <p id="copySuccessMessage" style="display:none; color:green;">Copied to clipboard!</p>
+        <div class="invite-section mt-4" >
+          <button type="button" class="btn btn-sm btn-outline-light" style="color:#004a7a;border-color:#004a7a;"  id="show-email-input">
+            <i class="fas fa-envelope" ></i> Invite via Email
+          </button>
+          
+          <!-- get email -->
+          <div id="email-inputs" class="mt-3" style="display:none;">
+            <input type="email" class="form-control mb-2 email-field" placeholder="Enter email" id="email-1" required>
+            <div id="additional-emails"></div>
+            <button type="button" class="btn btn-sm btn-outline-light" style="color:#004a7a;border-color:#004a7a;" id="add-email">Add another email</button>
+            <button type="button" id="sendInvitesBtn" type="submit" style="color:#004a7a;border-color:#004a7a;"  class="btn btn-sm btn-outline-light">Send Invites</button>
+
+          </div>
+        </div>
         </div>
         <div class="modal-footer " style="background-color: #004a7a;">
-          <button type="button" id="update-code-btn" class="btn btn-outline-light">Update Code</button>
+          <button type="button" id="update-code-btn" class="btn btn-sm btn-outline-light">Update Code</button>
 
-          <button type="button"  class="btn btn-outline-light" data-bs-dismiss="modal">Close</button>
+          <button type="button"  class="btn btn-sm btn-outline-light" data-bs-dismiss="modal">Close</button>
 
         </div>
       </div>
@@ -155,6 +169,32 @@
     });
 }
 </script>
-
+<script>
+  // send emails from frontend to backend
+  document.getElementById('sendInvitesBtn').addEventListener('click', function() {
+    const emails = getAllEmails();
+    if (emails.length > 0) {
+      const customId = "{{ custom_id }}"; 
+      const wsId = "{{ current_ws.ws_id }}"; 
+      $.ajax({
+        url: `{% url 'send_invite_emails' custom_id current_ws.ws_id %}`,
+        method: 'POST',
+        data: {
+          csrfmiddlewaretoken: document.querySelector('[name=csrf-token]').content,
+          emails: emails,
+        },
+        success: function(response) {
+          alert('Invitations sent successfully!');
+        },
+        error: function(xhr, status, error) {
+          console.error('Error sending invites:', error);
+        }
+      });
+    } else {
+      alert('Please enter at least one email address.');
+    }
+  });
+  
+</script>
 
 {% endblock content %}

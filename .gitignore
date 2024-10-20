@@ -4,3 +4,4 @@ db.sqlite3
 buildr/db.sqlite3
 client_secret_1025917668677-73iqqvkhrkfpuppqk10r5k8oclfn14s1.apps.googleusercontent.com.json
 buildr/buildr/.env
+.env

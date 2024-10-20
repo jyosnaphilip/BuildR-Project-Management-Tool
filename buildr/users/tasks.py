@@ -2,6 +2,9 @@ from transformers import pipeline
 from celery import shared_task, chain
 from users.models import Comments, issue, project_member_bridge, customUser
 import logging
+from django.core.mail import send_mail
+from buildr import settings
+from django.urls import reverse
 logger = logging.getLogger(__name__)
 
 
@@ -75,6 +78,22 @@ def notify_user_of_neg_sentiment_task(self,issue_id):
     # TO DO: code for sending in app notifications
     return None
 
-# @shared_task
-# def test_task():
-#     print("Celery is working!")
+@shared_task(bind=True)
+def send_email_task(self,emails, workspace_name, workspace_code):
+    # logic for sending emails
+    join_workspace_url = f"{settings.BASE_URL}{reverse('join-workspace')}?code={workspace_code}"
+    
+    for email in emails:
+        mail_subject = f"You are invited to workspace {workspace_name}"
+        message = (
+            f"You are invited to join the workspace '{workspace_name}'. "
+            f"Click on the link below to join:\n\n{join_workspace_url}"
+        )
+        send_mail(
+            subject=mail_subject,
+            message=message,
+            from_email=settings.EMAIL_HOST_USER,
+            recipient_list=[email],
+            fail_silently=True,
+        )
+    print("Celery is working!")

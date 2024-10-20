@@ -44,7 +44,7 @@
         <p>{% if flag %}
           <p><a href="{% url 'add_project' custom_id %}" class="join-workspace" ><i class="fa-solid fa-plus fa-l" style="color: #36089b;color: white;"></i>  Add Project</a></p>
 
-          <button type="button" class="btn btn-outline-light" onclick="location.href='{% url 'manage_ws' custom_id current_ws.ws_id %}'" >
+          <button type="button" class="btn btn-sm btn-outline-light" onclick="location.href='{% url 'manage_ws' custom_id current_ws.ws_id %}'" >
             Manage Workspace
           </button>
           
@@ -55,7 +55,7 @@
       <a href="{% url 'new_workspace' custom_id %}" class="join-workspace" >Create Workspace</a>
       </p>
       <p>
-        <a href="{% url 'join-workspace' custom_id %}" class="join-workspace" >Join Workspace</a>
+        <a href="{% url 'join-workspace' %}" class="join-workspace" >Join Workspace</a>
       </p>
         
       </div>
@@ -89,25 +89,17 @@
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({ 'ws_id': ws_id })
-      }).then(response => window.location.reload());
-    });
+      }).then(response => response.json())
+  .then(data => {
+    if (data.url) {
+      window.location.href = data.url; // Redirect to the provided URL
+    } else {
+      console.error('URL not provided in the response');
+    }
+  })
+  .catch(error => console.error('Error:', error));
+});
   
-    // document.getElementById('addMemberBtn').addEventListener('click', function() {
-    //     var myModal = new bootstrap.Modal(document.getElementById('workspaceCodeModal'), {
-    //         keyboard: false
-    //     });
-    //     myModal.show();
-    // });
-  
-    // document.getElementById('copyCodeBtn').addEventListener('click', function() {
-    //     var codeInput = document.getElementById('workspaceCodeInput');
-    //     codeInput.select();
-    //     codeInput.setSelectionRange(0, 99999);  // For mobile devices
-  
-    //     document.execCommand('copy');
-  
-    //     var copyMessage = document.getElementById('copyMessage');
-    //     copyMessage.style.display = 'block';  // Show "Copied to clipboard!" message
-    // });
+   
   
   </script>

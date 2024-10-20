@@ -21,7 +21,7 @@
                 </div>
 
                 <div class="col-sm-12 text-center">
-                    <button class="btn btn-style" type="submit" href="{% url 'join-workspace' custom_id %}" style="color:white;">Join</button>
+                    <button class="btn btn-style" type="submit" href="{% url 'join-workspace' %}" style="color:white;">Join</button>
                 </div>
             </form>
         </span>
@@ -29,5 +29,13 @@
     </div>
 </div>
 
-
+<script>
+    // Get the URL parameters
+    const urlParams = new URLSearchParams(window.location.search);
+    const code = urlParams.get('code');  
+   
+    if (code) {
+        document.getElementById('ws-code').value = code;
+    }
+    </script>
 {% endblock content %}

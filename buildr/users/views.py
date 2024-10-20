@@ -16,6 +16,7 @@ from django.db.models import Count, Q, Sum, Case, When, IntegerField, F, Express
 from django.core.exceptions import PermissionDenied, ValidationError
 from django.core.mail import send_mail
 import random
+from django.contrib.auth.decorators import login_required
 from .models import EmailVerification
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth import get_user_model
@@ -28,10 +29,12 @@ from highcharts_gantt.global_options.shared_options import SharedOptions
 from highcharts_gantt.options import HighchartsGanttOptions
 from highcharts_gantt.options.plot_options.gantt import GanttOptions
 from highcharts_gantt.options.series.gantt import GanttSeries
-from users.tasks import get_sentiment_task
-from django.views.decorators.csrf import csrf_exempt
+from users.tasks import get_sentiment_task, send_email_task
 from django.conf import settings
 import os
+from django.core.mail import send_mail
+from django.urls import reverse
+
 
 
 def check_code(ws_code):
@@ -81,8 +84,8 @@ def home(request, custom_id):
     # if request.user.is_authenticated:
     # print("i am here")
     # return redirect('dashboard')
-    print("home view")
     current_ws_id = request.session.get('current_ws', None)  # nav #session store and retrieve data of a particular user.
+    print("current",current_ws_id)
     ws, current_ws, projects, flag, code = req_for_navbar(
         custom_id, current_ws_id)  # use whenevr navbar is needed in a page
     user_issues = issue.objects.filter(
@@ -91,12 +94,18 @@ def home(request, custom_id):
 
 def change_ws(request):
     if request.method == 'POST' and request.user.is_authenticated:
+        print("called")
         data = json.loads(request.body) #loading the request body as json data
         ws_id = data.get('ws_id')
+        print("ws_id",ws_id)
         custom_user = customUser.objects.get(user=request.user) #retrieves customuser object for authenticated user
         if workspaceMember.objects.filter(customUser=custom_user, workspace__ws_id=ws_id).exists(): #customUser in workspaceMember 
+            print("exists")
             request.session['current_ws'] = ws_id #updating the current workspace id in the users session
-            return JsonResponse({'status': 'success'})
+            custom_id = customUser.objects.get(user=request.user).custom_id
+            home_url = reverse('home', args=[custom_id])  # Adjust 'workspace_home' and args as needed
+        
+            return JsonResponse({'url': home_url})
     return JsonResponse({'status': 'error'}, status=400)
 
 # auth-----------------------------------------------
@@ -216,7 +225,10 @@ def user_logout(request):
 # auth end------------------------
 
 # ws-related
-def join_workspace(request, custom_id):
+@login_required(login_url='login')
+def join_workspace(request):
+    customUser_ = customUser.objects.get(user=request.user)
+    custom_id=customUser_.custom_id
     if request.method == "POST":
         code = request.POST.get('ws-code') #retrieves the value associated with 'ws-code' from submitted form data. if key doesn't exist, code will be None.
         if workspaceCode.objects.filter(code=code, is_active=True).exists():
@@ -228,7 +240,7 @@ def join_workspace(request, custom_id):
             if (code == actual_code):
 
                 ws_member = workspaceMember(workspace=workspace.objects.get(
-                    ws_id=ws_code[0]['ws_id']), customUser=customUser.objects.get(custom_id=custom_id)) #creating a ws_member
+                    ws_id=ws_code[0]['ws_id']), customUser=customUser_) #creating a ws_member
                 ws_member.save()
 
                 request.session['current_ws'] = str(ws_code[0]['ws_id']) #storing 
@@ -240,7 +252,7 @@ def join_workspace(request, custom_id):
         else:
             messages.error(request,message="Invalid Code!")
             return redirect('join-workspace', custom_id)
-    return render(request, 'partials/join_workspace.html', {'custom_id': custom_id})
+    return render(request, 'partials/join_workspace.html')
 
 
 def check_ws(ws_name):
@@ -1565,3 +1577,27 @@ def toggle_ws_member_status(request, user_custom_id, custom_id, ws_id):
 def create_new_code(request,custom_id,ws_id):
     new_code = create_code(ws_id)
     return JsonResponse({'new_code': new_code}) 
+
+
+# send email invites
+
+
+
+
+@csrf_exempt
+def send_invite_emails(request, custom_id, ws_id):
+    if request.method == 'POST':
+        emails = request.POST.getlist('emails[]')  # Retrieve the list of emails from the request
+        workspace_ = workspace.objects.get(ws_id=ws_id) 
+        ws_code = workspaceCode.objects.filter(ws=workspace_, is_active=True).first()
+
+        if ws_code:
+            code = ws_code.code  # Access the code
+        else:
+            code=create_code(ws_id)
+
+        send_email_task.delay(emails,workspace_.ws_name,code)
+                
+        return JsonResponse({'message': 'Invitations sent successfully'})
+    
+    return JsonResponse({'error': 'Invalid request method'}, status=400)
