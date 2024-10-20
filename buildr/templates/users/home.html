@@ -6,6 +6,12 @@
     <div class="container">
         <div class="row justify-content-center">
             <div class="">
+                {% if messages %}
+                {% for message in messages %}
+                <p {% if message.tags %} class="{{ message.tags }}" {% endif %}>{{ message }}</p>
+                {% endfor %}
+
+                {% endif %}
                 <h2 class="p-3"> Your issues</h2>
                <!-- issues here -->
              <div class="container">

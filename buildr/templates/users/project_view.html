@@ -189,9 +189,10 @@
                                 class="project-status-dropdown dropdown dropdown-toggle form-select custom-select rounded-pill" type="button" name="status" data-bs-toggle="dropdown" aria-expanded="false" data-project-id="{{project.project_id}}">
                                 {% for stat in status %}
                                     {% if project.status.id|stringformat:"s" == stat.id|stringformat:"s" %}
-                                        {% if flag_edit %}
+                                       
                                             <option value="{{stat.id}}" class="dropdown-item" style="background-color: {% if stat.id == 1%}green{% elif stat.id == 2%}orange{% elif stat.id == 3%}#FF5733{% else %}rgb(191,87,0){% endif%};" selected>{{stat.name}}</option>
                                         {% else %}
+                                        {% if flag_edit %}
                                             <option class="dropdown-item" value="{{stat.id}}" style="background-color: {% if stat.id == 1%}green{% elif stat.id == 2%}orange{% elif stat.id == 3%}#FF5733{% else %}rgb(191,87,0){% endif%};" ><i class="fa-regular fa-circle fa-l"></i> {{stat.name}}</option>
                                         {% endif %}
                                     {% endif %}
