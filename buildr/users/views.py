@@ -813,7 +813,7 @@ def update_project_status(request, project_id):
 
 
 def issue_view(request, issue_id, custom_id):
-    print(" issue view is triggered")
+
     the_issue = issue.objects.select_related('project').prefetch_related(
         'project__project_member_bridge_set').get(issue_id=issue_id)
     # if we dont put project__ as prefix in prefetch related, project member bridge instances for issue objects are searched, which doesnt exist

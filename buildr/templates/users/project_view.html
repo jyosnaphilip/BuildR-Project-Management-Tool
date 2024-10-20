@@ -28,13 +28,13 @@
                 {% if flag_edit %}
                     <!-- modal -->
                     <div class="modal fade" id="editProject" tabindex="-1" aria-labelledby="editProjectLabel" aria-hidden="true">
-                        <div class="modal-dialog">
+                        <div class="modal-dialog modal-lg">
                             <div class="modal-content">
-                                <div class="modal-header" style="background-color: #004a7a;color:#fafafa;width: 848px;">
+                                <div class="modal-header" style="background-color: #004a7a;color:#fafafa;">
                                     <h1 class="modal-title fs-5" id="editProjectLabel">Edit Project</h1>
                                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" style="background-color:white;"></button>
                                 </div>
-                                <div class="modal-body form-box">
+                                <div class="modal-body ">
                                     <form method="POST" action="{% url 'edit_project'  project.project_id custom_id %}" id="editProjectForm">
                                         {% csrf_token %}
                                         <div class="">
@@ -154,8 +154,9 @@
                                             </div>
                                         </div>
                                     </form>
+                                    <div class="modal-footer" style="background-color: #004a7a;color:#fafafa; "></div>
                                 </div>
-                                <div class="modal-footer" style="background-color: #004a7a;color:#fafafa; width: 848px;"></div>
+                               
                             </div>
                         </div>
                         {% endif %}

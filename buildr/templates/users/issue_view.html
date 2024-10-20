@@ -13,7 +13,7 @@
                 </div>
                 <div class="description-container">
                     <div class="description-content">
-                        {{ project.description|safe }} 
+                        {{ issue.description|safe }} 
                     </div>
                     <div class="fade-effect"></div>
                     <button class="toggle-btn">▼ Show more</button>
@@ -21,13 +21,13 @@
                     
                     <!-- modal -->
                     <div class="modal fade" id="editIssue" tabindex="-1" aria-labelledby="editIssueLabel" aria-hidden="true">
-                        <div class="modal-dialog">
+                        <div class="modal-dialog modal-lg">
                           <div class="modal-content">
                             <div class="modal-header" style="background-color: #004a7a;color:#fafafa;">
                               <h1 class="modal-title fs-5" id="editIssueLabel">Edit Issue</h1>
                               <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" style="color:white;"></button>
                             </div>
-                            <div class="modal-body form-box">
+                            <div class="modal-body ">
                                 <form method="POST" action="{% url 'edit_issue' issue.issue_id custom_id %}">
                                     {% csrf_token %}
                                     <div class="">
@@ -42,13 +42,15 @@
                                         </div>
                     
                                         <div class="form-row">
-                                            <div class="input-data textarea">
+                                            <!-- <div class="input-data textarea">
                                                 <textarea rows="8" cols="80" name="desc" value="{{issue.desc}}"></textarea>
                                                 <br />
                                                 <div class="underline"></div>
                                                 <label for="">Add description</label>
                                                 <br />
-                                            </div>
+                                            </div> -->
+                                            <textarea class="form-control" id="description" name="description" value="{{ issue.description }}">{{ issue.description }}</textarea>
+
                                         </div>
                                         
                                         <div class="form-row justify-content-center">
@@ -70,7 +72,7 @@
                                               <div class="dropdown rounded-pill me-2">
                                                 <select  class="  form-select custom-select rounded-pill" type="button" name="status" data-bs-toggle="dropdown"  aria-expanded="false" data-issue-id="{{issue.issue_id}}">
                                                     {% for stat in status %}
-                                                    {% if project.status.id|stringformat:"s" == stat.id|stringformat:"s" %}
+                                                    {% if issue.status.id|stringformat:"s" == stat.id|stringformat:"s" %}
                         
                                                     <option value="{{stat.id}}"  class="dropdown-item" selected>{{stat.name}}</option>
                                                     {% else %}
@@ -101,9 +103,9 @@
                                                     <select id="choices-multiple-remove-button" name="assignee" class="rounded-pill" multiple placeholder="assignee">
                                                         {% for member in project_members %}
                                                             <option value="{{ member.team_member.custom_id }}" 
-                                                                {% if member.team_member.custom_id in assignee_ids %}selected{% endif %}>
+                                                                {% if member.team_member.custom_id in assignee_id %}selected{% endif %}>
                                                                 {{ member.team_member.user.first_name }} {{ member.team_member.user.last_name }}
-                                                                                                                            </option>
+                                                                                                                              </option>
                                                         {% endfor %}
                                                     </select>
                                                 </div>
@@ -114,7 +116,7 @@
                                         <div class="form-row submit-btn justify-content-center">
                                             <div class="input-data rounded-pill">
                                                 <div class="inner"></div>
-                                                <input type="submit" value="submit">
+                                                <input type="submit" value="submit"> 
                                             </div>
                                         </div>
                                     </div>
@@ -296,7 +298,107 @@
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.js"></script>
+<script>
+    // rich text editor
+    var config = {};
 
+    config.file_upload_handler = function (file, callback, optionalIndex, optionalFiles) {
+        console.log("File being uploaded:", file);  // Add this for debugging
+        var uploadhandlerpath = "/upload/";  // Ensure this points to your Django view
+
+
+        console.log("upload", file, "to", uploadhandlerpath)
+
+        function append(parent, tagname, csstext) {
+            var tag = parent.ownerDocument.createElement(tagname);
+            if (csstext) tag.style.cssText = csstext;
+            parent.appendChild(tag);
+            return tag;
+        }
+
+        var uploadcancelled = false;
+
+        var dialogouter = append(document.body, "div", "display:flex;align-items:center;justify-content:center;z-index:999999;position:fixed;left:0px;top:0px;width:100%;height:100%;background-color:rgba(128,128,128,0.5)");
+        var dialoginner = append(dialogouter, "div", "background-color:white;border:solid 1px gray;border-radius:15px;padding:15px;min-width:600px;box-shadow:2px 2px 6px #7777");
+
+        var line1 = append(dialoginner, "div", "text-align:center;font-size:1.2em;margin:0.5em;");
+        line1.innerText = "Uploading...";
+
+        var totalsize = file.size;
+        var sentsize = 0;
+
+        if (optionalFiles && optionalFiles.length > 1) {
+            totalsize = 0;
+            for (var i = 0; i < optionalFiles.length; i++) {
+                totalsize += optionalFiles[i].size;
+                if (i < optionalIndex) sentsize = totalsize;
+            }
+            console.log(totalsize, optionalIndex, optionalFiles)
+            line1.innerText = "Uploading..." + (optionalIndex + 1) + "/" + optionalFiles.length;
+        }
+
+        var line2 = append(dialoginner, "div", "text-align:center;font-size:1.0em;margin:0.5em;");
+        line2.innerText = "0%";
+
+        var progressbar = append(dialoginner, "div", "border:solid 1px gray;margin:0.5em;");
+        var progressbg = append(progressbar, "div", "height:12px");
+
+        var line3 = append(dialoginner, "div", "text-align:center;font-size:1.0em;margin:0.5em;");
+        var btn = append(line3, "button");
+        btn.className = "btn btn-primary";
+        btn.innerText = "cancel";
+        btn.onclick = function () {
+            uploadcancelled = true;
+            xh.abort();
+        }
+
+        var xh = new XMLHttpRequest();
+        xh.open("POST", uploadhandlerpath + "?name=" + encodeURIComponent(file.name) + "&type=" + encodeURIComponent(file.type) + "&size=" + file.size, true);
+        xh.onload = xh.onabort = xh.onerror = function (pe) {
+            console.log(pe);
+            console.log(xh);
+            dialogouter.parentNode.removeChild(dialogouter);
+            if (pe.type == "load") {
+                if (xh.status != 200) {
+                    console.log("uploaderror", pe);
+                    if (xh.responseText.startsWith("ERROR:")) {
+                        callback(null, "http-error-" + xh.responseText.substring(6));
+                    }
+                    else {
+                        callback(null, "http-error-" + xh.status);
+                    }
+                }
+                else if (xh.responseText.startsWith("READY:")) {
+                    console.log("File uploaded to " + xh.responseText.substring(6));
+                    callback(xh.responseText.substring(6));
+                }
+                else {
+                    callback(null, "http-error-" + xh.responseText);
+                }
+            }
+            else if (uploadcancelled) {
+                console.log("uploadcancelled", pe);
+                callback(null, "cancelled");
+            }
+            else {
+                console.log("uploaderror", pe);
+                callback(null, pe.type);
+            }
+        }
+        xh.upload.onprogress = function (pe) {
+            console.log(pe);
+            //pe.total
+            var percent = Math.floor(100 * (sentsize + pe.loaded) / totalsize);
+            line2.innerText = percent + "%";
+
+            progressbg.style.cssText = "background-color:green;width:" + (percent * progressbar.offsetWidth / 100) + "px;height:12px;";
+        }
+        xh.send(file);
+    }
+
+    var editor1 = new RichTextEditor("#description", config);
+    enterKeyTag = "br";
+</script>
 <script>
      // Function to send AJAX request to update a field
     //  #for issue related at the top
