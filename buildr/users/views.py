@@ -35,8 +35,8 @@ import os
 from django.core.mail import send_mail
 from django.urls import reverse
 import uuid
-
-
+from urllib.parse import unquote
+from allauth.socialaccount.models import SocialAccount
 def check_code(ws_code):
     ws_code = workspaceCode.objects.get(
         code=ws_code[0]['code'], is_active=True)
@@ -58,6 +58,13 @@ def get_projects(ws_id):
     projects = Project.objects.filter(ws=ws_id.ws_id).distinct()
     return projects
 
+def get_google_profile_pic(user_):
+    if SocialAccount.objects.filter(user_id=user_.id).exists():
+     # it is a user who signed up via google
+        # Decode the URL
+        profile_pic_url=SocialAccount.objects.get(user_id=user_.id).extra_data['picture']
+        profile_pic_url = unquote(str(profile_pic_url))
+        return profile_pic_url
 
 def req_for_navbar(custom_id, current_ws_id):
     """ retrieves all things necessary for rendering of sidebar """
@@ -84,10 +91,12 @@ def home(request, custom_id):
     current_ws_id = request.session.get('current_ws', None)  # nav #session store and retrieve data of a particular user.
     ws, current_ws, projects, flag, code = req_for_navbar(
         custom_id, current_ws_id)  # use whenevr navbar is needed in a page
+    profile_pic_url = get_google_profile_pic(request.user)
     user_issues = issue.objects.filter(
         project__ws__ws_id=current_ws_id, issue_assignee_bridge__assignee=custom_id) #fetches all issues assigned to the current user for current workspace.
     statuses, priorities = get_priority_status_list() #fetches status and priority
-    return render(request, 'users\home.html', {'custom_id': custom_id, 'workspaces': ws, 'current_ws': current_ws, 'flag': flag, 'ws_code': code, 'projects': projects, 'user_issues': user_issues,'status':statuses,'priority':priorities}) #renders home page including custom ID, workspaces, current workspace. projects, user issues, flag for admin status
+    custom_user = customUser.objects.get(user=request.user)
+    return render(request, 'users\home.html', {"profile_pic_url":profile_pic_url,'custom_user':custom_user,'custom_id': custom_id, 'workspaces': ws, 'current_ws': current_ws, 'flag': flag, 'ws_code': code, 'projects': projects, 'user_issues': user_issues,'status':statuses,'priority':priorities}) #renders home page including custom ID, workspaces, current workspace. projects, user issues, flag for admin status
 
 def change_ws(request):
     if request.method == 'POST' and request.user.is_authenticated:
@@ -302,7 +311,9 @@ def new_workspace(request, custom_id):
             current_ws_id = request.session.get('current_ws', None)
             workspaces, current_ws, projects, flag, code = req_for_navbar(
         custom_id, current_ws_id)
-            return render(request, 'users/home.html', {'custom_id': custom_id, "ws_id": ws, 'code': code, 'workspaces': workspaces, 'current_ws': current_ws,
+            profile_pic_url = get_google_profile_pic(request.user)
+            custom_user = customUser.objects.get(user=request.user)
+            return render(request, 'users/home.html', {'profie_pic_url':profile_pic_url,'custom_user':custom_user,'custom_id': custom_id, "ws_id": ws, 'code': code, 'workspaces': workspaces, 'current_ws': current_ws,
                    'flag': flag, 'ws_code': code, 'projects': projects})
         else:
             messages.error(request, 'Workspace name already exists!')
@@ -316,7 +327,7 @@ def add_project(request, custom_id):
     current_ws_id = request.session.get('current_ws', None) #retrieves current_ws_id from session. no ws_id , default to None.
     ws, current_ws, projects, flag, code = req_for_navbar(
         custom_id, current_ws_id)  # use whenevr navbar is needed in a page
-    
+    profile_pic_url = get_google_profile_pic(request.user)
     # Restrict project creation to the workspace admin only
     # if not access_control_admin(custom_id, current_ws):
     #     messages.error(request, "You do not have permission to create a project.")
@@ -324,7 +335,7 @@ def add_project(request, custom_id):
 
     
     ws_members = workspaceMember.objects.filter(workspace=current_ws, active=True)
-
+    custom_user = customUser.objects.get(user=request.user)
     if request.method == "POST":
         project_name = request.POST.get('project_name')
         desc = request.POST.get('desc')
@@ -359,11 +370,12 @@ def add_project(request, custom_id):
                 team_member=member,
                 role='Team member'
             )
+
         return redirect('project_view', project.project_id, custom_id)
     return render(request, 'users/add_project.html',
                   {'ws_members': ws_members, 'custom_id': custom_id,
                    'workspaces': ws, 'current_ws': current_ws,
-                   'flag': flag, 'ws_code': code, 'projects': projects})
+                   'flag': flag, 'ws_code': code, 'projects': projects,'profile_pic_url':profile_pic_url,'custom_user':custom_user})
 
 @csrf_exempt
 def upload_file(request):
@@ -500,7 +512,7 @@ def project_view(request, project_id, custom_id):
     current_ws_id = request.session.get('current_ws', None) #if no current_ws key, it defaults is None. to display the current ws
     ws, current_ws, projects, flag, code = req_for_navbar(
         custom_id, current_ws_id)  # use whenevr navbar is needed in a page
-
+    profile_pic_url = get_google_profile_pic(request.user)
     project = Project.objects.get(project_id=project_id) #retrieves the project
     team = project_member_bridge.objects.filter(
         project_id=project_id, role="Team member", active=True) #retrieves all the team members related to that project
@@ -520,14 +532,14 @@ def project_view(request, project_id, custom_id):
     assignee=customUser.objects.get(custom_id=custom_id), 
     active=True
 )
-    
+    custom_user = customUser.objects.get(user=request.user)
     issues = issue.objects.filter(project_id=project_id, parent_task__isnull=True).annotate(
         subissue_count=Count('child'), unread_comments_count=Count('comments', filter=~Q(comments__read_by=customUser.objects.get(user=request.user))),is_closed=Case(
             When(status=4, then=1), default=0, output_field=IntegerField()),is_assigned_to_user=Exists(user_assignee_flag)).order_by('is_closed','priority__id')
     context = {'project': project, 'lead': lead, 'team': team, 'status': statuses,
                'priority': priorities, 'issues': issues, 'workspace_memb': workspace_members,
                'lead_user_ids': lead_user_ids, 'team_ids': team_ids, 'workspaces': ws, 'current_ws': current_ws,
-               'flag': flag, 'ws_code': code, 'projects': projects, 'custom_id': custom_id, 'flag_member': flag_member, 'flag_lead': flag_lead}
+               'custom_user':custom_user,'flag': flag, 'ws_code': code, 'projects': projects, 'custom_id': custom_id, 'flag_member': flag_member, 'flag_lead': flag_lead, 'profile_pic_url':profile_pic_url}
          
 
     return render(request, 'users\project_view.html', context)
@@ -791,6 +803,7 @@ def issue_view(request, issue_id, custom_id):
 
     ws, current_ws, projects, flag, code = req_for_navbar(
         custom_id, current_ws_id)  # use whenevr navbar is needed in a page
+    profile_pic_url = get_google_profile_pic(request.user)
     project_members = project_member_bridge.objects.filter(
         active=True, project=the_issue.project)
     assignees = issue_assignee_bridge.objects.filter(
@@ -804,22 +817,20 @@ def issue_view(request, issue_id, custom_id):
     flag_lead = access_control_issues(issue_id,custom_id)
     subIssues = issue.objects.filter(parent_task=issue_id).order_by('priority__id')
     statuses, priorities = get_priority_status_list()
-    print("here",statuses)
-    print(priorities)
+    custom_user = customUser.objects.get(user=request.user)
     context = {'subIssues': subIssues, 'issue': the_issue, 'issue_id': issue_id,
                "custom_id": custom_id, 'priority': priorities, 'status': statuses, 'workspaces': ws, 'current_ws': current_ws,
-               'flag': flag,'flag_lead':flag_lead,'flag_assignee':flag_assignee, 'ws_code': code, 'projects': projects, 'project_members': project_members, 'assignee_id': assignee_ids, 'assignees': assignees}
+               'flag': flag,'flag_lead':flag_lead,'custom_user':custom_user,'flag_assignee':flag_assignee, 'ws_code': code, 'projects': projects,'profile_pic_url':profile_pic_url, 'project_members': project_members, 'assignee_id': assignee_ids, 'assignees': assignees}
     return render(request, 'users\issue_view.html', context)
 
 
 def add_issue(request, custom_id, project_id):
-    print("add issue is triggered")
     team_members = project_member_bridge.objects.filter(
         project=project_id, active=True)
     current_ws_id = request.session.get('current_ws', None)
     ws, current_ws, projects, flag, code = req_for_navbar(
         custom_id, current_ws_id)  # use whenevr navbar is needed in a page
-
+    profile_pic_url = get_google_profile_pic(request.user)
     if request.method == "POST":
         title = request.POST.get('title')
         desc = request.POST.get('desc')
@@ -850,9 +861,9 @@ def add_issue(request, custom_id, project_id):
                 assignee=assignee)
 
         return redirect('project_view', project_id, custom_id)
-
+    custom_user = customUser.objects.get(user=request.user)
     context = {'workspaces': ws, 'current_ws': current_ws, 'project_id': project_id,
-               'flag': flag, 'ws_code': code, 'projects': projects, 'custom_id': custom_id, 'team_members': team_members}
+               'flag': flag, 'ws_code': code, 'custom_user':custom_user,'projects': projects, 'custom_id': custom_id, 'team_members': team_members,'profile_pic_url':profile_pic_url}
     return render(request, 'users/add_issue.html', context)
 
 
@@ -864,7 +875,7 @@ def add_subIssue(request, issue_id, custom_id):
     current_ws_id = request.session.get('current_ws', None)
     ws, current_ws, projects, flag, code = req_for_navbar(
         custom_id, current_ws_id)  # use whenever navbar is needed in a page
-
+    profile_pic_url = get_google_profile_pic(request.user)
     if request.method == "POST":
         title = request.POST.get('title')
         desc = request.POST.get('desc')
@@ -892,8 +903,9 @@ def add_subIssue(request, issue_id, custom_id):
                 issue=issue_instance,
                 assignee=assignee)
         return redirect('issue_view', issue_id, custom_id)
+    custom_user = customUser.objects.get(user=request.user)
     context = {'workspaces': ws, 'current_ws': current_ws, 'issue_id': issue_id,
-               'flag': flag, 'ws_code': code, 'projects': projects, 'custom_id': custom_id, 'team_members': team_members}
+               'flag': flag, 'ws_code': code, 'projects': projects,'custom_user':custom_user, 'custom_id': custom_id, 'team_members': team_members,'profile_pic_url':profile_pic_url}
     return render(request, 'users/add_subissue.html', context)
 
 # comments
@@ -1305,6 +1317,7 @@ def g_login(request):
     current_ws_id = request.session.get('current_ws', None)
     ws, current_ws, projects, flag, code = req_for_navbar(
         custom_id, current_ws_id)
+    
     return redirect('dashboard')
 # dashboard
 def dashboard(request):
@@ -1317,18 +1330,19 @@ def dashboard(request):
     current_ws_id = request.session.get('current_ws', None)
     ws, current_ws, projects, flag, code = req_for_navbar(
         custom_id, current_ws_id)
-    
+    profile_pic_url = get_google_profile_pic(request.user)
     # for all users 
     # treemap of priority
     treemap_data, priority_count = treemap_of_priority(custom_id,current_ws_id)
     # pie chart
     pie_data, status_count = status_pie(custom_id,current_ws_id)
     gantt = gantt_data(projects)
+    custom_user = customUser.objects.get(user=request.user)
     scatter = scatter_plot_with_time(custom_id, current_ws_id)
     context = {'custom_id':custom_id,'workspaces': ws, 'current_ws': current_ws,
                 'flag': flag, 'ws_code': code, 'projects': projects, 'treemap_data':treemap_data,
                     'priority_count':priority_count, 'pie_data':pie_data,
-                    'status_count': status_count, 'gantt':gantt, 'scatter':scatter}
+                    'status_count': status_count, 'gantt':gantt,'custom_user':custom_user, 'scatter':scatter, 'profile_pic_url':profile_pic_url}
    
  
     is_project_lead = check_if_project_lead(custom_id,current_ws_id)
@@ -1488,8 +1502,11 @@ def user_profile(request,custom_id):
     ws, current_ws, projects, flag, code = req_for_navbar(
         custom_id, current_ws_id)
     custom_user = customUser.objects.get(custom_id=custom_id)
+    profile_pic_url = get_google_profile_pic(request.user)
+        # The result will include the 'a3/media/' part, 
+  
     context = {"custom_id": custom_id, 'workspaces': ws, 'current_ws': current_ws,
-               'flag': flag, 'ws_code': code, 'projects': projects, 'custom_user':custom_user}
+               'flag': flag, 'ws_code': code, 'projects': projects, 'custom_user':custom_user,'profile_pic_url':profile_pic_url}
     return render(request, 'users/user_profile.html', context)
 
 def edit_profile(request,custom_id):

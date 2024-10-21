@@ -68,8 +68,13 @@
   <div class="dropdown mt-3 me-4" style="background:none;">
     
       <!-- avatar -->
+      {% if profile_pic_url %}
+      <img class="card-img-top mt-2 me-2 shadow-sm" src="{{profile_pic_url}}" data-bs-toggle="dropdown"  aria-expanded="false" alt="profile pic of {{custom_user.user.first_name}}" style="width: 30px;height:30px;border-radius: 100%;cursor:pointer;">
+  {% elif custom_user.profile_pic %}
+  <img class="card-img-top mt-2 me-2 shadow-sm" src="{{custom_user.profile_pic.url}}" data-bs-toggle="dropdown"  aria-expanded="false" alt="profile pic of {{custom_user.user.first_name}}" style="width: 30px;height:30px;border-radius: 100%;cursor:pointer;">
+  {% else %}
   <i class="fa-solid fa-circle-user fa-2xl " style="color: #004a7a;" data-bs-toggle="dropdown"  aria-expanded="false"></i>
-  
+  {% endif %}
     <!-- avatar end -->
     <ul class="dropdown-menu">
       <li><a class="dropdown-item" href="{% url 'user-profile' custom_id %}">Profile</a></li>

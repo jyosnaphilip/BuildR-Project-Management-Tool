@@ -203,12 +203,12 @@
                     <div class="col-sm-3 mb-2">
                         <span class="input-group input-daterange  " style="color:white;">
 
-                            <button type="text" id="end" class="form-control btn btn-sm  rounded-pill  badge me-2" placeholder="Start" style="background-color: rgb(21, 67, 96); color: #e7eaee;width: 97px;">{{project.created_on|date:'d-m-Y'}}</button>
+                            <button type="text" id="end" class="form-control btn btn-sm  rounded-pill badge me-2" placeholder="Start" style="background-color: rgb(21, 67, 96); color: #e7eaee;width: 97px;">{{project.created_on|date:'d-m-Y'}}</button>
                             <!-- <span class="fa fa-calendar fa-xs" id="fa-2"></span> -->
                             {% if flag_lead or flag %}
-                            <button type="text" id="start" class="form-control rounded-pill btn btn-sm badge " style="background-color: rgb(21, 67, 96); color: #e7eaee; width: 98px;">{{project.deadline|date:'d-m-Y'}}</button>
+                            <button type="text" id="start" class="form-control rounded-pill btn  badge btn-sm  " style="background-color: rgb(21, 67, 96); color: #e7eaee; width: 98px;">{{project.deadline|date:'d-m-Y'}}</button>
                             {% else %}
-                                <button type="text" class="form-control rounded-pill btn btn-sm badge" style="background-color: rgb(21, 67, 96); color: #e7eaee;width: 98px;" disabled>{{project.deadline|date:'d-m-Y'}}</button>
+                                <button type="text" class="form-control rounded-pill btn badge btn-sm " style="background-color: rgb(21, 67, 96); color: #e7eaee;width: 98px;" disabled>{{project.deadline|date:'d-m-Y'}}</button>
                             {% endif %}
                         </span>
                     </div>

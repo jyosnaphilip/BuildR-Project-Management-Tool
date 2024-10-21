@@ -10,11 +10,15 @@ def create_custom_user(sender, request, user, **kwargs):
     if created:
         social_account = user.socialaccount_set.filter(provider='google').first()
         if social_account:
-            custom_user.profile_pic = social_account.get_avatar_url()
+            custom_user.google_profile_pic_url = social_account.get_avatar_url()
             custom_user.save()
 
 @receiver(user_logged_in)
 def ensure_custom_user_exists(sender, request, user, **kwargs):
     custom_user, created = customUser.objects.get_or_create(user=user)
+    social_account = user.socialaccount_set.filter(provider='google').first()
+    if social_account:
+        custom_user.google_profile_pic_url = social_account.get_avatar_url()
+    
     if created:
         custom_user.save()
