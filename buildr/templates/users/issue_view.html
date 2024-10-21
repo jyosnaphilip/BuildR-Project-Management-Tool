@@ -147,15 +147,15 @@
                 <div class="row ms-2">
                    
                     <div class="col-sm-2 mb-2">
-                        <select  class=" priority-dropdown form-select custom-select rounded-pill" type="button" name="status" data-bs-toggle="dropdown"  aria-expanded="false" data-issue-id="{{issue.issue_id}}">
+                        <select  class="priority-dropdown  form-select badge custom-select rounded-pill" style="color:  rgb(21, 67, 96);" type="button" name="status" data-bs-toggle="dropdown"  aria-expanded="false" data-issue-id="{{issue.issue_id}}">
                             {% for prior in priority %}
                             {% if issue.priority.id|stringformat:"s" == prior.id|stringformat:"s" %}
 
-                            <option value="{{prior.id}}"  class="dropdown-item" selected>{{prior.name}}</option>
+                            <option value="{{prior.id}}"  class="dropdown-item"  style="background-color: {% if prior.id == 1%}green{% elif prior.id == 2%}orange{% elif prior.id == 3%}#FF5733{% elif prior.id == 4%}rgb(191,87,0){% elif prior.id == 5%}rgb(21,67,96){% endif %};" selected>{{prior.name}}</option>
                             {% else %}
                             {% if flag_lead or flag or flag_assignee %}
                             <!-- assignees can also change this -->
-                            <option class="dropdown-item" value="{{prior.id}}"><i class="fa-regular fa-circle fa-l"></i> {{prior.name}}</option>
+                            <option class="dropdown-item" value="{{prior.id}}"  style="background-color: {% if prior.id == 1%}green{% elif prior.id == 2%}orange{% elif prior.id == 3%}#FF5733{% elif prior.id == 4%}rgb(191,87,0){% elif prior.id == 5%}rgb(21,67,96){% endif %};"><i class="fa-regular fa-circle fa-l"></i> {{prior.name}}</option>
                             {% endif %}
                             
                             {% endif %}
@@ -165,15 +165,15 @@
                     </div>  
                     <div class="col-sm-2 mb-2 ">
                         <div class="dropdown rounded-pill me-2">
-                            <select  class=" status-dropdown form-select custom-select   rounded-pill" type="button"  name="status" data-bs-toggle="dropdown"  aria-expanded="false" data-issue-id="{{issue.issue_id}}">
+                            <select  class=" status-dropdown form-select badge custom-select   rounded-pill"    type="button"  name="status" data-bs-toggle="dropdown"  aria-expanded="false" data-issue-id="{{issue.issue_id}}">
                                 {% for stat in status %}
                                 {% if issue.status.id|stringformat:"s" == stat.id|stringformat:"s" %}
     
-                                <option value="{{stat.id}}"  class="dropdown-item " selected>{{stat.name}}</option>
+                                <option value="{{stat.id}}"  class="dropdown-item "  style="background-color: {% if stat.id == 1%}green{% elif stat.id == 2%}orange{% elif stat.id == 3%}#FF5733{% elif stat.id == 4%}rgb(191,87,0){% elif stat.id == 5%}rgb(21,67,96){% endif %};" selected>{{stat.name}}</option>
                                 {% else %}
                                 {% if flag_lead or flag or flag_assignee %}
 
-                                <option class="dropdown-item" value="{{stat.id}}"><i class="fa-regular fa-circle fa-l"></i> {{stat.name}}</option>
+                                <option class="dropdown-item" value="{{stat.id}}"  style="background-color: {% if stat.id == 1%}green{% elif stat.id == 2%}orange{% elif stat.id == 3%}#FF5733{% elif stat.id == 4%}rgb(191,87,0){% elif stat.id == 5%}rgb(21,67,96){% endif %};"><i class="fa-regular fa-circle fa-l"></i> {{stat.name}}</option>
                                 {% endif %}
                                 
                                 {% endif %}
@@ -188,16 +188,16 @@
                     <div class="col-sm-3 mb-2">
                             <span class="input-group input-daterange  " style="color:white;">
                                                         
-                                <button type="text" id="end" class="form-control btn btn-sm  rounded-pill   me-2"  placeholder="Start" style="color:#ffff; background-color: #004a7a; ">{{issue.created_on|date:'d-m-Y'}}</button>
+                                <button type="text" id="end" class="form-control btn badge btn-sm  rounded-pill   me-2"  placeholder="Start" style="color:#ffff; background-color: #004a7a; ">{{issue.created_on|date:'d-m-Y'}}</button>
                                 <!-- <span class="fa fa-calendar fa-xs" id="fa-2"></span> -->
-                                <button type="text" id="start" class="form-control rounded-pill btn btn-sm " style="background-color: #004a7a;border-color: #004a7a;color:white;">{{issue.deadline|date:'d-m-Y'}}</button>
+                                <button type="text" id="start" class="form-control badge rounded-pill btn btn-sm  " style="background-color: #004a7a;border-color: #004a7a;color:white;">{{issue.deadline|date:'d-m-Y'}}</button>
                                 <!-- <span class="fa fa-calendar" id="fa-1" ></span> -->
                             </span>
                     </div>
                     
                     <div class="col-sm-1 mb-2 ms-0">
-                        <button class="btn btn-sm dropdown dropdown-toggle rounded-pill" type="button" data-bs-toggle="dropdown" aria-expanded="false" fdprocessedid="5bab4i">
-                            <i class="fa-solid fa-user-group " style="color: #e7eaee;"></i>Assignee
+                        <button class="btn btn-sm dropdown dropdown-toggle rounded-pill badge" style="color: #004a7a" type="button" data-bs-toggle="dropdown" aria-expanded="false" fdprocessedid="5bab4i">
+                            <i class="fa-solid fa-user-group " style="color: #004a7a"></i> Assignee
                         </button>
                         <ul class="dropdown-menu" >
                             {% for assignee in assignees %}
@@ -214,7 +214,7 @@
 
                     <div class=" col-sm-2 offset-sm-2 ms-4 mb-2 ">  
                         {% if flag_lead or flag_assignee %}  
-                        <a class="rounded-pill btn btn-sm " href="{% url 'add_subIssue' issue.issue_id custom_id  %}" style="background-color: #004a7a; color:#f5f7fa;"><i
+                        <a class="rounded-pill btn btn-sm badge" href="{% url 'add_subIssue' issue.issue_id custom_id  %}" style="background-color: #004a7a; color:#f5f7fa;"><i
                                 class="fa-solid fa-plus" style="color: #f5f7fa;"></i> Add sub-Issue</a>
                             {% endif %}
                             </div>
@@ -226,7 +226,7 @@
 
             <!-- issues here -->
              <div class="container">
-                <table class="table  table-hover shadow-sm">
+                <table id="issueTable" class="table  table-hover shadow-sm">
                     <thead>
                       <tr>
                         <th scope="col-sm-1" class="text-center">Status</th>
@@ -242,7 +242,7 @@
                       <tr>
                         <th scope="row">
                            <div class="w-50 dropdown rounded-pill ">
-                            <select class="subissue-status-dropdown form-select custom-select rounded-pill text-light btn btn-sm" type="button" name="status" data-bs-toggle="dropdown" aria-expanded="false" data-subissue-id="{{issue.issue_id}}">
+                            <select class="subissue-status-dropdown form-select badge custom-select rounded-pill text-light btn btn-sm" type="button" name="status" data-bs-toggle="dropdown" aria-expanded="false" data-subissue-id="{{issue.issue_id}}">
                                 {% for stat in status %}
                                     {% if issue.status.id|stringformat:"s" == stat.id|stringformat:"s" %}
                                         <option value="{{stat.id}}" class="dropdown-item" style="background-color: {% if stat.id == 1 %}green{% elif stat.id == 2 %}orange{% elif stat.id == 3 %}#FF5733{% else %}rgb(191,87,0){% endif %};" selected>
@@ -266,7 +266,7 @@
                         </td>
                             <td >
                                 <div class=" dropdown rounded-pill" >
-                                    <select  class="subissue-priority-dropdown form-select custom-select text-light rounded-pill btn btn-sm" type="button" style="background-color: rgb(40, 116, 166); color: #e7eaee;" name="status" data-bs-toggle="dropdown"  aria-expanded="false" data-subissue-id="{{ issue.issue_id }}">
+                                    <select  class="subissue-priority-dropdown badge form-select custom-select text-light rounded-pill btn btn-sm" type="button" style="background-color: rgb(40, 116, 166); color: #e7eaee;" name="status" data-bs-toggle="dropdown"  aria-expanded="false" data-subissue-id="{{ issue.issue_id }}">
                                         {% for prior in priority %}
                                         {% if issue.priority.id|stringformat:"s" == prior.id|stringformat:"s" %}
             
@@ -286,8 +286,8 @@
                         <td> 
                             <div class="col-sm-7 mb-2 ms-0">
                                 {% if issue.assignee.count > 0 %}
-                                <button class="btn btn-sm dropdown dropdown-toggle rounded-pill" type="button" data-bs-toggle="dropdown" aria-expanded="false" fdprocessedid="5bab4i">
-                                    <i class="fa-solid fa-user-group " style="color: #e7eaee;"></i>Assignees
+                                <button class="btn btn-sm dropdown badge dropdown-toggle rounded-pill" style="color: #004a7a" type="button" data-bs-toggle="dropdown" aria-expanded="false" fdprocessedid="5bab4i">
+                                    <i class="fa-solid fa-user-group " style="color: #004a7a"></i>Assignees
                                 </button>
                                 <ul class="dropdown-menu" >
                                     {% for assignee in issue.assignee.all %}
@@ -317,11 +317,7 @@
                       
                       
                       {% endfor %}
-                      <tr id="new-subissue">
-                        <td colspan="6">
-                            <input type="text" class="form-control " placeholder="Enter subIssue and press Enter" style="color:white;border-color: rgb(244, 240, 240);" id="new-subissue-input" placeholder="Add new subissue">
-                        </td>
-                    </tr>
+                      
                     </tbody>
                   </table>
   
@@ -330,6 +326,48 @@
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.js"></script>
+<script>
+    // Function to send AJAX request to update a field
+    $(document).ready( function () {
+   $('#issueTable').DataTable({
+       lengthMenu: [
+       [10, 25, 50, -1],
+       [10, 25, 50, 'All']
+   ],
+   // layout: {
+   //     top1: {
+   //         searchPanes: {
+   //             panes: [
+   //                 {
+   //                     header: 'Custom',
+   //                     options: [
+   //                         {
+   //                             label: 'Accountants from Tokyo',
+   //                             value: function (rowData, rowIdx) {
+   //                                 return rowData[1] === 'Accountant' && rowData[2] === 'Tokyo';
+   //                             }
+   //                         }
+   //                     ],
+   //                     dtOpts: {
+   //                         searching: false,
+   //                         order: [[1, 'desc']]
+   //                     }
+   //                 }
+   //             ]
+   //         }
+   //     }
+   // },
+   // columnDefs: [
+   //     {
+   //         searchPanes: {
+   //             show: false
+   //         },
+   //         targets: ['_all']
+   //     }
+   // ]
+});
+} );
+</script>
 <script>
     // rich text editor
     var config = {};
@@ -610,5 +648,64 @@
         });
     </script> 
     
+    <script>
+
+        // changing status color
+        document.addEventListener('DOMContentLoaded', function() {
+            // Function to update the background color of all select elements
+            function updateDropdownColors() {
+                const dropdowns = document.querySelectorAll('.status-dropdown');
+        
+                dropdowns.forEach(function(dropdown) {
+                    const selectedOption = dropdown.options[dropdown.selectedIndex];
+                    const selectedColor = selectedOption.style.backgroundColor || 'transparent';
+                    dropdown.style.backgroundColor = selectedColor;
+                    dropdown.style.color = '#fff'; // Adjust text color for better readability
+                });
+            }
+        
+            // Initialize color for all dropdowns on page load
+            updateDropdownColors();
+        
+            // Update color when any dropdown selection changes
+            document.addEventListener('change', function(event) {
+                if (event.target.classList.contains('status-dropdown')) {
+                    updateDropdownColors();
+                }
+            });
+        });
+        
+        
+        
+        </script>
+        <script>
+    
+            // changing priority color of issue
+            document.addEventListener('DOMContentLoaded', function () {  //runs once the page content is available.
+                // Function to update the background color of all select elements
+        
+                function updateDropdownColors() { //changing background colour of the dropdown elemnts
+                    const dropdowns = document.querySelectorAll('.priority-dropdown');
+        
+                    dropdowns.forEach(function (dropdown) { //loops through dropdowns
+                        const selectedOption = dropdown.options[dropdown.selectedIndex];
+                        const selectedColor = selectedOption.style.backgroundColor || 'transparent';
+                        dropdown.style.backgroundColor = selectedColor;
+                        dropdown.style.color = '#fff'; // Adjust text color for better readability
+                    });
+                }
+        
+                // Initialize color for all dropdowns on page load
+                updateDropdownColors(); //ensures that dropdowns are correctly coloured
+        
+                // Update color when any dropdown selection changes
+                document.addEventListener('change', function (event) {
+                    if (event.target.classList.contains('priority-dropdown')) {
+                        updateDropdownColors();
+                    }
+                });
+            });
+        </script> 
+        
     
 {% endblock content %}

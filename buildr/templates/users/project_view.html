@@ -169,7 +169,7 @@
                 <div class="row mt-4">
                    
                     <div class="col-sm-2 mb-2">
-                        <select class=" project-priority-dropdown form-select custom-select rounded-pill" type="button" name="status" data-bs-toggle="dropdown" aria-expanded="false" data-project-id="{{project.project_id}}">
+                        <select class=" project-priority-dropdown badge form-select custom-select rounded-pill " style="color: #004a7a" type="button" name="status" data-bs-toggle="dropdown" aria-expanded="false" data-project-id="{{project.project_id}}">
                             {% for prior in priority %}
                                 {% if project.priority.id|stringformat:"s" == prior.id|stringformat:"s" %}
                                     
@@ -186,7 +186,7 @@
                     <div class="col-sm-2 mb-2 ">
                         <div class="dropdown rounded-pill me-2">
                             <select
-                                class="project-status-dropdown dropdown dropdown-toggle form-select custom-select rounded-pill" type="button" name="status" data-bs-toggle="dropdown" aria-expanded="false" data-project-id="{{project.project_id}}">
+                                class="project-status-dropdown dropdown dropdown-toggle badge form-select custom-select rounded-pill" style="color: #004a7a" type="button" name="status" data-bs-toggle="dropdown" aria-expanded="false" data-project-id="{{project.project_id}}">
                                 {% for stat in status %}
                                     {% if project.status.id|stringformat:"s" == stat.id|stringformat:"s" %}
                                        
@@ -203,17 +203,17 @@
                     <div class="col-sm-3 mb-2">
                         <span class="input-group input-daterange  " style="color:white;">
 
-                            <button type="text" id="end" class="form-control btn btn-sm  rounded-pill   me-2" placeholder="Start" style="background-color: rgb(21, 67, 96); color: #e7eaee;width: 97px;">{{project.created_on|date:'d-m-Y'}}</button>
+                            <button type="text" id="end" class="form-control btn btn-sm  rounded-pill  badge me-2" placeholder="Start" style="background-color: rgb(21, 67, 96); color: #e7eaee;width: 97px;">{{project.created_on|date:'d-m-Y'}}</button>
                             <!-- <span class="fa fa-calendar fa-xs" id="fa-2"></span> -->
                             {% if flag_lead or flag %}
-                            <button type="text" id="start" class="form-control rounded-pill btn btn-sm " style="background-color: rgb(21, 67, 96); color: #e7eaee; width: 98px;">{{project.deadline|date:'d-m-Y'}}</button>
+                            <button type="text" id="start" class="form-control rounded-pill btn btn-sm badge " style="background-color: rgb(21, 67, 96); color: #e7eaee; width: 98px;">{{project.deadline|date:'d-m-Y'}}</button>
                             {% else %}
-                                <button type="text" class="form-control rounded-pill btn btn-sm" style="background-color: rgb(21, 67, 96); color: #e7eaee;width: 98px;" disabled>{{project.deadline|date:'d-m-Y'}}</button>
+                                <button type="text" class="form-control rounded-pill btn btn-sm badge" style="background-color: rgb(21, 67, 96); color: #e7eaee;width: 98px;" disabled>{{project.deadline|date:'d-m-Y'}}</button>
                             {% endif %}
                         </span>
                     </div>
                     <div class="col-sm-1 mb-2 ms-3">
-                        <button class="btn btn-sm dropdown dropdown-toggle rounded-pill" type="button" data-bs-toggle="dropdown" aria-expanded="false" fdprocessedid="5bab4i">
+                        <button class="btn btn-sm dropdown dropdown-toggle rounded-pill badge" style="color: #004a7a" type="button" data-bs-toggle="dropdown" aria-expanded="false" fdprocessedid="5bab4i">
                             <i class="fa-solid fa-user " style=" color: rgb(21, 67, 96);"></i>
                             Lead
                         </button>
@@ -232,8 +232,8 @@
                         </ul>
                     </div>
                     <div class="col-sm-1 mb-2 ms-0">
-                        <button class="btn btn-sm dropdown dropdown-toggle rounded-pill" type="button" data-bs-toggle="dropdown" aria-expanded="false" fdprocessedid="5bab4i">
-                            <i class="fa-solid fa-user-group " style="background-color: rgb(21, 67, 96); color: #e7eaee;"></i> Members
+                        <button class="btn btn-sm dropdown dropdown-toggle rounded-pill badge"  style="color: #004a7a" type="button" data-bs-toggle="dropdown" aria-expanded="false" fdprocessedid="5bab4i">
+                            <i class="fa-solid fa-user-group " style="color: rgb(21, 67, 96); "></i> Members
                         </button>
                         <ul class="dropdown-menu">
                             {% for member in team %}
@@ -254,7 +254,7 @@
                     </div>
                     <div class=" col-sm-2 offset-sm-2 ms-4 mb-2 ">
                         {% if flag_lead or flag %}
-                        <a class="rounded-pill btn btn-sm " href="{% url 'add_issue' custom_id project.project_id %}" style="background-color: rgb(21, 67, 96); color: #e7eaee;"><i class="fa-solid fa-plus" style="color: #f5f7fa;"></i> Add issue
+                        <a class="rounded-pill btn btn-sm badge" href="{% url 'add_issue' custom_id project.project_id %}" style="background-color: rgb(21, 67, 96); color: #e7eaee;"><i class="fa-solid fa-plus" style="color: #f5f7fa;"></i> Add issue
                         </a>
                         
                         {% endif %}
@@ -284,7 +284,7 @@
                         <th scope="row">
                            <div class="w-53 dropdown rounded-pill ">
                              
-                            <select  class="status-dropdown form-select custom-select rounded-pill btn btn-sm" type="button" name="status" data-bs-toggle="dropdown" style="background-color: rgb(40, 116, 166); color: #e7eaee;"  aria-expanded="false" data-issue-id="{{issue.issue_id}}">
+                            <select  class="status-dropdown form-select badge custom-select rounded-pill btn btn-sm" type="button" name="status" data-bs-toggle="dropdown" style="background-color: rgb(40, 116, 166); color: #e7eaee;"  aria-expanded="false" data-issue-id="{{issue.issue_id}}">
                                    {% for stat in status %}
                                        {% if issue.status.id|stringformat:"s" == stat.id|stringformat:"s" %}
     
@@ -311,7 +311,7 @@
                         </td>
                         <td>
                             <div class=" dropdown rounded-pill">
-                                <select id="priority-dropdown" class="priority-dropdown form-select custom-select rounded-pill btn btn-sm" type="button" name="status" data-bs-toggle="dropdown" style="color: #e7eaee;" aria-expanded="false" data-issue-id="{{ issue.issue_id }}">
+                                <select id="priority-dropdown" class="priority-dropdown badge form-select custom-select rounded-pill btn btn-sm" type="button" name="status" data-bs-toggle="dropdown" style="color: #e7eaee;" aria-expanded="false" data-issue-id="{{ issue.issue_id }}">
                                     {% for prior in priority %}
                                         {% if issue.priority.id|stringformat:"s" == prior.id|stringformat:"s" %}
 
@@ -329,7 +329,7 @@
                         <td>
                             <div class="col-sm-7 mb-2 ms-0">
                                 {% if issue.assignee.count > 0 %}
-                                <button class="btn btn-sm dropdown dropdown-toggle rounded-pill" type="button"
+                                <button class="btn btn-sm dropdown dropdown-toggle badge rounded-pill" style="color: #004a7a" type="button"
                                     data-bs-toggle="dropdown" aria-expanded="false" fdprocessedid="5bab4i">
                                     <i class="fa-solid fa-user-group " style="color: #004a7a"></i>  Assignees
                                 </button>
@@ -681,7 +681,7 @@
         });
     });
 </script>
-
+ -->
 
 <script>
 
@@ -711,7 +711,34 @@
         });
     });
 </script>
- -->
+<script>
+
+    // changing status color of project
+    document.addEventListener('DOMContentLoaded', function () {  //runs once the page content is available.
+        // Function to update the background color of all select elements
+
+        function updateDropdownColors() { //changing background colour of the dropdown elemnts
+            const dropdowns = document.querySelectorAll('.project-priority-dropdown');
+
+            dropdowns.forEach(function (dropdown) { //loops through dropdowns
+                const selectedOption = dropdown.options[dropdown.selectedIndex];
+                const selectedColor = selectedOption.style.backgroundColor || 'transparent';
+                dropdown.style.backgroundColor = selectedColor;
+                dropdown.style.color = '#fff'; // Adjust text color for better readability
+            });
+        }
+
+        // Initialize color for all dropdowns on page load
+        updateDropdownColors(); //ensures that dropdowns are correctly coloured
+
+        // Update color when any dropdown selection changes
+        document.addEventListener('change', function (event) {
+            if (event.target.classList.contains('project-priority-dropdown')) {
+                updateDropdownColors();
+            }
+        });
+    });
+</script>
 <script>
 
     // changing priority color of issue

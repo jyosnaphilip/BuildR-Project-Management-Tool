@@ -15,7 +15,7 @@
                 <h2 class="p-3"> Your issues</h2>
                <!-- issues here -->
              <div class="container">
-              <table class="table  table-hover shadow-sm">
+              <table id="issueTable" class="table  table-hover shadow-sm">
                   <thead>
                     <tr>
                       <th scope="col-sm-1" class="text-center">Status</th>
@@ -31,7 +31,7 @@
                     <tr>
                       <th scope="row">
                          <div class="w-50 dropdown rounded-pill ">
-                             <select  class="issue-status-dropdown form-select custom-select rounded-pill btn btn-sm" type="button" name="status" data-bs-toggle="dropdown"  aria-expanded="false" data-issue-id="{{issue.issue_id}}">
+                             <select  class="issue-status-dropdown badge form-select custom-select rounded-pill btn btn-sm" type="button" name="status" data-bs-toggle="dropdown"  aria-expanded="false" data-issue-id="{{issue.issue_id}}">
                                  {% for stat in status %}
                                  {% if issue.status.id|stringformat:"s" == stat.id|stringformat:"s" %}
      
@@ -51,13 +51,13 @@
                       </td>
                           <td >
                               <div class=" dropdown rounded-pill" >
-                                  <select  class="issue-priority-dropdown form-select custom-select rounded-pill btn btn-sm" type="button" name="status" data-bs-toggle="dropdown"  aria-expanded="false" data-issue-id="{{ issue.issue_id }}">
+                                  <select  class="issue-priority-dropdown badge form-select custom-select rounded-pill btn btn-sm" type="button" name="status" data-bs-toggle="dropdown"  aria-expanded="false" data-issue-id="{{ issue.issue_id }}">
                                       {% for prior in priority %}
                                         {% if issue.priority.id|stringformat:"s" == prior.id|stringformat:"s" %}
           
-                                            <option value="{{prior.id}}"  class="dropdown-item" selected style="color: white;">{{prior.name}}</option>
+                                            <option value="{{prior.id}}"  class="dropdown-item" selected style="color: white;background-color: {% if prior.id == 1%}red{% elif prior.id == 2%}#FF5733{% elif prior.id == 3%}orange{% elif prior.id == 4%}rgb(191,87,0){% elif prior.id == 5%}rgb(21,67,96){% endif %};">{{prior.name}}</option>
                                         {% else %}
-                                            <option class="dropdown-item" value="{{prior.id}}"><i class="fa-regular fa-circle fa-l"></i> {{prior.name}}</option>
+                                            <option class="dropdown-item" value="{{prior.id}}" style="background-color: {% if prior.id == 1%}red{% elif prior.id == 2%}#FF5733{% elif prior.id == 3%}orange{% elif prior.id == 4%}rgb(191,87,0){% elif prior.id == 5%}rgb(21,67,96){% endif %};"><i class="fa-regular fa-circle fa-l"></i> {{prior.name}}</option>
                                         {% endif %}
                                       {% endfor %}
                                  </select>
@@ -67,8 +67,8 @@
                       <td> 
                           <div class="col-sm-7 mb-2 ms-0">
                               {% if issue.assignee.count > 0 %}
-                              <button class="btn btn-sm dropdown dropdown-toggle rounded-pill" type="button" data-bs-toggle="dropdown" aria-expanded="false" fdprocessedid="5bab4i">
-                                  <i class="fa-solid fa-user-group " style="color: #e7eaee;"></i>Assignees
+                              <button class="btn btn-sm dropdown dropdown-toggle badge rounded-pill" style="color:  rgb(21, 67, 96);" type="button" data-bs-toggle="dropdown" aria-expanded="false" fdprocessedid="5bab4i">
+                                  <i class="fa-solid fa-user-group " style="color:  rgb(21, 67, 96);"></i> Assignees
                               </button>
                               <ul class="dropdown-menu" >
                                   {% for assignee in issue.assignee.all %}
@@ -85,19 +85,21 @@
                     </td>
                       <td>{% if issue.deadline %}{{issue.deadline}}{% endif %}</td>
                       <td><button class="btn " type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasExample" aria-controls="offcanvasExample" onclick="get_issueComments('{{issue.issue_id}}')">
-                        <i class="fa-regular fa-comment"></i>
-                      </button></td>
+                        <i class="fa-regular fa-comment position-relative">
+                            {% if issue.unread_comments_count != 0 %}<span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 9px;">
+                                {{issue.unread_comments_count}}
+                                <span class="visually-hidden">unread messages</span>
+                              </span>
+                            {% endif %}
+                        </i>
+                    </button></td>
                     </tr>
                     {% empty %}
                     <tr><td colspan="6">No Issues found.</td></tr>
                     
                     
                     {% endfor %}
-                    <tr id="new-subissue">
-                      <td colspan="6">
-                          <input type="text" class="form-control " placeholder="Enter subIssue and press Enter" style="color:white;border-color: rgb(244, 240, 240);" id="new-subissue-input" placeholder="Add new subissue">
-                      </td>
-                  </tr>
+                    
                   </tbody>
                 </table>
 
@@ -114,5 +116,144 @@
 
 {% endif %}
 
+<script>
+
+    // changing priority color of issue
+    document.addEventListener('DOMContentLoaded', function () {  //runs once the page content is available.
+        // Function to update the background color of all select elements
+
+        function updateDropdownColors() { //changing background colour of the dropdown elemnts
+            const dropdowns = document.querySelectorAll('.issue-priority-dropdown');
+
+            dropdowns.forEach(function (dropdown) { //loops through dropdowns
+                const selectedOption = dropdown.options[dropdown.selectedIndex];
+                const selectedColor = selectedOption.style.backgroundColor || 'transparent';
+                dropdown.style.backgroundColor = selectedColor;
+                dropdown.style.color = '#fff'; // Adjust text color for better readability
+            });
+        }
+
+        // Initialize color for all dropdowns on page load
+        updateDropdownColors(); //ensures that dropdowns are correctly coloured
+
+        // Update color when any dropdown selection changes
+        document.addEventListener('change', function (event) {
+            if (event.target.classList.contains('issue-priority-dropdown')) {
+                updateDropdownColors();
+            }
+        });
+    });
+</script> 
+<script>
+
+    // changing status color
+    document.addEventListener('DOMContentLoaded', function() {
+        // Function to update the background color of all select elements
+        function updateDropdownColors() {
+            const dropdowns = document.querySelectorAll('.issue-status-dropdown');
     
+            dropdowns.forEach(function(dropdown) {
+                const selectedOption = dropdown.options[dropdown.selectedIndex];
+                const selectedColor = selectedOption.style.backgroundColor || 'transparent';
+                dropdown.style.backgroundColor = selectedColor;
+                dropdown.style.color = '#fff'; // Adjust text color for better readability
+            });
+        }
+    
+        // Initialize color for all dropdowns on page load
+        updateDropdownColors();
+    
+        // Update color when any dropdown selection changes
+        document.addEventListener('change', function(event) {
+            if (event.target.classList.contains('issue-status-dropdown')) {
+                updateDropdownColors();
+            }
+        });
+    });
+    
+    
+    
+    </script> 
+    
+<script>
+    // Function to send AJAX request to update a field
+    $(document).ready( function () {
+   $('#issueTable').DataTable({
+       lengthMenu: [
+       [10, 25, 50, -1],
+       [10, 25, 50, 'All']
+   ],
+   // layout: {
+   //     top1: {
+   //         searchPanes: {
+   //             panes: [
+   //                 {
+   //                     header: 'Custom',
+   //                     options: [
+   //                         {
+   //                             label: 'Accountants from Tokyo',
+   //                             value: function (rowData, rowIdx) {
+   //                                 return rowData[1] === 'Accountant' && rowData[2] === 'Tokyo';
+   //                             }
+   //                         }
+   //                     ],
+   //                     dtOpts: {
+   //                         searching: false,
+   //                         order: [[1, 'desc']]
+   //                     }
+   //                 }
+   //             ]
+   //         }
+   //     }
+   // },
+   // columnDefs: [
+   //     {
+   //         searchPanes: {
+   //             show: false
+   //         },
+   //         targets: ['_all']
+   //     }
+   // ]
+});
+} );
+
+    function updateIssueField(issueId, fieldName, value) {
+           $.ajax({
+               url: "{% url 'update_issue_field' %}",
+               method: "POST",
+               data: {
+                   'issue_id': issueId,
+                   'field_name': fieldName,
+                   'value': value,
+                   'csrfmiddlewaretoken': '{{ csrf_token }}'
+               },
+               error: function(response) {
+           if (response.error) {
+               alert('Error: ' + (response.error || 'An error occurred while updating the field.'));
+           }
+       },
+       error: function(xhr, status, error) {
+           console.error("AJAX Error:", status, error);
+           alert('An error occurred while updating the field.');}
+           });
+       }
+
+   // Status Change
+   $(document).on('change', '.issue-status-dropdown', function () {
+
+       var issueId = $(this).data('issue-id'); //retrieving issuesId
+       var newStatus = $(this).val(); //retrieving new status value
+       updateIssueField(issueId, 'status', newStatus);
+   });
+
+   // Priority Change
+   $(document).on('change', '.issue-priority-dropdown', function () {
+       var issueId = $(this).data('issue-id');
+       var newPriority = $(this).val();
+       updateIssueField(issueId, 'priority', newPriority);
+   });
+
+
+</script>
+
 {% endblock content %}

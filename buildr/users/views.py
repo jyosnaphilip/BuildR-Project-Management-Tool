@@ -86,8 +86,8 @@ def home(request, custom_id):
         custom_id, current_ws_id)  # use whenevr navbar is needed in a page
     user_issues = issue.objects.filter(
         project__ws__ws_id=current_ws_id, issue_assignee_bridge__assignee=custom_id) #fetches all issues assigned to the current user for current workspace.
-    
-    return render(request, 'users\home.html', {'custom_id': custom_id, 'workspaces': ws, 'current_ws': current_ws, 'flag': flag, 'ws_code': code, 'projects': projects, 'user_issues': user_issues}) #renders home page including custom ID, workspaces, current workspace. projects, user issues, flag for admin status
+    statuses, priorities = get_priority_status_list() #fetches status and priority
+    return render(request, 'users\home.html', {'custom_id': custom_id, 'workspaces': ws, 'current_ws': current_ws, 'flag': flag, 'ws_code': code, 'projects': projects, 'user_issues': user_issues,'status':statuses,'priority':priorities}) #renders home page including custom ID, workspaces, current workspace. projects, user issues, flag for admin status
 
 def change_ws(request):
     if request.method == 'POST' and request.user.is_authenticated:
