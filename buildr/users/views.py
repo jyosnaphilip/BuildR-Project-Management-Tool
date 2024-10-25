@@ -37,6 +37,7 @@ from django.urls import reverse
 import uuid
 from urllib.parse import unquote
 from allauth.socialaccount.models import SocialAccount
+
 def check_code(ws_code):
     ws_code = workspaceCode.objects.get(
         code=ws_code[0]['code'], is_active=True)
@@ -93,7 +94,9 @@ def home(request, custom_id):
         custom_id, current_ws_id)  # use whenevr navbar is needed in a page
     profile_pic_url = get_google_profile_pic(request.user)
     user_issues = issue.objects.filter(
-        project__ws__ws_id=current_ws_id, issue_assignee_bridge__assignee=custom_id) #fetches all issues assigned to the current user for current workspace.
+        project__ws__ws_id=current_ws_id, issue_assignee_bridge__assignee=custom_id).annotate(
+        subissue_count=Count('child'), unread_comments_count=Count('comments', filter=~Q(comments__read_by=customUser.objects.get(user=request.user))),is_closed=Case(
+            When(status=4, then=1), default=0, output_field=IntegerField())).order_by('is_closed','priority__id') #fetches all issues assigned to the current user for current workspace.
     statuses, priorities = get_priority_status_list() #fetches status and priority
     custom_user = customUser.objects.get(user=request.user)
     return render(request, 'users\home.html', {"profile_pic_url":profile_pic_url,'custom_user':custom_user,'custom_id': custom_id, 'workspaces': ws, 'current_ws': current_ws, 'flag': flag, 'ws_code': code, 'projects': projects, 'user_issues': user_issues,'status':statuses,'priority':priorities}) #renders home page including custom ID, workspaces, current workspace. projects, user issues, flag for admin status
@@ -815,7 +818,14 @@ def issue_view(request, issue_id, custom_id):
     else:
         flag_assignee = False
     flag_lead = access_control_issues(issue_id,custom_id)
-    subIssues = issue.objects.filter(parent_task=issue_id).order_by('priority__id')
+    user_assignee_flag = issue_assignee_bridge.objects.filter(
+    issue=OuterRef('pk'), 
+    assignee=customUser.objects.get(custom_id=custom_id), 
+    active=True
+)
+    subIssues = issue.objects.filter(parent_task=issue_id).annotate(
+        subissue_count=Count('child'), unread_comments_count=Count('comments', filter=~Q(comments__read_by=customUser.objects.get(user=request.user))),is_closed=Case(
+            When(status=4, then=1), default=0, output_field=IntegerField()),is_assigned_to_user=Exists(user_assignee_flag)).order_by('is_closed','priority__id').order_by('priority__id')
     statuses, priorities = get_priority_status_list()
     custom_user = customUser.objects.get(user=request.user)
     context = {'subIssues': subIssues, 'issue': the_issue, 'issue_id': issue_id,
@@ -1347,7 +1357,6 @@ def dashboard(request):
  
     is_project_lead = check_if_project_lead(custom_id,current_ws_id)
        #  Additional data for workspace admins
-    print("flag",flag)
     if flag:
        
         admin_specific_data = load_admin_specific_insights(custom_id,current_ws_id)
@@ -1504,9 +1513,14 @@ def user_profile(request,custom_id):
     custom_user = customUser.objects.get(custom_id=custom_id)
     profile_pic_url = get_google_profile_pic(request.user)
         # The result will include the 'a3/media/' part, 
+    workspace_count = workspaceMember.objects.filter(active=True, customUser=customUser.objects.get(custom_id=custom_id)).count()
+    projects_lead_count = project_member_bridge.objects.filter(team_member=customUser.objects.get(custom_id=custom_id),role='Lead').count()
+    completed_project_count = project_member_bridge.objects.filter(team_member=customUser.objects.get(custom_id=custom_id), project__status = 4).count()
+    handled_issues_count = issue_assignee_bridge.objects.filter(assignee=customUser.objects.get(custom_id=custom_id),issue__status=4).count()
   
     context = {"custom_id": custom_id, 'workspaces': ws, 'current_ws': current_ws,
-               'flag': flag, 'ws_code': code, 'projects': projects, 'custom_user':custom_user,'profile_pic_url':profile_pic_url}
+               'flag': flag, 'ws_code': code, 'projects': projects, 'custom_user':custom_user,'profile_pic_url':profile_pic_url,'workspace_count':workspace_count,'projects_lead_count':projects_lead_count,
+               'completed_project_count':completed_project_count, 'handled_issues_count':handled_issues_count}
     return render(request, 'users/user_profile.html', context)
 
 def edit_profile(request,custom_id):

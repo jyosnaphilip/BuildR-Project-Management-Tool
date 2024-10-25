@@ -3,47 +3,123 @@
 
 
 {% block content %}
-<div class="container rounded bg-white mt-5 mb-5">
-    <div class="row justify-content-center">
-        <div class="col-md-3 border-right">
-            <form method="POST" enctype="multipart/form-data" action="{% url 'edit_profile' custom_id %}">
-                {% csrf_token %}
-            <div class="container-sm  text-center bg-color ">
-                <label for="fileField">
-                    {% if profile_pic_url %}
-                        <img id="profilePicPreview" class="card-img-top mt-4 me-4" src="{{profile_pic_url}}" alt="profile pic of {{custom_user.user.first_name}}" style="width: 250px;height:250px;border-radius: 100%;">
-                    {% elif custom_user.profile_pic %}
-                    <img id="profilePicPreview" class="card-img-top mt-4 me-4" src="{{custom_user.profile_pic.url}}" alt="profile pic of {{custom_user.user.first_name}}" style="width: 250px;height:250px;border-radius: 100%;">
-                    {% else %}
-                        <img id="profilePicPreview" class="card-img-top mt-5 text-center" src="{% static 'images/default_profile_pic.png' %}" alt="No image added" title="No image added. Click to add" style="width: 250px;height:250px;border-radius: 100%;opacity: 0.8;">
-                    {% endif %}
-                </label>
-                <input type="file" id="fileField" name="file" accept="image/*" hidden="true" onchange="previewProfilePic(event)">
-                
-            </div>
-        <div class="p-4 text-center"><span class="mt-5 text-secondary">Username: </span>{{custom_user.user.username}}{{custom_user.google_profile_pic_url}}</div>
-        </div>
-        <div class="col-md-5 border-right">
-            <div class="p-3 py-5">
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                    <h4 class="text-right" style="color:#004a7a;">Profile Settings</h4>
-                </div>
-                <div class="row mt-2">
-                    <div class="col-md-6"><label class="labels">Name</label><input  type="text" class="form-control" placeholder="first name" value="{{custom_user.user.first_name}}" disabled></div>
-                    <div class="col-md-6"><label class="labels">Surname</label><input  type="text" class="form-control" value="{{custom_user.user.last_name}}" placeholder="surname" disabled></div>
-                </div>
-                <div class="row mt-3">
-                    <div class="col-md-12"><label class="labels">Email ID</label><input name="email" type="email" class="form-control" placeholder="enter email id" value="{% if custom_user.user.email %}{{custom_user.user.email}}{% endif %}"></div>
-                </div>
-                <div class="mt-5 text-center"><button class="btn profile-button" style="background-color: #004a7a;color:white;" type="submit" value="submit" >Save Profile</button></div>
-            </div>
-        </form>
-        </div>
-        
+<div class="container rounded bg-white  mb-5">
+    <div class="d-flex justify-content-between align-items-center px-5">
+        <h2 class="text-right" style="color:#004a7a;">Profile </h2>
     </div>
+    <div class="row justify-content-center">
+
+        <div class="col-sm-4 border-sm shadow-lg" >
+            <div class="d-flex justify-content-end">
+                <button type="button" class="btn" id="enableEditForm" onclick="enableEditMode()"><i class="fa-solid fa-pen pt-4" style="color: #004a7a;"></i></button>
+
+            </div>
+
+            <div class="" id="profileDetails" style="display:block;color:#004a7a">
+               
+                <div class="container-sm  text-center bg-color ">
+                    <span>
+                        {% if profile_pic_url %}
+                            <img id="profilePic" class="card-img-top mt-4 me-4" src="{{profile_pic_url}}" alt="profile pic of {{custom_user.user.first_name}}" style="width: 250px;height:250px;border-radius: 100%;">
+                        {% elif custom_user.profile_pic %}
+                        <img id="profilePic" class="card-img-top mt-4 me-4" src="{{custom_user.profile_pic.url}}" alt="profile pic of {{custom_user.user.first_name}}" style="width: 250px;height:250px;border-radius: 100%;">
+                        {% else %}
+                            <img id="profilePic" class="card-img-top mt-5 text-center" src="{% static 'images/default_profile_pic.png' %}" alt="No image added" title="No image added. Click to add" style="width: 250px;height:250px;border-radius: 100%;opacity: 0.8;">
+                        {% endif %}
+                    </span>
+       
+                </div>
+
+                <h4 class="p-4 text-center">{{custom_user.user.first_name}} {{custom_user.user.last_name}}</h4>
+           
+                <div class=" text-center border-right">
+                    <div class="py-3">
+                        <span class="mt-5 ">Username: </span>{{custom_user.user.username}}
+                        <div class="row mt-3">
+                            <div class="col-md-12">Email ID: {% if custom_user.user.email %}{{custom_user.user.email}}{% endif %}</div>
+                        </div>
+                    </div>
+                
+                </div>
+            
+            </div>
+
+
+            <div class="editProfile" id="editProfileForm" style="display: none;;">
+
+                <form method="POST" enctype="multipart/form-data" action="{% url 'edit_profile' custom_id %}">
+                {% csrf_token %}
+
+                    <div class="container-sm  text-center bg-color ">
+                        <label for="fileField" style="cursor: pointer;">
+                            {% if profile_pic_url %}
+                                <img id="profilePicPreview" class="card-img-top mt-4 me-4" src="{{profile_pic_url}}" alt="profile pic of {{custom_user.user.first_name}}" style="width: 250px;height:250px;border-radius: 100%;">
+                            {% elif custom_user.profile_pic %}
+                            <img id="profilePicPreview" class="card-img-top mt-4 me-4" src="{{custom_user.profile_pic.url}}" alt="profile pic of {{custom_user.user.first_name}}" style="width: 250px;height:250px;border-radius: 100%;">
+                            {% else %}
+                                <img id="profilePicPreview" class="card-img-top mt-5 text-center" src="{% static 'images/default_profile_pic.png' %}" alt="No image added" title="No image added. Click to add" style="width: 250px;height:250px;border-radius: 100%;opacity: 0.8;">
+                            {% endif %}
+                        </label>
+                        <input type="file" id="fileField" name="file" accept="image/*" hidden="true" onchange="previewProfilePic(event)">
+
+                    </div>
+
+                    <div class="p-4 text-center"><span class="mt-5 text-secondary">Username: </span>{{custom_user.user.username}}</div>
+
+                    <div class=" border-right">
+                        <div class="p-3 py-5">
+                            <div class="row mt-2">
+                                <div class="col-md-6"><label class="labels">Name</label><input  type="text" class="form-control" placeholder="first name" value="{{custom_user.user.first_name}}" disabled></div>
+                                <div class="col-md-6"><label class="labels">Surname</label><input  type="text" class="form-control" value="{{custom_user.user.last_name}}" placeholder="surname" disabled></div>
+                            </div>
+                            <div class="row mt-3">
+                                <div class="col-md-12"><label class="labels">Email ID</label><input name="email" type="email" class="form-control" placeholder="enter email id" value="{% if custom_user.user.email %}{{custom_user.user.email}}{% endif %}"></div>
+                            </div>
+                            <div class="mt-5 text-center">
+                                <button class="btn profile-button" style="background-color: #004a7a;color:white;" value="cancel" onclick="cancelEditMode()" >Cancel</button>
+
+                                <button class="btn profile-button" style="background-color: #004a7a;color:white;" type="submit" value="submit" >Save Profile</button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <div class="col-sm-7" style="color:#004a7a;">
+            <div class="row m-4">
+                {% if workspace_count %}
+                <div class="col-sm-6 border-sm shadow-sm rounded p-3">
+                    <i class="fa-regular fa-building " style="font-size: 50px;"></i><span style="font-size:40px;"> {{workspace_count}} </span>
+                    <h4>Workspaces</h4>
+                </div>
+                {% endif %}
+                {% if projects_lead_count %}
+                <div class="col-sm-6 border-sm shadow-sm rounded p-3">
+                    <i class="fa-solid fa-medal" style="font-size: 50px;"></i><span style="font-size:40px;"> {{projects_lead_count}} </span>
+                    <h4>Projects Lead</h4>
+                </div>
+                {% endif %}
+            </div>
+            <div class="row m-4">
+                {% if completed_project_count %}
+                <div class="col-sm-6 border-sm shadow-sm rounded p-4">
+                    <i class="fa-solid fa-flag-checkered" style="font-size: 50px;"></i><span style="font-size:40px;"> {{completed_project_count}} </span>
+                    <h4>Projects Completed</h4>
+                </div>
+                {% endif %}
+                {% if handled_issues_count %}
+                <div class="col-sm-6 border-sm shadow-sm rounded p-4">
+                    <i class="fa-solid fa-list-check" style="font-size: 50px;"></i><span style="font-size:40px;"> {{handled_issues_count}} </span>
+                    <h4>Issues Handled</h4>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+
 </div>
-</div>
-</div>
+
 <script>
     function previewProfilePic(event) {
 
@@ -53,6 +129,17 @@
             output.src = reader.result;
         };
         reader.readAsDataURL(event.target.files[0]);
+    }
+
+    function enableEditMode() {
+        document.getElementById('profileDetails').style.display = 'none';
+        document.getElementById('enableEditForm').style.display = 'none';
+        document.getElementById('editProfileForm').style.display = 'block';
+    }
+    function cancelEditMode() {
+        document.getElementById('profileDetails').style.display = 'block';
+        document.getElementById('editProfileForm').style.display = 'none';
+        document.getElementById('enableEditForm').style.display = 'block';
     }
 </script>
 {% endblock content %}
