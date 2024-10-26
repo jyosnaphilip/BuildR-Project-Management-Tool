@@ -70,9 +70,10 @@ def get_google_profile_pic(user_):
 def req_for_navbar(custom_id, current_ws_id):
     """ retrieves all things necessary for rendering of sidebar """
     ws = get_ws(custom_id, current_ws_id)  # all ws #nav
-    current_ws = workspace.objects.get(ws_id=current_ws_id) #retrieves current_ws based on current_ws_id
+    current_ws = get_object_or_404(workspace,ws_id=current_ws_id) #retrieves current_ws based on current_ws_id
     projects = get_projects(current_ws)  # nav #retrieve projects associated with the current workspace.
-    
+    if not current_ws and len(ws)!=0:
+        current_ws = ws[0]
     if str(current_ws.admin.custom_id) == custom_id or current_ws.admin.custom_id == custom_id: 
         print("hre2") # nav
         flag = True #indicating whether the current user is the admin of the workspace or not.
@@ -1609,3 +1610,24 @@ def send_invite_emails(request, custom_id, ws_id):
         return JsonResponse({'message': 'Invitations sent successfully'})
     
     return JsonResponse({'error': 'Invalid request method'}, status=400)
+
+def user_search(request):
+    query = request.GET.get('q', '')
+
+    if query:
+        users = User.objects.filter(Q(username__icontains=query) | Q(first_name__icontains=query))  # Limit results
+        user_data = [
+            {
+                "id": user.id,
+                "name": user.first_name + user.last_name
+            }
+            for user in users
+        ]
+    else:
+        user_data = []
+
+    return JsonResponse(user_data, safe=False)
+
+def get_user(user_id):
+    custom_id = customUser.objects.get(user = user_id)
+    return redirect('user-profile',custom_id)

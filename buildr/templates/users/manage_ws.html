@@ -168,6 +168,39 @@
       console.error('Error toggling member status:', error);
     });
 }
+
+
+document.getElementById('show-email-input').addEventListener('click', function() {
+    document.getElementById('email-inputs').style.display = 'block';
+  });
+  
+  let emailCount = 1;
+  
+  document.getElementById('add-email').addEventListener('click', function() {
+    emailCount++;
+    const additionalEmails = document.getElementById('additional-emails');
+    const newEmailInput = document.createElement('input');
+    newEmailInput.type = 'email';
+    newEmailInput.className = 'form-control mb-2 email-field';
+    newEmailInput.placeholder = `Enter email ${emailCount}`;
+    newEmailInput.id = `email-${emailCount}`;
+    additionalEmails.appendChild(newEmailInput);
+  });
+  
+
+  function getAllEmails() {
+    const emails = [];
+    for (let i = 1; i <= emailCount; i++) {
+      const emailInput = document.getElementById(`email-${i}`);
+      if (emailInput && emailInput.value) {
+        emails.push(emailInput.value);
+      }
+    }
+    return emails;
+  }
+  
+
+  
 </script>
 <script>
   // send emails from frontend to backend

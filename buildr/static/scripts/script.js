@@ -127,7 +127,7 @@ function attachSignin(element) {
 // get morale
 function get_morale(issueId) {
     $.ajax({
-        url: "/get-morale/",  // Replace with the correct URL pattern
+        url: "/get-morale/",  
         method: "POST",
         data: {
             'issue_id': issueId,
@@ -135,7 +135,7 @@ function get_morale(issueId) {
         },
         success: function(response) {
             if (response.success) {
-                // Display the sentiment as an alert
+            
                 alert(`
                     Overall Sentiment: ${response.overall_sentiment}
                    
@@ -184,8 +184,7 @@ document.addEventListener('DOMContentLoaded', function() {
     toggleButton.addEventListener('click', function() {
         // Toggle the expanded class
         descriptionContainer.classList.toggle('description-expanded');
-        
-        // Change the button text accordingly
+
         if (descriptionContainer.classList.contains('description-expanded')) {
             toggleButton.textContent = '▲ Show less';
         } else {
@@ -197,36 +196,45 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // send email form
 
-document.getElementById('show-email-input').addEventListener('click', function() {
-    document.getElementById('email-inputs').style.display = 'block';
-  });
-  
-  let emailCount = 1;
-  
-  document.getElementById('add-email').addEventListener('click', function() {
-    emailCount++;
-    const additionalEmails = document.getElementById('additional-emails');
-    const newEmailInput = document.createElement('input');
-    newEmailInput.type = 'email';
-    newEmailInput.className = 'form-control mb-2 email-field';
-    newEmailInput.placeholder = `Enter email ${emailCount}`;
-    newEmailInput.id = `email-${emailCount}`;
-    additionalEmails.appendChild(newEmailInput);
-  });
-  
-  // Function to collect all emails
-  function getAllEmails() {
-    const emails = [];
-    for (let i = 1; i <= emailCount; i++) {
-      const emailInput = document.getElementById(`email-${i}`);
-      if (emailInput && emailInput.value) {
-        emails.push(emailInput.value);
-      }
-    }
-    return emails;
-  }
-  
+
 
   
 
 
+// search 
+$(document).ready(function() {
+    $('#search-input').select2({
+        theme:"bootstrap",
+        placeholder: 'Search for a user...',
+        minimumInputLength: 1, // Only start searching after typing at least one character
+        ajax: {
+            url: '/search_user', 
+            dataType: 'json',
+            delay: 250, // Delay in ms 
+            data: function(params) {
+                return {
+                    query: params.term // Search term from the input
+                };
+            },
+            processResults: function(data) {
+                if (!data.users) {
+                    console.error("Unexpected response structure:", data);
+                    return { results: [] };  // Return an empty array if `data.users` is undefined
+                }
+                return {
+                    results: data.users.map(user => ({
+                        id: user.id, 
+                        text: user.name 
+                    }))
+                };
+            },
+            cache: true
+        }
+    });
+
+    // Redirect or load profile when a user is selected
+    $('#user-input').on('select2:select', function(e) {
+        const userId = e.params.data.id;
+        window.location.href = `/user-profile/${userId}/`; // Adjust URL structure as needed
+    });
+});

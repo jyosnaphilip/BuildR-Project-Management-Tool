@@ -68,6 +68,7 @@ urlpatterns = [
     # path('change-issue-status/', change_issue_status, name='change_issue_status'), 
     path('g_login/',g_login,name='g_login'),
     path('send_invite_emails/<custom_id>/<ws_id>/',send_invite_emails, name='send_invite_emails'),
+    path('search_user',user_search,name='search-user'),
 ]   
 
 if settings.DEBUG:
