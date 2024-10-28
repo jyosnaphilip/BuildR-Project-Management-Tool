@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div id="content" class="expanded">
+<div class="container">
+<h2 style="color: #004a7a;">Search Results for "{{ query }}"</h2>
+
+{% if users %}
+<div class="vstack ">
+    {% for user,google_profile in user_details %}
+
+
+    <div class="p-3">
+        <div class="hstack  rounded border-bottom w-25">
+            <div class="p-2">
+                {% if google_profile%}
+
+                <img class="card-img-top  me-2 shadow-sm" src="{{google_profile}}"  alt="profile pic of {{custom_user.user.first_name}}" style="width: 30px;height:30px;border-radius: 100%;cursor:pointer;">
+            {% elif user.profile_pic %}
+            <img class="card-img-top  me-2 shadow-sm" src="{{user.profile_pic.url}}"  alt="profile pic of {{custom_user.user.first_name}}" style="width: 30px;height:30px;border-radius: 100%;cursor:pointer;">
+            {% else %}
+            <i class="fa-solid fa-circle-user fa-2xl " style="color: #004a7a;" ></i>
+            {% endif %}
+        </div>
+            <div class="p-2 fw-bold"><a style="text-decoration: none;color: #004a7a;" href="{% url 'user-profile' user.custom_id %}">{{ user.user.first_name }} {{ user.user.last_name }}</a></div>
+          </div>
+        
+    </div>
+    {% endfor %}
+  </div>
+ 
+{% else %}
+    <p style="color: #004a7a;">No users found matching "{{ query }}"</p>
+{% endif %}
+</div>
+</div>
+{% endblock content %}

@@ -197,44 +197,47 @@ document.addEventListener('DOMContentLoaded', function() {
 // send email form
 
 
+// Search icon click event
+document.getElementById("search-icon").addEventListener("click", function() {
+    const searchInput = document.getElementById("search-input");
+    const searchIcon = document.getElementById("search-icon");
+    
+    // Show the search input and cancel icon, then focus on the input
+    searchInput.classList.remove("d-none");
+    searchIcon.classList.add("d-none");
+    searchInput.focus();
+});
 
-  
+// Cancel icon click event
+// document.getElementById("cancel-icon").addEventListener("click", function() {
+//     const searchInput = document.getElementById("search-input");
+//     const searchIcon = document.getElementById("search-icon");
 
+    
+//     // Hide the search input and cancel icon
+//     searchInput.classList.add("d-none");
+//     searchIcon.classList.remove("d-none");
+    
+//     // Optional: clear the search input
+//     searchInput.value = "";
+// });
+const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
+const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
 
-// search 
-$(document).ready(function() {
-    $('#search-input').select2({
-        theme:"bootstrap",
-        placeholder: 'Search for a user...',
-        minimumInputLength: 1, // Only start searching after typing at least one character
-        ajax: {
-            url: '/search_user', 
-            dataType: 'json',
-            delay: 250, // Delay in ms 
-            data: function(params) {
-                return {
-                    query: params.term // Search term from the input
-                };
-            },
-            processResults: function(data) {
-                if (!data.users) {
-                    console.error("Unexpected response structure:", data);
-                    return { results: [] };  // Return an empty array if `data.users` is undefined
-                }
-                return {
-                    results: data.users.map(user => ({
-                        id: user.id, 
-                        text: user.name 
-                    }))
-                };
-            },
-            cache: true
-        }
-    });
+function cancelSearch() {
+    const searchInputGroup = document.getElementById('search-input');
+    const searchField = searchInputGroup.querySelector('input[name="search-input"]');
+    const searchIcon = document.getElementById("search-icon");
+    // Hide the search input group
+    searchInputGroup.classList.add('d-none');
+    searchIcon.classList.remove("d-none");
+    // Clear the search field
+    searchField.value = '';
+} 
 
-    // Redirect or load profile when a user is selected
-    $('#user-input').on('select2:select', function(e) {
-        const userId = e.params.data.id;
-        window.location.href = `/user-profile/${userId}/`; // Adjust URL structure as needed
-    });
+document.querySelector('#search-input input[name="search-input"]').addEventListener('keypress', function(event) {
+    if (event.key === 'Enter') {
+        event.preventDefault();  
+        this.form.submit();      
+    }
 });

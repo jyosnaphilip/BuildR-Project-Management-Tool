@@ -19,7 +19,7 @@ from django.urls import path
 from users.views import *
 from django.contrib.auth import views as auth_views
 from django.urls import include
-from users.views import register,user_logout,join_workspace,new_workspace,g_login,send_invite_emails
+from users.views import register,user_logout,join_workspace,new_workspace,g_login,send_invite_emails,search_user
 
 from users.views import home,add_project,project_view,issue_view,add_issue,add_subIssue,user_login,first_signin,change_ws,update_issue_field,update_project_field,edit_project,edit_issue, get_issueComments,submit_comment,submit_replies,file_upload_view, dashboard,user_profile,edit_profile, manage_workspace, remove_ws_member, deactivate_ws_member, toggle_ws_member_status, create_new_code, get_project_insights, toggle_ws_member_status, upload_file
 
@@ -68,7 +68,7 @@ urlpatterns = [
     # path('change-issue-status/', change_issue_status, name='change_issue_status'), 
     path('g_login/',g_login,name='g_login'),
     path('send_invite_emails/<custom_id>/<ws_id>/',send_invite_emails, name='send_invite_emails'),
-    path('search_user',user_search,name='search-user'),
+    path('search/', search_user, name='search_url'),
 ]   
 
 if settings.DEBUG:

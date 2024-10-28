@@ -66,12 +66,15 @@ def get_google_profile_pic(user_):
         profile_pic_url=SocialAccount.objects.get(user_id=user_.id).extra_data['picture']
         profile_pic_url = unquote(str(profile_pic_url))
         return profile_pic_url
+    else:
+        return None
 
 def req_for_navbar(custom_id, current_ws_id):
     """ retrieves all things necessary for rendering of sidebar """
     ws = get_ws(custom_id, current_ws_id)  # all ws #nav
     current_ws = get_object_or_404(workspace,ws_id=current_ws_id) #retrieves current_ws based on current_ws_id
     projects = get_projects(current_ws)  # nav #retrieve projects associated with the current workspace.
+    
     if not current_ws and len(ws)!=0:
         current_ws = ws[0]
     if str(current_ws.admin.custom_id) == custom_id or current_ws.admin.custom_id == custom_id: 
@@ -1508,20 +1511,28 @@ def scatter_plot_with_time(custom_id,ws_id):
 # user profile
 def user_profile(request,custom_id):
     current_ws_id = request.session.get('current_ws', None)
-
+    req_user = customUser.objects.get(user=request.user).custom_id # user who is sending the request
+    profile_owner = False
+    print(type(req_user))
+    print(type(custom_id))
+    print(str(req_user) == custom_id)
+    if str(req_user) == custom_id:
+        profile_owner = True
     ws, current_ws, projects, flag, code = req_for_navbar(
         custom_id, current_ws_id)
     custom_user = customUser.objects.get(custom_id=custom_id)
-    profile_pic_url = get_google_profile_pic(request.user)
+    profile_pic_url = get_google_profile_pic(customUser.objects.get(custom_id=req_user).user)
+    searched_profile_pic_url = get_google_profile_pic(customUser.objects.get(custom_id=custom_id).user)
+
         # The result will include the 'a3/media/' part, 
     workspace_count = workspaceMember.objects.filter(active=True, customUser=customUser.objects.get(custom_id=custom_id)).count()
     projects_lead_count = project_member_bridge.objects.filter(team_member=customUser.objects.get(custom_id=custom_id),role='Lead').count()
     completed_project_count = project_member_bridge.objects.filter(team_member=customUser.objects.get(custom_id=custom_id), project__status = 4).count()
     handled_issues_count = issue_assignee_bridge.objects.filter(assignee=customUser.objects.get(custom_id=custom_id),issue__status=4).count()
   
-    context = {"custom_id": custom_id, 'workspaces': ws, 'current_ws': current_ws,
+    context = {"custom_id": custom_id,'searched_profile_pic_url':searched_profile_pic_url, 'workspaces': ws, 'current_ws': current_ws,
                'flag': flag, 'ws_code': code, 'projects': projects, 'custom_user':custom_user,'profile_pic_url':profile_pic_url,'workspace_count':workspace_count,'projects_lead_count':projects_lead_count,
-               'completed_project_count':completed_project_count, 'handled_issues_count':handled_issues_count}
+               'completed_project_count':completed_project_count, 'handled_issues_count':handled_issues_count, 'profile_owner':profile_owner}
     return render(request, 'users/user_profile.html', context)
 
 def edit_profile(request,custom_id):
@@ -1611,22 +1622,29 @@ def send_invite_emails(request, custom_id, ws_id):
     
     return JsonResponse({'error': 'Invalid request method'}, status=400)
 
-def user_search(request):
-    query = request.GET.get('q', '')
-
+@csrf_exempt
+def search_user(request):
+    current_ws_id = request.session.get('current_ws', None)
+    custom_id = customUser.objects.get(user=request.user).custom_id
+    ws, current_ws, projects, flag, code = req_for_navbar(custom_id, current_ws_id)
+    users = []
+    query = request.POST.get('search-input', '')
+    profile_pic_url = get_google_profile_pic(request.user)
     if query:
-        users = User.objects.filter(Q(username__icontains=query) | Q(first_name__icontains=query))  # Limit results
-        user_data = [
-            {
-                "id": user.id,
-                "name": user.first_name + user.last_name
-            }
-            for user in users
-        ]
-    else:
-        user_data = []
+        queries = Q()
+        query = query.strip()
+        terms = query.split()
+        for term in terms:
+            queries |= Q(user__first_name__icontains=term) | Q(user__last_name__icontains=term) | Q(user__username__icontains = term)
+        users = customUser.objects.filter(queries)
+        google_profile = []
+        for user in users:
+            print(user.user)
+            google_profile.append(get_google_profile_pic(user.user))
 
-    return JsonResponse(user_data, safe=False)
+    user_details = list(zip(users,google_profile))  
+    
+    return render(request, 'users\search_results.html', {'user_details':user_details, 'profile_pic_url':profile_pic_url,'users': users, 'query': query,'workspaces':ws,'current_ws':current_ws,'projects':projects,'flag':flag,'code':code, 'custom_id':custom_id})
 
 def get_user(user_id):
     custom_id = customUser.objects.get(user = user_id)
