@@ -12,7 +12,7 @@ from django.db.models.functions import ExtractDay
 import json
 from datetime import datetime
 from django.http import JsonResponse
-from django.db.models import Count, Q, Sum, Case, When, IntegerField, F, ExpressionWrapper, fields, Exists, OuterRef
+from django.db.models import Count, Q, Sum, Case, When, IntegerField, F, ExpressionWrapper, fields, Exists, OuterRef, Subquery
 from django.core.exceptions import PermissionDenied, ValidationError
 from django.core.mail import send_mail
 import random
@@ -534,21 +534,33 @@ def project_view(request, project_id, custom_id):
 
     # Get all users in the workspace
     workspace_members = workspaceMember.objects.filter(workspace=current_ws)
-    user_assignee_flag = issue_assignee_bridge.objects.filter(
-    issue=OuterRef('pk'), 
-    assignee=customUser.objects.get(custom_id=custom_id), 
-    active=True
-)
+#     user_assignee_flag = issue_assignee_bridge.objects.filter(
+#     issue=OuterRef('pk'), 
+#     assignee=customUser.objects.get(custom_id=custom_id), 
+#     active=True
+# )
     custom_user = customUser.objects.get(user=request.user)
+    unread_comments_subquery = Comments.objects.filter(
+        issue=OuterRef('pk')
+    ).exclude(
+        read_by=custom_user  # Exclude comments read by the current user
+    ).values('issue').annotate(
+        unread_count=Count('id', distinct=True)
+    ).values('unread_count')  # Only get the unread_count from the subquery
+    user_assignee_flag = Subquery(
+    issue_assignee_bridge.objects.filter(issue=OuterRef('pk'), assignee=custom_user).values('pk')[:1]
+    )   
     issues = issue.objects.filter(project_id=project_id, parent_task__isnull=True).annotate(
-        subissue_count=Count('child'), unread_comments_count=Count('comments', filter=~Q(comments__read_by=customUser.objects.get(user=request.user))),is_closed=Case(
+        subissue_count=Count('child'), unread_comments_count=Subquery(unread_comments_subquery, output_field=IntegerField()),is_closed=Case(
             When(status=4, then=1), default=0, output_field=IntegerField()),is_assigned_to_user=Exists(user_assignee_flag)).order_by('is_closed','priority__id')
+
     context = {'project': project, 'lead': lead, 'team': team, 'status': statuses,
                'priority': priorities, 'issues': issues, 'workspace_memb': workspace_members,
                'lead_user_ids': lead_user_ids, 'team_ids': team_ids, 'workspaces': ws, 'current_ws': current_ws,
                'custom_user':custom_user,'flag': flag, 'ws_code': code, 'projects': projects, 'custom_id': custom_id, 'flag_member': flag_member, 'flag_lead': flag_lead, 'profile_pic_url':profile_pic_url}
          
-
+    for issue_ in issues:
+        print(issue_.unread_comments_count)
     return render(request, 'users\project_view.html', context)
 
 
@@ -924,25 +936,31 @@ def add_subIssue(request, issue_id, custom_id):
 
 # comments
 def get_issueComments(request, issue_id):
+    custom_user= customUser.objects.get(user=request.user.id)
 
     comments = Comments.objects.filter(
         issue_id=issue_id, parent_comment__isnull=True).select_related('author', 'issue')
     if not comments.exists():
 
         return JsonResponse({'comments': [], 'message': 'No comments available.'})
-    custom_id = customUser.objects.get(user=request.user.id).custom_id
     comment_data = []
     
     for comment in comments:
-        comment_is_read=custom_id in comment.read_by.all()
-        if not comment_is_read:
-            comment.read_by.add(custom_id)
-        replies = comment.replies.select_related('author').all()
+        
+        if custom_user not in comment.read_by.all():
+        
+            comment.read_by.add(custom_user)
+            
+            
+            comment.save()
+        users = comment.read_by.all()
+        for user in users:
+            print(user.user.first_name)
         replies_data = []
-        for reply in replies:
-            reply_is_read=custom_id in reply.read_by.all()
-            if not reply_is_read:
-                reply.read_by.add(custom_id)
+        for reply in comment.replies.select_related('author').all():
+            if custom_user not in reply.read_by.all():
+                reply.read_by.add(custom_user)
+                reply.save()
             replies_data.append({
                 'id': reply.id,
                 'author': reply.author.user.first_name + " " + reply.author.user.first_name,
@@ -956,7 +974,9 @@ def get_issueComments(request, issue_id):
             'created_at': comment.created_at.strftime('%d-%m-%Y %H:%M'),
             'replies': replies_data
         })
-    return JsonResponse({'comments': comment_data})
+
+        unread_count = issue.objects.get(issue_id=issue_id).unread_comments_count(custom_user)
+    return JsonResponse({'comments': comment_data, 'unread_count': unread_count})
 
 
 def submit_comment(request):

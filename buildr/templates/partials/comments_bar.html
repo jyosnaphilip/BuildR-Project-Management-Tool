@@ -42,6 +42,7 @@
                     const commentsList = commentSection.querySelector('.comments-list');
                     data.comments.forEach(comment => appendComment(commentsList, comment, issueId));
                 }
+                
             })
             .catch(error => {
                 console.error('Error fetching comments:', error);
@@ -243,4 +244,16 @@ const offcanvas = document.getElementById('offcanvasExample');
         }
         return cookieValue;
     }
+
+//     function updateUnreadBadge(issueId, unreadCount) {
+//     const badge = document.querySelector(`[data-issue-id="${issueId}"] .badge`);
+//     if (badge) {
+//         if (unreadCount > 0) {
+//             badge.textContent = unreadCount;
+//             badge.style.display = 'inline';
+//         } else {
+//             badge.style.display = 'none';
+//         }
+//     }
+// }
 </script>
