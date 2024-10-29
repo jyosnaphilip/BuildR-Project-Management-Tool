@@ -96,13 +96,21 @@ def home(request, custom_id):
     current_ws_id = request.session.get('current_ws', None)  # nav #session store and retrieve data of a particular user.
     ws, current_ws, projects, flag, code = req_for_navbar(
         custom_id, current_ws_id)  # use whenevr navbar is needed in a page
+    custom_user = customUser.objects.get(user=request.user)
+
     profile_pic_url = get_google_profile_pic(request.user)
+    unread_comments_subquery = Comments.objects.filter(
+        issue=OuterRef('pk')).exclude(
+        read_by=custom_user  # Exclude comments read by the current user
+    ).values('issue').annotate(
+        unread_count=Count('id', distinct=True)
+    ).values('unread_count') 
     user_issues = issue.objects.filter(
         project__ws__ws_id=current_ws_id, issue_assignee_bridge__assignee=custom_id).annotate(
-        subissue_count=Count('child'), unread_comments_count=Count('comments', filter=~Q(comments__read_by=customUser.objects.get(user=request.user))),is_closed=Case(
-            When(status=4, then=1), default=0, output_field=IntegerField())).order_by('is_closed','priority__id') #fetches all issues assigned to the current user for current workspace.
+        subissue_count=Count('child'), unread_comments_count=Subquery(unread_comments_subquery, output_field=IntegerField()),is_closed=Case(
+            When(status=4, then=1), default=0, output_field=IntegerField())).order_by('is_closed','priority_id') #fetches all issues assigned to the current user for current workspace.
+
     statuses, priorities = get_priority_status_list() #fetches status and priority
-    custom_user = customUser.objects.get(user=request.user)
     return render(request, 'users\home.html', {"profile_pic_url":profile_pic_url,'custom_user':custom_user,'custom_id': custom_id, 'workspaces': ws, 'current_ws': current_ws, 'flag': flag, 'ws_code': code, 'projects': projects, 'user_issues': user_issues,'status':statuses,'priority':priorities}) #renders home page including custom ID, workspaces, current workspace. projects, user issues, flag for admin status
 
 def change_ws(request):
@@ -534,11 +542,7 @@ def project_view(request, project_id, custom_id):
 
     # Get all users in the workspace
     workspace_members = workspaceMember.objects.filter(workspace=current_ws)
-#     user_assignee_flag = issue_assignee_bridge.objects.filter(
-#     issue=OuterRef('pk'), 
-#     assignee=customUser.objects.get(custom_id=custom_id), 
-#     active=True
-# )
+
     custom_user = customUser.objects.get(user=request.user)
     unread_comments_subquery = Comments.objects.filter(
         issue=OuterRef('pk')
@@ -552,15 +556,13 @@ def project_view(request, project_id, custom_id):
     )   
     issues = issue.objects.filter(project_id=project_id, parent_task__isnull=True).annotate(
         subissue_count=Count('child'), unread_comments_count=Subquery(unread_comments_subquery, output_field=IntegerField()),is_closed=Case(
-            When(status=4, then=1), default=0, output_field=IntegerField()),is_assigned_to_user=Exists(user_assignee_flag)).order_by('is_closed','priority__id')
+            When(status=4, then=1), default=0, output_field=IntegerField()),is_assigned_to_user=Exists(user_assignee_flag)).order_by('is_closed','priority')
 
     context = {'project': project, 'lead': lead, 'team': team, 'status': statuses,
                'priority': priorities, 'issues': issues, 'workspace_memb': workspace_members,
                'lead_user_ids': lead_user_ids, 'team_ids': team_ids, 'workspaces': ws, 'current_ws': current_ws,
                'custom_user':custom_user,'flag': flag, 'ws_code': code, 'projects': projects, 'custom_id': custom_id, 'flag_member': flag_member, 'flag_lead': flag_lead, 'profile_pic_url':profile_pic_url}
          
-    for issue_ in issues:
-        print(issue_.unread_comments_count)
     return render(request, 'users\project_view.html', context)
 
 
@@ -829,24 +831,27 @@ def issue_view(request, issue_id, custom_id):
         active=True, issue=the_issue)
     assignee_ids = assignees.values_list('assignee__custom_id', flat=True)
    
-    if uuid.UUID(custom_id) in assignee_ids:
-        flag_assignee=True
-    else:
-        flag_assignee = False
+  
+    custom_user = customUser.objects.get(custom_id=custom_id)
     flag_lead = access_control_issues(issue_id,custom_id)
-    user_assignee_flag = issue_assignee_bridge.objects.filter(
-    issue=OuterRef('pk'), 
-    assignee=customUser.objects.get(custom_id=custom_id), 
-    active=True
-)
+
+    unread_comments_subquery = Comments.objects.filter(
+        issue=OuterRef('pk')
+    ).exclude(
+        read_by=custom_user  # Exclude comments read by the current user
+    ).values('issue').annotate(
+        unread_count=Count('id', distinct=True)
+    ).values('unread_count')  # Only get the unread_count from the subquery
+    user_assignee_flag = Subquery(
+    issue_assignee_bridge.objects.filter(issue=OuterRef('pk'), assignee=custom_user).values('pk')[:1]
+    )  
     subIssues = issue.objects.filter(parent_task=issue_id).annotate(
-        subissue_count=Count('child'), unread_comments_count=Count('comments', filter=~Q(comments__read_by=customUser.objects.get(user=request.user))),is_closed=Case(
-            When(status=4, then=1), default=0, output_field=IntegerField()),is_assigned_to_user=Exists(user_assignee_flag)).order_by('is_closed','priority__id').order_by('priority__id')
+        subissue_count=Count('child'), unread_comments_count=Subquery(unread_comments_subquery, output_field=IntegerField()),is_closed=Case(
+            When(status=4, then=1), default=0, output_field=IntegerField()),is_assigned_to_user=Exists(user_assignee_flag)).order_by('is_closed','priority__id')
     statuses, priorities = get_priority_status_list()
-    custom_user = customUser.objects.get(user=request.user)
     context = {'subIssues': subIssues, 'issue': the_issue, 'issue_id': issue_id,
                "custom_id": custom_id, 'priority': priorities, 'status': statuses, 'workspaces': ws, 'current_ws': current_ws,
-               'flag': flag,'flag_lead':flag_lead,'custom_user':custom_user,'flag_assignee':flag_assignee, 'ws_code': code, 'projects': projects,'profile_pic_url':profile_pic_url, 'project_members': project_members, 'assignee_id': assignee_ids, 'assignees': assignees}
+               'flag': flag,'flag_lead':flag_lead,'custom_user':custom_user, 'ws_code': code, 'projects': projects,'profile_pic_url':profile_pic_url, 'project_members': project_members, 'assignee_id': assignee_ids, 'assignees': assignees}
     return render(request, 'users\issue_view.html', context)
 
 
@@ -894,7 +899,6 @@ def add_issue(request, custom_id, project_id):
 
 
 def add_subIssue(request, issue_id, custom_id):
-    print("add sub issue  is triggered")
     subIssue = issue.objects.get(issue_id=issue_id)
     team_members = project_member_bridge.objects.filter(
         project=subIssue.project, active=True)

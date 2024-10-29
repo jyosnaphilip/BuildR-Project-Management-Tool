@@ -249,7 +249,7 @@
                                            {{stat.name}}
                                         </option>
                                     {% else %}
-                                        {% if flag_lead or flag_assignee %}
+                                        {% if flag_lead  or issue.is_assigned_to_user %}
                                             <option class="dropdown-item" value="{{stat.id}}" style="background-color: {% if stat.id == 1 %}green{% elif stat.id == 2 %}orange{% elif stat.id == 3 %}#FF5733{% else %}rgb(191,87,0){% endif %};">
                                                 <i class="fa-regular fa-circle fa-l"></i> {{stat.name}}
                                             </option>
@@ -272,7 +272,7 @@
             
                                         <option value="{{prior.id}}"  class="dropdown-item" style="background-color: {% if prior.id == 1%}red{% elif prior.id == 2%}orange{% elif prior.id == 3%}#FF5733{% elif prior.id == 4%}rgb(191,87,0){% elif prior.id == 5%}rgb(21,67,96){% endif %};" selected>{{prior.name}}</option>
                                         {% else %}
-                                            {% if flag_lead or flag_assignee %}
+                                            {% if flag_lead or issue.is_assigned_to_user %}
 
                                             <option class="dropdown-item" value="{{prior.id}}" style="background-color: {% if prior.id == 1%}red{% elif prior.id == 2%}orange{% elif prior.id == 3%}#FF5733{% elif prior.id == 4%}rgb(191,87,0){% elif prior.id == 5%}rgb(21,67,96){% endif %};"><i class="fa-regular fa-circle fa-l"></i> {{prior.name}}</option>
                                             {% endif %}
@@ -305,7 +305,7 @@
                         <td>{% if issue.deadline %}{{issue.deadline}}{% endif %}</td>
                         <td><button class="btn " type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasExample" aria-controls="offcanvasExample" onclick="get_issueComments('{{issue.issue_id}}')">
                             <i class="fa-regular fa-comment position-relative">
-                                {% if issue.unread_comments_count != 0 %}<span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 9px;">
+                                {% if issue.unread_comments_count != 0 and issue.unread_comments_count != None %}<span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 9px;">
                                 {{issue.unread_comments_count}}
                                 <span class="visually-hidden">unread messages</span>
                               </span>
@@ -334,6 +334,8 @@
        [10, 25, 50, -1],
        [10, 25, 50, 'All']
    ],
+   order:false,
+   processing:true,
    // layout: {
    //     top1: {
    //         searchPanes: {

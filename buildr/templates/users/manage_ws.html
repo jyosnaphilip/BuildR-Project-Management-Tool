@@ -20,7 +20,7 @@
     {% endfor %}
     {% endif %}
     <div class="container p-3">
-        <table class="table table-hover text-center" style="background-color: rgb(41, 128, 185) ;">
+        <table id="ws-members" class="table table-hover text-center" style="background-color: rgb(41, 128, 185) ;">
             <thead>
               <tr>
                 <th scope="col-sm-1" class="text-center">Active</th>
@@ -131,8 +131,19 @@
     </div>
   </div>
 <!-- model end -->
-
 <script>
+   $(document).ready( function () {
+   $('#ws-members').DataTable({
+       lengthMenu: [
+       [10, 25, 50, -1],
+       [10, 25, 50, 'All']
+   ],
+   order:false,
+   processing:true,
+   });});
+</script>
+<script>
+
   document.getElementById('update-code-btn').addEventListener('click', function() {
       $.ajax({
           url: "{% url 'create_new_code' custom_id current_ws.ws_id %}",
