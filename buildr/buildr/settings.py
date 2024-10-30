@@ -188,7 +188,8 @@ CELERY_RESULT_BACKEND = 'django-db'
 #Email verification
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
 
-
+DOCUMENT_UPLOAD_PATH = 'uploads/documents/'
+NEW_DOCUMENT_UPLOAD_PATH = 'uploads/newdocuments/'
 
 BASE_URL = os.getenv('BASE_URL', 'http://127.0.0.1:8000')
 

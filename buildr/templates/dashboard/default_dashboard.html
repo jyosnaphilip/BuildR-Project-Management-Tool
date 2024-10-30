@@ -745,12 +745,8 @@ const options = {
     // project end
     ],
   dataLabels: [{
-            enabled: true,
-            format: '<div style="width: 20px; height: 20px; overflow: ' +
-                'hidden; border-radius: 50%; margin-left: -25px;">' +
-                '<img src="https://github.com/jyosnaphilip.png" ' +
-                'style="width: 30px; margin-left: -5px; margin-top: -2px">' +
-                '</div>',
+    enabled: true,
+            format: `<div style="width: 20px; height: 20px; overflow: hidden; border-radius: 50%; margin-left: -25px;z-index:1;"><img src='https://github.com/' style="width: 30px; margin-left: -5px; margin-top: -2px"></div>`,
             useHTML: true,
             align: 'left'
         }, {

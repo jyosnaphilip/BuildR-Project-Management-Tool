@@ -78,7 +78,7 @@ def req_for_navbar(custom_id, current_ws_id):
     if not current_ws and len(ws)!=0:
         current_ws = ws[0]
     if str(current_ws.admin.custom_id) == custom_id or current_ws.admin.custom_id == custom_id: 
-        print("hre2") # nav
+ # nav
         flag = True #indicating whether the current user is the admin of the workspace or not.
         ws_code = workspaceCode.objects.filter(
             ws=current_ws_id, is_active=True).values('code', 'ws_id')
@@ -958,8 +958,7 @@ def get_issueComments(request, issue_id):
             
             comment.save()
         users = comment.read_by.all()
-        for user in users:
-            print(user.user.first_name)
+      
         replies_data = []
         for reply in comment.replies.select_related('author').all():
             if custom_user not in reply.read_by.all():
@@ -1342,7 +1341,6 @@ def g_login(request):
     user_id=request.user.id 
     custom_user=customUser.objects.get(user=user_id)
     custom_id = custom_user.custom_id
-    print(custom_id)
     if custom_user.last_ws: #already joined workspace
         request.session['current_ws'] = str(custom_user.last_ws.ws_id) #the last_ws id is stored in session as current_ws
     else:
@@ -1401,8 +1399,7 @@ def dashboard(request):
                     project_insights.update({'project_name':project})
                     if project_insights is not None:
                         project_details.append(project_insights)  
-                        # project_Details looks like [{project1_insights},{project2_insight}]
-                print(project_details)      
+  
                 context.update({'project_details':project_details})
                 #updating context here becuase projects_lead would have been empty if projects_lead was none
             # project_details:[{project_name:project,insigth1:insight1,insight2:insight2},{project_name:project,insigth1:insight1,insight2:insight2}]
@@ -1537,9 +1534,7 @@ def user_profile(request,custom_id):
     current_ws_id = request.session.get('current_ws', None)
     req_user = customUser.objects.get(user=request.user).custom_id # user who is sending the request
     profile_owner = False
-    print(type(req_user))
-    print(type(custom_id))
-    print(str(req_user) == custom_id)
+
     if str(req_user) == custom_id:
         profile_owner = True
     ws, current_ws, projects, flag, code = req_for_navbar(
@@ -1663,7 +1658,6 @@ def search_user(request):
         users = customUser.objects.filter(queries)
         google_profile = []
         for user in users:
-            print(user.user)
             google_profile.append(get_google_profile_pic(user.user))
 
     user_details = list(zip(users,google_profile))  
