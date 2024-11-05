@@ -10,7 +10,6 @@ class customUser(models.Model):
     user=models.ForeignKey(User,on_delete=models.CASCADE)
     profile_pic=models.ImageField(upload_to='user_dp',null=True,blank=True)
     gameMode=models.BooleanField(default=True,blank=False)
-    google_profile_pic_url = models.CharField(max_length=500, null=True, blank=True)
     last_ws=models.ForeignKey("workspace",null=True,blank=True,on_delete=models.SET_NULL)
     def __str__(self) :
         return self.user

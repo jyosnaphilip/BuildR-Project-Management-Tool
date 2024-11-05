@@ -3,9 +3,9 @@
 {% load static %}
 {% block content %}
 <div id="content" class="expanded">
-    <div class="container">
-        <div class="row justify-content-center">
-            <div class="">
+    <div class="container m-5">
+        <div class="">
+            <div class="row">
                 {% if messages %}
                 {% for message in messages %}
                 <p {% if message.tags %} class="{{ message.tags }}" {% endif %}>{{ message }}</p>
@@ -262,7 +262,7 @@
                 </div>
                 </div>
                 
-            </div>
+            
 
 
             <!-- issues here -->

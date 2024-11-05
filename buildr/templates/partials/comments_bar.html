@@ -51,14 +51,27 @@
     }
 
     function appendComment(container, comment, issueId) {
+        let avatarHTML = '';
+
+    if (comment.author.profile_pic) {
+        avatarHTML = `<img src="${comment.author.profile_pic}" alt="Avatar of ${comment.author.name}" style="width: 30px;height:30px;border-radius: 100%;">`;
+    } else if (comment.author.google_profile_pic_url) {
+        avatarHTML = `<img src="${comment.author.google_profile_pic_url}" alt="Avatar of hey ${comment.author.name}" style="width: 30px;height:30px;border-radius: 100%;">`;
+    } else {
+        avatarHTML = `<i class="fa-solid fa-circle-user fa-2xl" style="color: #004a7a;"></i>`;
+    }
+        const RepliesToggle = (comment.replies && comment.replies.length > 0) ? `<span class="replies-toggle" onclick="toggleReplies('replies${comment.id}')">
+                  <strong>Replies (${comment.replies ? comment.replies.length : 0})</strong>
+              </span>`:``;
         const commentHTML = `
           <div class="comment w-100" id="comment${comment.id}">
               <div class="comment-header w-100">
                   <div class="user-avatar">
-                      <img src="https://via.placeholder.com/40" alt="User Avatar">
+                    ${avatarHTML}
+                   
                   </div>
                   <div class="user-details">
-                      <strong>${comment.author}</strong>
+                      <strong>${comment.author.name}</strong>
                       <span class="comment-time">${comment.created_at}</span>
                   </div>
               </div>
@@ -68,9 +81,7 @@
                   <textarea id="replyInput${comment.id}" placeholder="Write a reply..."></textarea>
                   <button class="submit-reply" onclick="submitReply('replies${comment.id}', 'replyInput${comment.id}', '${comment.id}', '${issueId}')">Submit</button>
               </div>
-              <span class="replies-toggle" onclick="toggleReplies('replies${comment.id}')">
-                  <strong>Replies (${comment.replies ? comment.replies.length : 0})</strong>
-              </span>
+              ${RepliesToggle}
               <div id="replies${comment.id}" class="comment-replies" style="display: none;"></div>
           </div>`;
 
@@ -81,14 +92,23 @@
     }
 
     function appendReply(repliesSection, reply, issueId) {
+        let avatarHTML = '';
+
+    if (reply.author.profile_pic) {
+        avatarHTML = `<img src="${reply.author.profile_pic}" alt="Avatar of ${reply.author.name}" style="width: 30px;height:30px;border-radius: 100%;">`;
+    } else if (reply.author.google_profile_pic_url) {
+        avatarHTML = `<img src="${reply.author.google_profile_pic_url}" alt="Avatar of ${reply.author.name}" style="width: 30px;height:30px;border-radius: 100%;">`;
+    } else {
+        avatarHTML = `<i class="fa-solid fa-circle-user fa-2xl" style="color: #004a7a;"></i>`;
+    }
         const replyHTML = `
           <div class="comment">
               <div class="comment-header">
                   <div class="user-avatar">
-                      <img src="https://via.placeholder.com/40" alt="User Avatar">
+                      ${avatarHTML}
                   </div>
                   <div class="user-details">
-                      <strong>${reply.author}</strong>
+                      <strong>${reply.author.name}</strong>
                       <span class="comment-time">${reply.created_at}</span>
                   </div>
               </div>
@@ -98,9 +118,7 @@
                   <textarea id="replyInput${reply.id}" placeholder="Write a reply..."></textarea>
                   <button class="submit-reply" onclick="submitReply('replies${reply.id}', 'replyInput${reply.id}', '${reply.id}', '${issueId}')">Submit</button>
               </div>
-              <span class="replies-toggle" onclick="toggleReplies('replies${reply.id}')">
-                  <strong>Replies (${reply.replies ? reply.replies.length : 0})</strong>
-              </span>
+              
               <div id="replies${reply.id}" class="comment-replies" style="display: none;">
                   <!-- Replies to this reply will be appended here -->
               </div>

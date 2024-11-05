@@ -545,7 +545,7 @@ tfoot tr:nth-child(2) th {
   background-color:#004a7a
 }
 .offcanvas-body p {
-  color: #bb8d00;
+  color: #004a7a;
   font-family: "Gothic A1", sans-serif;
   font-weight: 400;
   font-style: normal;
@@ -586,7 +586,7 @@ tfoot tr:nth-child(2) th {
 
 .replies-toggle {
   cursor: pointer;
-  color: #007BFF;
+  color: #004a7a;;
   font-size: 0.9em;
   margin-top: 10px;
 }
@@ -600,6 +600,7 @@ tfoot tr:nth-child(2) th {
 
 .reply-button:hover {
   text-decoration: underline;
+  color:#004a7a;
 }
 
 /* Reply Form */
@@ -620,7 +621,7 @@ tfoot tr:nth-child(2) th {
 }
 
 .submit-reply {
-  background-color: #28a745;
+  background-color: #004a7a;;
   color: white;
   border: none;
   padding: 5px 10px;
@@ -631,7 +632,7 @@ tfoot tr:nth-child(2) th {
 }
 
 .submit-reply:hover {
-  background-color: #218838;
+  background-color: #003354;;
 }
 /* General styling */
 .comments-section {
@@ -677,6 +678,7 @@ tfoot tr:nth-child(2) th {
 
 .user-details {
   font-size: 0.9em;
+  color:#004a7a;
 }
 
 .user-details strong {
@@ -698,7 +700,7 @@ tfoot tr:nth-child(2) th {
 /* Replies toggle */
 .replies-toggle {
   cursor: pointer;
-  color: #007BFF;
+  color: #004a7a;
   font-size: 0.9em;
   margin-top: 10px;
 }
@@ -729,13 +731,13 @@ tfoot tr:nth-child(2) th {
 }
 
 .no-comments-message textarea:focus {
-  border-color: #007BFF; /* Border color change on focus */
+  border-color: #004a7a; /* Border color change on focus */
   outline: none;         /* Remove the default blue outline */
 }
 
 /* Submit button styling */
 .submit-comment {
-  background-color: #28a745;
+  background-color: #004a7a;
   color: white;
   border: none;
   padding: 10px 15px;
@@ -748,7 +750,7 @@ tfoot tr:nth-child(2) th {
 }
 
 .submit-comment:hover {
-  background-color: #218838;
+  background-color: #013253;
 }
 
 /* General layout improvements for the no-comments message */

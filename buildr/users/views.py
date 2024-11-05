@@ -100,7 +100,8 @@ def home(request, custom_id):
 
     profile_pic_url = get_google_profile_pic(request.user)
     unread_comments_subquery = Comments.objects.filter(
-        issue=OuterRef('pk')).exclude(
+        issue=OuterRef('pk')
+    ).exclude(
         read_by=custom_user  # Exclude comments read by the current user
     ).values('issue').annotate(
         unread_count=Count('id', distinct=True)
@@ -257,7 +258,7 @@ def join_workspace(request):
                 # check if the person is already part of this workspace
                 if workspaceMember.objects.filter(workspace=workspace.objects.get(ws_id=ws_code[0]['ws_id']), customUser=customUser_,active=True).exists():
                     request.session['current_ws'] = str(ws_code[0]['ws_id'])
-                    return redirect('home',customUser_)
+                    return redirect('home',customUser_.custom_id)
                 
                 ws_member = workspaceMember(workspace=workspace.objects.get(
                     ws_id=ws_code[0]['ws_id']), customUser=customUser_) #creating a ws_member
@@ -845,12 +846,13 @@ def issue_view(request, issue_id, custom_id):
     user_assignee_flag = Subquery(
     issue_assignee_bridge.objects.filter(issue=OuterRef('pk'), assignee=custom_user).values('pk')[:1]
     )  
+
     subIssues = issue.objects.filter(parent_task=issue_id).annotate(
         subissue_count=Count('child'), unread_comments_count=Subquery(unread_comments_subquery, output_field=IntegerField()),is_closed=Case(
             When(status=4, then=1), default=0, output_field=IntegerField()),is_assigned_to_user=Exists(user_assignee_flag)).order_by('is_closed','priority__id')
     statuses, priorities = get_priority_status_list()
     context = {'subIssues': subIssues, 'issue': the_issue, 'issue_id': issue_id,
-               "custom_id": custom_id, 'priority': priorities, 'status': statuses, 'workspaces': ws, 'current_ws': current_ws,
+               "custom_id": custom_id, 'priority': priorities, 'status': statuses, 'workspaces': ws, 'current_ws': current_ws, 'flag_assignee':user_assignee_flag,
                'flag': flag,'flag_lead':flag_lead,'custom_user':custom_user, 'ws_code': code, 'projects': projects,'profile_pic_url':profile_pic_url, 'project_members': project_members, 'assignee_id': assignee_ids, 'assignees': assignees}
     return render(request, 'users\issue_view.html', context)
 
@@ -951,33 +953,45 @@ def get_issueComments(request, issue_id):
     
     for comment in comments:
         
+        google_profile_pic = get_google_profile_pic(comment.author.user)
         if custom_user not in comment.read_by.all():
-        
+            print("here3")
             comment.read_by.add(custom_user)
-            
+            print("here3")
             
             comment.save()
-        users = comment.read_by.all()
-      
+        
         replies_data = []
         for reply in comment.replies.select_related('author').all():
+            print("here5")
             if custom_user not in reply.read_by.all():
+                print("here6")
                 reply.read_by.add(custom_user)
                 reply.save()
+            r_auth_google_pic = get_google_profile_pic(reply.author.user)
             replies_data.append({
                 'id': reply.id,
-                'author': reply.author.user.first_name + " " + reply.author.user.first_name,
+                'author':{
+                'name':reply.author.user.first_name + " " + reply.author.user.first_name,
+                'profile_pic':reply.author.profile_pic.url if reply.author.profile_pic else None ,
+                'google_profile_pic_url':r_auth_google_pic
+                }, 
                 'text': reply.comment,
                 'created_at': reply.created_at.strftime('%d-%m-%Y %H:%M')
             })
+            
         comment_data.append({
             'id': comment.id,
-            'author': comment.author.user.first_name + " " + comment.author.user.last_name,
+            'author': {
+                'name':comment.author.user.first_name + " " + comment.author.user.last_name,
+                'profile_pic':comment.author.profile_pic.url if comment.author.profile_pic else None ,
+                'google_profile_pic_url':google_profile_pic
+                },
             'text': comment.comment,
             'created_at': comment.created_at.strftime('%d-%m-%Y %H:%M'),
             'replies': replies_data
         })
-
+        
         unread_count = issue.objects.get(issue_id=issue_id).unread_comments_count(custom_user)
     return JsonResponse({'comments': comment_data, 'unread_count': unread_count})
 
@@ -1532,15 +1546,16 @@ def scatter_plot_with_time(custom_id,ws_id):
 # user profile
 def user_profile(request,custom_id):
     current_ws_id = request.session.get('current_ws', None)
-    req_user = customUser.objects.get(user=request.user).custom_id # user who is sending the request
+    req_user = customUser.objects.get(user=request.user)
+    req_user_id = req_user.custom_id # user who is sending the request
     profile_owner = False
 
-    if str(req_user) == custom_id:
+    if str(req_user_id) == custom_id:
         profile_owner = True
     ws, current_ws, projects, flag, code = req_for_navbar(
         custom_id, current_ws_id)
-    custom_user = customUser.objects.get(custom_id=custom_id)
-    profile_pic_url = get_google_profile_pic(customUser.objects.get(custom_id=req_user).user)
+    searched_user = customUser.objects.get(custom_id=custom_id)
+    profile_pic_url = get_google_profile_pic(req_user.user)
     searched_profile_pic_url = get_google_profile_pic(customUser.objects.get(custom_id=custom_id).user)
 
         # The result will include the 'a3/media/' part, 
@@ -1550,7 +1565,7 @@ def user_profile(request,custom_id):
     handled_issues_count = issue_assignee_bridge.objects.filter(assignee=customUser.objects.get(custom_id=custom_id),issue__status=4).count()
   
     context = {"custom_id": custom_id,'searched_profile_pic_url':searched_profile_pic_url, 'workspaces': ws, 'current_ws': current_ws,
-               'flag': flag, 'ws_code': code, 'projects': projects, 'custom_user':custom_user,'profile_pic_url':profile_pic_url,'workspace_count':workspace_count,'projects_lead_count':projects_lead_count,
+               'flag': flag, 'ws_code': code, 'projects': projects,'searched_user':searched_user, 'custom_user':req_user,'profile_pic_url':profile_pic_url,'workspace_count':workspace_count,'projects_lead_count':projects_lead_count,
                'completed_project_count':completed_project_count, 'handled_issues_count':handled_issues_count, 'profile_owner':profile_owner}
     return render(request, 'users/user_profile.html', context)
 
@@ -1570,14 +1585,16 @@ def manage_workspace(request, custom_id, ws_id):
     
     ws, current_ws, projects, flag, code = req_for_navbar(custom_id, ws_id)
     workspace_members=workspaceMember.objects.filter(workspace=ws_id)
-    
+    profile_pic_url = get_google_profile_pic(request.user)
+    custom_user = customUser.objects.get(user=request.user)
+
     project_count_for_members = []
-    
+    print()
     for member in workspace_members:
         project_count = project_member_bridge.objects.filter(team_member=custom_id, active=True, project__ws__ws_id=ws_id).count()
         project_count_for_members.append(project_count)
     
-    context = {"custom_id": custom_id, 'workspaces': ws, 'current_ws': current_ws,
+    context = {"custom_id": custom_id, 'workspaces': ws, 'current_ws': current_ws,'profile_pic_url':profile_pic_url, 'custom_user':custom_user,
                'flag': flag, 'ws_code': code, 'projects': projects, 'members':workspace_members, 'project_count':project_count_for_members}
     return render(request,'users/manage_ws.html',context)
 
@@ -1644,11 +1661,13 @@ def send_invite_emails(request, custom_id, ws_id):
 @csrf_exempt
 def search_user(request):
     current_ws_id = request.session.get('current_ws', None)
-    custom_id = customUser.objects.get(user=request.user).custom_id
+    custom_user = customUser.objects.get(user=request.user)
+    custom_id = custom_user.custom_id
     ws, current_ws, projects, flag, code = req_for_navbar(custom_id, current_ws_id)
     users = []
     query = request.POST.get('search-input', '')
     profile_pic_url = get_google_profile_pic(request.user)
+    
     if query:
         queries = Q()
         query = query.strip()
@@ -1662,7 +1681,7 @@ def search_user(request):
 
     user_details = list(zip(users,google_profile))  
     
-    return render(request, 'users\search_results.html', {'user_details':user_details, 'profile_pic_url':profile_pic_url,'users': users, 'query': query,'workspaces':ws,'current_ws':current_ws,'projects':projects,'flag':flag,'code':code, 'custom_id':custom_id})
+    return render(request, 'users\search_results.html', {'user_details':user_details,'custom_user':custom_user, 'profile_pic_url':profile_pic_url,'users': users, 'query': query,'workspaces':ws,'current_ws':current_ws,'projects':projects,'flag':flag,'code':code, 'custom_id':custom_id})
 
 def get_user(user_id):
     custom_id = customUser.objects.get(user = user_id)

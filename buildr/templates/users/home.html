@@ -44,10 +44,15 @@
                               </select>
                           </div>
                       </th>
-                      <td style="cursor: pointer;" class="col-sm-3">
+                      
+                      <td style="" class="col-sm-3">
+                        {% if not issue.parent_task %}
                           <a href="{% url 'issue_view' issue.issue_id  custom_id %}" class="link-dark link-underline link-underline-opacity-0" style="color: black;">{{issue}}
                           
                           </a>
+                          {% else %}
+                          {{issue}}
+                          {% endif %}
                       </td>
                           <td >
                               <div class=" dropdown rounded-pill" >
@@ -95,8 +100,15 @@
                     </button></td>
                     </tr>
                     {% empty %}
-                    <tr><td colspan="6">No Issues found.</td></tr>
-                    
+                    <tr>
+                        <td></td>
+                        <td></td>
+                        <td colspan="">No Issues found.</td>
+                    <td>
+
+                    </td>
+                    <td></td>
+                <td></td></tr>
                     
                     {% endfor %}
                     

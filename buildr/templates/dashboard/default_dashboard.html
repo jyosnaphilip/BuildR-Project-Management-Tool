@@ -15,7 +15,14 @@
 <script src="https://code.highcharts.com/gantt/modules/gantt.js"></script>
 
 <div id="content" class="expanded">
- 
+  <div class="p-3">
+  {% if messages %}
+  {% for message in messages %}
+  <p {% if message.tags %} class="{{ message.tags }}" {% endif %}>{{ message }}</p>
+  {% endfor %}
+
+  {% endif %}
+</div>
   <div class="toggle-buttons d-inline-flex gap-1 ms-5 mb-2 ">
     <div>
       {% if flag %}

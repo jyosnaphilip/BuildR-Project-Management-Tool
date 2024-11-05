@@ -213,11 +213,14 @@
                     </div>
 
                     <div class=" col-sm-2 offset-sm-2 ms-4 mb-2 ">  
+                        {% if not issue.parent_task %}
+                       
                         {% if flag_lead or flag_assignee %}  
                         <a class="rounded-pill btn btn-sm badge" href="{% url 'add_subIssue' issue.issue_id custom_id  %}" style="background-color: #004a7a; color:#f5f7fa;"><i
                                 class="fa-solid fa-plus" style="color: #f5f7fa;"></i> Add sub-Issue</a>
                             {% endif %}
                             </div>
+                        {% endif %}
                 </div>
                 </div>
                 
@@ -259,10 +262,13 @@
                             </select>
                             </div>
                         </th>
-                        <td style="cursor: pointer;" class="col-sm-3">
+                        <td style="" class="col-sm-3">
+                            {% if issue.parent_task %}
+                            {{issue}}
+                            {% else %}
                             <a href="{% url 'issue_view' issue.issue_id  custom_id %}" class="link-dark link-underline  link-underline-opacity-0">{{issue}}
-                            
                             </a>
+                            {% endif %}
                         </td>
                             <td >
                                 <div class=" dropdown rounded-pill" >
