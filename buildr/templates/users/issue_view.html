@@ -147,7 +147,7 @@
                 <div class="row ms-2">
                    
                     <div class="col-sm-2 mb-2">
-                        <select  class="priority-dropdown  form-select badge custom-select rounded-pill" style="color:  rgb(21, 67, 96);" type="button" name="status" data-bs-toggle="dropdown"  aria-expanded="false" data-issue-id="{{issue.issue_id}}">
+                        <select  class="priority-dropdown  form-select badge custom-select rounded-pill"  type="button" name="status" data-bs-toggle="dropdown"  aria-expanded="false" data-issue-id="{{issue.issue_id}}">
                             {% for prior in priority %}
                             {% if issue.priority.id|stringformat:"s" == prior.id|stringformat:"s" %}
 
