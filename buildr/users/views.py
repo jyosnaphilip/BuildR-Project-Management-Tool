@@ -64,6 +64,9 @@ def get_google_profile_pic(user_):
     if SocialAccount.objects.filter(user_id=user_.id).exists():
      # it is a user who signed up via google
         # Decode the URL
+        print(user_.id)
+        print(SocialAccount.objects.get(user_id=user_.id))
+        
         profile_pic_url=SocialAccount.objects.get(user_id=user_.id).extra_data['picture']
         profile_pic_url = unquote(str(profile_pic_url))
         return profile_pic_url
