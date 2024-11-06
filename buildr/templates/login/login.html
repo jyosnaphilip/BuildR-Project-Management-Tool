@@ -9,7 +9,7 @@
     <div class="row justify-content-center">
         <div class="col-sm-5 border rounded bg-light p-5 shadow">
             <span class="border-start">
-                <img src="/media/signin.png" alt="BuildR icon" style=" align-items: center; height: 14%; width: 40%;">
+                <img src="{% static 'images\signin.png' %}" alt="BuildR icon" style=" align-items: center; height: 14%; width: 40%;">
                 <h5 class="form-heading p-2" >Sign in</h5>
                 {% if messages %}
                 {% for message in messages %}
@@ -21,26 +21,26 @@
                     {% csrf_token %}
                     <div class="col-sm-12">
                         <!-- <label for="validationDefaultUsername" class="form-label">Username</label> -->
-                        <input type="text" class="form-control" id="username" placeholder="Username"
+                        <input type="text" class="form-control form-heading" id="username" placeholder="Username"
                             aria-describedby="inputGroupPrepend2" name="username" required>
                     </div>
 
 
                     <div class="col-sm-12">
                         <!-- <label for="validationDefault03" class="form-label">City</label> -->
-                        <input type="password" class="form-control" id="password" name="password" required
+                        <input type="password" class="form-control form-heading" id="password" name="password" required
                             fdprocessedid="vlf8fr" placeholder="Password">
                     </div>
 
                     
-                    <div class="col-sm-12 text-center sub">
-                        <button class="btn btn-style" type="submit" href="{% url 'login' %}">Sign in</button>
+                    <div class="col-sm-12 text-center sub form-heading">
+                        <button class="btn btn-style form-heading" type="submit" href="{% url 'login' %}">Sign in</button>
                     </div>
 
 
                     <div class="row text-center">
                         <div class="text-center ps-4">
-                            <a href="{% url 'register' %}" class="register-link">Don't have an account? Register Now</a>
+                            <a href="{% url 'register' %}" class="register-link form-heading">Don't have an account? Register Now</a>
                         </div>
                     </div>
                     <div>
@@ -53,15 +53,18 @@
                                 <span class="buttonText"><img src="{% static 'images/google icon.png' %}" style="height:20px;width: 20px;">Sign in with Google</span>
                               </div>
                             </div>
-                            <div id="name"></div>
+                            <div id="name"></div></a>
 
                     </div>
 
 
                 </form>
             </span>
+            
         </div>
+       
     </div>
+    
 </div>
 
 {% endblock content %}

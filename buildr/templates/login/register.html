@@ -1,12 +1,12 @@
 {% extends 'login_base.html' %}
-
+{% load static %}
 {% block content %}
 
 <div class="container mt-0">
     <div class="row justify-content-center">
         <div class="col-sm-5 p-5 border rounded bg-light shadow">
         <span class="border-start">
-            <img src="/media/signin.png" alt="BuildR icon" style=" align-items: center; height: 14%; width: 40%;">
+            <img src="{% static 'images\signin.png' %}" alt="BuildR icon" style=" align-items: center; height: 10%; width: 40%;">
             <h5 class="form-heading p-2">Register</h5>
             {% if messages %}
                 {% for message in messages %}
@@ -20,34 +20,34 @@
                 {% csrf_token %}
                 <div class="col-sm-12">
                     <!-- <label for="validationDefault01" class="form-label">First name</label> -->
-                    <input type="text" class="form-control" id="validationDefault01" placeholder="First Name" required name="FirstName">
+                    <input type="text" class="form-control form-heading" id="validationDefault01" placeholder="First Name" required name="FirstName">
                 </div>
 
                 <div class="col-sm-12">
                     <!-- <label for="validationDefault02" class="form-label">Last name</label> -->
-                    <input type="text" class="form-control" id="validationDefault02" placeholder="Last Name" required name="LastName">
+                    <input type="text" class="form-control form-heading" id="validationDefault02" placeholder="Last Name" required name="LastName">
                 </div>
 
                 <div class="col-sm-12">
                     <!-- <label for="validationDefault02" class="form-label">Last name</label> -->
-                    <input type="email" class="form-control" id="validationDefault02" placeholder="Email id" required name="Email">
+                    <input type="email" class="form-control form-heading" id="validationDefault02" placeholder="Email id" required name="Email">
                 </div>
 
                 <div class="col-sm-12">
                     <!-- <label for="validationDefaultUsername" class="form-label">Username</label> -->
 
-                    <input type="text" class="form-control" id="validationDefaultUsername" placeholder="Username" aria-describedby="inputGroupPrepend2" required name="Username">
+                    <input type="text" class="form-control form-heading" id="validationDefaultUsername" placeholder="Username" aria-describedby="inputGroupPrepend2" required name="Username">
 
                 </div>
 
                 <div class="col-sm-12">
                     <!-- <label for="validationDefault03" class="form-label">City</label> -->
-                    <input type="password" class="form-control" id="inputPassword" required fdprocessedid="vlf8fr" placeholder="Password" name="Password1">
+                    <input type="password" class=" form-control form-heading" id="inputPassword" required fdprocessedid="vlf8fr" placeholder="Password" name="Password1">
                 </div>
 
                 <div class="col-sm-12">
                     <!-- <label for="validationDefault03" class="form-label">City</label> -->
-                    <input type="password" class="form-control" id="confirmPassword" required fdprocessedid="vlf8fr" placeholder="Confirm Password" name="Password2">
+                    <input type="password" class="form-heading form-control" id="confirmPassword" required fdprocessedid="vlf8fr" placeholder="Confirm Password" name="Password2">
                 </div>
 
                 <!-- <div class="col-md-12"> -->
@@ -57,18 +57,19 @@
 
                 </div> -->
 
-                <div class="col-12 text-center sub">
-                    <button class="btn btn-style text-light" type="submit"  href="{% url 'login' %}" >Submit form</button>
+                <div class="col-12 text-center sub form-heading">
+                    <button class="btn btn-style text-light" type="submit"  href="{% url 'login' %}" >Register</button>
                 </div>
                 <div class="row text-center">
                     <div class="text-center ps-4">
-                        <a href="{% url 'login' %}" class="register-link">Already have an account? Sign in now</a>
+                        <a href="{% url 'login' %}" class="register-link form-heading">Already have an account? Sign in now</a>
                     </div>
                 </div>
 
             </form>
         </span>
     </div>
+   
     </div>
 </div>
 
