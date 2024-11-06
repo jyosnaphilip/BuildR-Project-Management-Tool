@@ -200,7 +200,23 @@
                 <div id="priority_chart-{{forloop.counter}}" class="shadow-sm rounded"></div>
                 {% endif %}
               </div>
-              {% if a_project.sentiment_summary %}
+              {% if a_project.sentiment_summary == "No comments available for analysis." %}
+              <div class="col-sm-3 p-3" style="">
+                <ul class="list-group shadow-sm rounded">
+                  
+                  <li class="list-group-item list-group-item-action" >
+                    <div class="">
+                      <h5 class="mb-1">Team Morale </h5>
+                      <small class="text-secondary"><i>(based on Comments)</i></small>
+                    </div>
+                  </li>
+                  <li class="list-group-item list-group-item-action" >
+                    <p>No comments available for analysis.</p>
+                  </li>
+                </ul>
+              </div>
+    {% else %}
+              
               <div class="col-sm-3 p-3" style="">
                 <ul class="list-group shadow-sm rounded">
                   
