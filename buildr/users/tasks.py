@@ -55,9 +55,9 @@ def recalculate_issue_sentiment_task(issue_id):
         previous_sentiment_score = issue_.overall_sentiment_score
         issue_.overall_sentiment_score = avg_sentiment
         issue_.save()
-        if avg_sentiment < 0:
-            if previous_sentiment_score is None or previous_sentiment_score >= 0:
-                notify_user_of_neg_sentiment_task.s(issue_id).apply_async()
+        # if avg_sentiment < 0:
+        #     if previous_sentiment_score is None or previous_sentiment_score >= 0:
+        #         notify_user_of_neg_sentiment_task.s(issue_id).apply_async()
     
         return None
         
@@ -86,14 +86,15 @@ def send_email_task(self,emails, workspace_name, workspace_code):
     for email in emails:
         mail_subject = f"You are invited to workspace {workspace_name}"
         message = (
-            f"You are invited to join the workspace '{workspace_name}'. "
+            f"You are invited to join the workspace '{workspace_name}'.\n If you already have an account with us, click the link below to join."
             f"Click on the link below to join:\n\n{join_workspace_url}"
+            f"If the above link doesnt work, please copy the workspace code and join the workspace manually. \nWorkspace code: {workspace_code}"
         )
         send_mail(
             subject=mail_subject,
             message=message,
             from_email=settings.EMAIL_HOST_USER,
             recipient_list=[email],
-            fail_silently=True,
+            fail_silently=False,
         )
     print("Celery is working!")

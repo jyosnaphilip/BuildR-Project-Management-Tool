@@ -222,7 +222,7 @@ document.getElementById('show-email-input').addEventListener('click', function()
     if (emails.length > 0) {
       const customId = "{{ custom_id }}"; 
       const wsId = "{{ current_ws.ws_id }}"; 
-      $.ajax({
+      jQuery.ajax({
         url: `{% url 'send_invite_emails' custom_id current_ws.ws_id %}`,
         method: 'POST',
         data: {
@@ -230,6 +230,7 @@ document.getElementById('show-email-input').addEventListener('click', function()
           emails: emails,
         },
         success: function(response) {
+          jQuery('#codeModal').modal('hide'); 
           alert('Invitations sent successfully!');
         },
         error: function(xhr, status, error) {

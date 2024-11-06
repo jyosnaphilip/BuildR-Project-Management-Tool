@@ -37,6 +37,7 @@ from django.urls import reverse
 import uuid
 from urllib.parse import unquote
 from allauth.socialaccount.models import SocialAccount
+from django.utils.timezone import localtime
 
 def check_code(ws_code):
     ws_code = workspaceCode.objects.get(
@@ -955,17 +956,12 @@ def get_issueComments(request, issue_id):
         
         google_profile_pic = get_google_profile_pic(comment.author.user)
         if custom_user not in comment.read_by.all():
-            print("here3")
-            comment.read_by.add(custom_user)
-            print("here3")
-            
+            comment.read_by.add(custom_user)           
             comment.save()
         
         replies_data = []
         for reply in comment.replies.select_related('author').all():
-            print("here5")
             if custom_user not in reply.read_by.all():
-                print("here6")
                 reply.read_by.add(custom_user)
                 reply.save()
             r_auth_google_pic = get_google_profile_pic(reply.author.user)
@@ -977,7 +973,7 @@ def get_issueComments(request, issue_id):
                 'google_profile_pic_url':r_auth_google_pic
                 }, 
                 'text': reply.comment,
-                'created_at': reply.created_at.strftime('%d-%m-%Y %H:%M')
+                'created_at': localtime(reply.created_at).strftime('%d-%m-%Y %H:%M')
             })
             
         comment_data.append({
@@ -988,7 +984,7 @@ def get_issueComments(request, issue_id):
                 'google_profile_pic_url':google_profile_pic
                 },
             'text': comment.comment,
-            'created_at': comment.created_at.strftime('%d-%m-%Y %H:%M'),
+            'created_at': localtime(comment.created_at).strftime('%d-%m-%Y %H:%M'),
             'replies': replies_data
         })
         
@@ -1009,14 +1005,19 @@ def submit_comment(request):
                 author=customUser.objects.get(user=request.user),
                 comment=comment_text
             )
+            comment.read_by.add(customUser.objects.get(user=request.user))
             comment.save()
             print(f"Submitting sentiment task for comment ID: {comment.id}")
             get_sentiment_task.delay(comment.id)
             return JsonResponse({'success': True, 'comment': {
                     'id': comment.id,
-                    'author': comment.author.user.first_name + comment.author.user.last_name ,  
+                    'author': {
+                        'name': comment.author.user.first_name + " " + comment.author.user.last_name,
+                        'profile_pic': comment.author.profile_pic.url if comment.author.profile_pic else None,
+                        'google_profile_pic_url': get_google_profile_pic(comment.author.user)
+                    },    
                     'text': comment.comment,
-                    'created_at': comment.created_at.strftime('%d-%m-%Y %H:%M')
+                    'created_at': localtime(comment.created_at).strftime('%d-%m-%Y %H:%M')
                 }})
         except issue.DoesNotExist:
             return JsonResponse({'success': False, 'error': 'Issue not found'})
@@ -1042,14 +1043,19 @@ def submit_replies(request):
                 comment=reply_text,
                 parent_comment=parent_comment  # Assign parent comment (which can be another reply)
             )
+            reply.read_by.add(user)
+            reply.save()
            
             return JsonResponse({
                 'success': True,
                 'reply': {
                     'id': reply.id,
-                    'author': reply.author.user.first_name + reply.author.user.last_name,  
-                    'text': reply.comment,
-                    'created_at': reply.created_at.strftime('%d-%m-%Y %H:%M'),
+                        'author': {
+                        'name': reply.author.user.first_name + " " + reply.author.user.last_name,
+                        'profile_pic': reply.author.profile_pic.url if reply.author.profile_pic else None,
+                        'google_profile_pic_url': get_google_profile_pic(reply.author.user)
+                    },                     'text': reply.comment,
+                    'created_at': localtime(reply.created_at).strftime('%d-%m-%Y %H:%M'),
                     'parent_comment_id': reply.parent_comment.id,  # Return parent comment ID to help handle nesting
                     'issue':reply.issue.issue_id
                 }
@@ -1397,6 +1403,7 @@ def dashboard(request):
  
     is_project_lead = check_if_project_lead(custom_id,current_ws_id)
        #  Additional data for workspace admins
+    
     if flag:
        
         admin_specific_data = load_admin_specific_insights(custom_id,current_ws_id)
@@ -1431,7 +1438,7 @@ def dashboard(request):
                         # project_Details looks like [{project1_insights},{project2_insight}]
                
                 context.update({'project_details':project_details})
-        return render(request,'dashboard\ws_admin_dashboard.html',context)
+        return render(request,'dashboard\default_dashboard.html',context)
     else:
         return render (request,'dashboard\default_dashboard.html', context)
 
