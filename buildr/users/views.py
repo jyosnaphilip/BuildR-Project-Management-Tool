@@ -1403,6 +1403,7 @@ def dashboard(request):
  
     is_project_lead = check_if_project_lead(custom_id,current_ws_id)
        #  Additional data for workspace admins
+    
     if flag:
        
         admin_specific_data = load_admin_specific_insights(custom_id,current_ws_id)
@@ -1437,7 +1438,7 @@ def dashboard(request):
                         # project_Details looks like [{project1_insights},{project2_insight}]
                
                 context.update({'project_details':project_details})
-        return render(request,'dashboard\ws_admin_dashboard.html',context)
+        return render(request,'dashboard\default_dashboard.html',context)
     else:
         return render (request,'dashboard\default_dashboard.html', context)
 
