@@ -1598,7 +1598,7 @@ def manage_workspace(request, custom_id, ws_id):
     project_count_for_members = []
     print()
     for member in workspace_members:
-        project_count = project_member_bridge.objects.filter(team_member=custom_id, active=True, project__ws__ws_id=ws_id).count()
+        project_count = project_member_bridge.objects.filter(team_member=member.customUser, active=True, project__ws__ws_id=ws_id).count()
         project_count_for_members.append(project_count)
     
     context = {"custom_id": custom_id, 'workspaces': ws, 'current_ws': current_ws,'profile_pic_url':profile_pic_url, 'custom_user':custom_user,

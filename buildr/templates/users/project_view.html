@@ -173,10 +173,10 @@
                             {% for prior in priority %}
                                 {% if project.priority.id|stringformat:"s" == prior.id|stringformat:"s" %}
                                     
-                                        <option value="{{prior.id}}" class="dropdown-item" style="background-color: {% if prior.id == 1%}green{% elif prior.id == 2%}orange{% elif prior.id == 3%}#FF5733{% elif prior.id == 4%}rgb(191,87,0){% elif prior.id == 5%}rgb(21,67,96){% endif %};" selected>{{prior.name}}</option>
+                                        <option value="{{prior.id}}" class="dropdown-item" style="background-color: {% if prior.id == 1%}red{% elif prior.id == 2%}orange{% elif prior.id == 3%}#FF5733{% elif prior.id == 4%}rgb(191,87,0){% elif prior.id == 5%}rgb(21,67,96){% endif %};" selected>{{prior.name}}</option>
                                     {% else %}
                                     {% if flag_lead or flag %}
-                                        <option value="{{prior.id}}" class="dropdown-item" style="background-color: {% if prior.id == 1%}green{% elif prior.id == 2%}orange{% elif prior.id == 3%}#FF5733{% elif prior.id == 4%}rgb(191,87,0){% elif prior.id == 5%}rgb(21,67,96){% endif %};" >{{prior.name}}</option>
+                                        <option value="{{prior.id}}" class="dropdown-item" style="background-color: {% if prior.id == 1%}red{% elif prior.id == 2%}orange{% elif prior.id == 3%}#FF5733{% elif prior.id == 4%}rgb(191,87,0){% elif prior.id == 5%}rgb(21,67,96){% endif %};" >{{prior.name}}</option>
                                         <!-- <div class="dpriority-badge" style="background-color: {% if prior.id == 1%}green{% elif prior.id == 2%}orange{% elif prior.id == 3%}#FF5733{% elif prior.id == 4%}rgb(191,87,0){% elif prior.id == 5%}rgb(21,67,96){% endif %};" readonly>{{prior.name}}</div> -->
                                     {% endif %}
                                 {% endif %}
@@ -190,10 +190,10 @@
                                 {% for stat in status %}
                                     {% if project.status.id|stringformat:"s" == stat.id|stringformat:"s" %}
                                        
-                                            <option value="{{stat.id}}" class="dropdown-item" style="background-color: {% if stat.id == 1%}red{% elif stat.id == 2%}orange{% elif stat.id == 3%}#FF5733{% else %}rgb(191,87,0){% endif%};" selected>{{stat.name}}</option>
+                                            <option value="{{stat.id}}" class="dropdown-item" style="background-color: {% if stat.id == 1%}green{% elif stat.id == 2%}orange{% elif stat.id == 3%}#FF5733{% else %}rgb(191,87,0){% endif%};" selected>{{stat.name}}</option>
                                         {% else %}
                                         {% if flag_lead or flag %}
-                                            <option class="dropdown-item" value="{{stat.id}}" style="background-color: {% if stat.id == 1%}red{% elif stat.id == 2%}orange{% elif stat.id == 3%}#FF5733{% else %}rgb(191,87,0){% endif%};" ><i class="fa-regular fa-circle fa-l"></i> {{stat.name}}</option>
+                                            <option class="dropdown-item" value="{{stat.id}}" style="background-color: {% if stat.id == 1%}green{% elif stat.id == 2%}orange{% elif stat.id == 3%}#FF5733{% else %}rgb(191,87,0){% endif%};" ><i class="fa-regular fa-circle fa-l"></i> {{stat.name}}</option>
                                         {% endif %}
                                     {% endif %}
                                 {% endfor %}
@@ -360,9 +360,9 @@
                         </button>
                         {% if flag_lead %}
                         {% if issue.overall_sentiment_score < 0.0 %} 
-                        <button type="button" class="btn" data-bs-toggle="popover" data-bs-title="Sentiment analysis" data-bs-content="Negative sentiments found for issue. You might want to check the comments!"><i  class="fa-solid fa-bolt-lightning" style="color:rgb(157, 30, 30)"></i></button></td>
+                        <button type="button" class="btn" data-bs-toggle="popover" data-bs-title="Sentiment analysis" data-bs-trigger="focus" data-bs-content="Negative sentiments found for issue. You might want to check the comments!"><i  class="fa-solid fa-bolt-lightning" style="color:rgb(157, 30, 30)"></i></button></td>
                         {% else %}
-                        <button type="button" class="btn" data-bs-toggle="popover" data-bs-title="Sentiment analysis" data-bs-content="Nothing to worry here"><i  class="fa-solid fa-bolt-lightning" style="color:rgb(140, 184, 165)"></i></button></td>
+                        <button type="button" class="btn" data-bs-toggle="popover" data-bs-title="Sentiment analysis" data-bs-content="Nothing to worry here" data-bs-trigger="focus" ><i  class="fa-solid fa-bolt-lightning" style="color:rgb(140, 184, 165)"></i></button></td>
 
                         {% endif %}
                         {% endif %}
