@@ -1,7 +1,7 @@
 body {
     min-height: 100vh;
     margin: 0;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    /* font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; */
     display: flex;
     justify-content: center;
     align-items: center;
@@ -36,8 +36,8 @@ body {
 }
 
 .form-heading { 
-    font-family: "Work Sans", sans-serif;
-    font-optical-sizing: auto;
+    font-family: "Poppins", sans-serif;
+    font-weight: 390;
     font-style: normal;
     padding-bottom: 0;
     margin-left: 0;
@@ -114,8 +114,8 @@ body {
   color: #444;
   width: 190px;
   border-radius: 5px;
-  border: thin solid #888;
-  box-shadow: 1px 1px 1px grey;
+  border: thin solid #ffffff;
+  box-shadow: 1px 1px 1px #cdcccc;
   white-space: nowrap;
 }
 #customBtn:hover {

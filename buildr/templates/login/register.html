@@ -3,10 +3,11 @@
 {% block content %}
 
 <div class="container mt-0">
-    <div class="row justify-content-center mt-0">
-        <div class="col-sm-5 p-5 border bg-light shadow">
-        <span class="border">
-            <h3 class="form-heading">Register</h3>
+    <div class="row justify-content-center">
+        <div class="col-sm-5 p-5 border rounded bg-light shadow">
+        <span class="border-start">
+            <img src="/media/signin.png" alt="BuildR icon" style=" align-items: center; height: 14%; width: 40%;">
+            <h5 class="form-heading p-2">Register</h5>
             {% if messages %}
                 {% for message in messages %}
                     <p {% if message.tags %} class="{{ message.tags }}" {% endif %}>{{ message }}</p>
