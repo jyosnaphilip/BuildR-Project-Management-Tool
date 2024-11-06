@@ -172,7 +172,14 @@
                         <button class="submit-comment" onclick="submitComment('${issueId}')">Submit</button>`;
                         commentSection.insertAdjacentHTML('afterend', newCommentForm);
                     }
-                    appendComment(commentSection, data.comment, issueId);
+                    appendComment(commentSection, {
+                                    ...data.comment,
+                                    author: {
+                                        name: data.comment.author.name,
+                                        profile_pic: data.comment.author.profile_pic,
+                                        google_profile_pic_url: data.comment.author.google_profile_pic_url
+                                    }
+                                }, issueId);
                     
                 } else {
                     alert('Error submitting comment');
