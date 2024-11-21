@@ -189,83 +189,52 @@
     
 <script>
     // Function to send AJAX request to update a field
-    $(document).ready( function () {
-   $('#issueTable').DataTable({
+    jQuery(document).ready(function () {
+   jQuery('#issueTable').DataTable({
        lengthMenu: [
-       [10, 25, 50, -1],
-       [10, 25, 50, 'All']
-   ],
-   order:false,
-   processing:true,
-   // layout: {
-   //     top1: {
-   //         searchPanes: {
-   //             panes: [
-   //                 {
-   //                     header: 'Custom',
-   //                     options: [
-   //                         {
-   //                             label: 'Accountants from Tokyo',
-   //                             value: function (rowData, rowIdx) {
-   //                                 return rowData[1] === 'Accountant' && rowData[2] === 'Tokyo';
-   //                             }
-   //                         }
-   //                     ],
-   //                     dtOpts: {
-   //                         searching: false,
-   //                         order: [[1, 'desc']]
-   //                     }
-   //                 }
-   //             ]
-   //         }
-   //     }
-   // },
-   // columnDefs: [
-   //     {
-   //         searchPanes: {
-   //             show: false
-   //         },
-   //         targets: ['_all']
-   //     }
-   // ]
+           [10, 25, 50, -1],
+           [10, 25, 50, 'All']
+       ],
+       order: false, // Disables default ordering.
+       processing: true, 
+   });
 });
-} );
 
-    function updateIssueField(issueId, fieldName, value) {
-           $.ajax({
-               url: "{% url 'update_issue_field' %}",
-               method: "POST",
-               data: {
-                   'issue_id': issueId,
-                   'field_name': fieldName,
-                   'value': value,
-                   'csrfmiddlewaretoken': '{{ csrf_token }}'
-               },
-               error: function(response) {
-           if (response.error) {
-               alert('Error: ' + (response.error || 'An error occurred while updating the field.'));
-           }
-       },
-       error: function(xhr, status, error) {
-           console.error("AJAX Error:", status, error);
-           alert('An error occurred while updating the field.');}
-           });
-       }
+function updateIssueField(issueId, fieldName, value) {
+    jQuery.ajax({
+        url: "{% url 'update_issue_field' %}",
+        method: "POST",
+        data: {
+            'issue_id': issueId,
+            'field_name': fieldName,
+            'value': value,
+            'csrfmiddlewaretoken': '{{ csrf_token }}'
+        },
+        error: function (response) {
+            if (response.error) {
+                alert('Error: ' + (response.error || 'An error occurred while updating the field.'));
+            }
+        },
+        error: function (xhr, status, error) {
+            console.error("AJAX Error:", status, error);
+            alert('An error occurred while updating the field.');
+        }
+    });
+}
 
-   // Status Change
-   $(document).on('change', '.issue-status-dropdown', function () {
+// Status Change
+jQuery(document).on('change', '.issue-status-dropdown', function () {
+    var issueId = jQuery(this).data('issue-id'); // Retrieving issueId
+    var newStatus = jQuery(this).val(); // Retrieving new status value
+    updateIssueField(issueId, 'status', newStatus);
+});
 
-       var issueId = $(this).data('issue-id'); //retrieving issuesId
-       var newStatus = $(this).val(); //retrieving new status value
-       updateIssueField(issueId, 'status', newStatus);
-   });
-
-   // Priority Change
-   $(document).on('change', '.issue-priority-dropdown', function () {
-       var issueId = $(this).data('issue-id');
-       var newPriority = $(this).val();
-       updateIssueField(issueId, 'priority', newPriority);
-   });
+// Priority Change
+jQuery(document).on('change', '.issue-priority-dropdown', function () {
+    var issueId = jQuery(this).data('issue-id');
+    var newPriority = jQuery(this).val();
+    updateIssueField(issueId, 'priority', newPriority);
+});
 
 
 </script>

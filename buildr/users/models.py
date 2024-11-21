@@ -63,8 +63,7 @@ class playerStats(models.Model):
         self.update_level()
 
     def update_level(self):
-        # Define your level-up logic here
-        level_thresholds = [100, 250, 500, 1000]  # Example thresholds
+        level_thresholds = [100, 250, 500, 1000] 
         for i, threshold in enumerate(level_thresholds, start=1):
             if self.points >= threshold:
                 self.level = i + 1

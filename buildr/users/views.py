@@ -20,7 +20,7 @@ from django.contrib.auth.decorators import login_required
 from .models import EmailVerification
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth import get_user_model
-from django.utils.dateparse import parse_date  # Make sure to import this if you're parsing dates
+from django.utils.dateparse import parse_date  
 from .models import EmailVerification
 from datetime import timedelta,date
 from django.utils.dateformat import format
@@ -737,7 +737,7 @@ from django.http import JsonResponse
 from .models import Project
 from datetime import datetime
 
-# Combined function to update project fields (status, priority, deadline)
+
 def update_project_field(request):
     if request.method == "POST":
         project_id = request.POST.get('project_id')
@@ -790,7 +790,7 @@ def update_project_field(request):
 def file_upload_view(request):
     if request.method == 'POST' and request.FILES.get('file'):
         uploaded_file = request.FILES['file']
-        # You can save the file to the filesystem or the database
+       
         with open(f'media/uploads/{uploaded_file.name}', 'wb+') as destination:
             for chunk in uploaded_file.chunks():
                 destination.write(chunk)
@@ -1025,7 +1025,7 @@ def submit_comment(request):
         except issue.DoesNotExist:
             return JsonResponse({'success': False, 'error': 'Issue not found'})
         except Exception as e:
-            print(f"Error: {e}")  # Log the error for debugging
+            print(f"Error: {e}")  
             return JsonResponse({'error': str(e)}, status=500)
     return JsonResponse({'success': False, 'error': ' Invalid request method'})
 

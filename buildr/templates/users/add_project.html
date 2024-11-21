@@ -127,7 +127,7 @@
     var config = {};
 
     config.file_upload_handler = function (file, callback, optionalIndex, optionalFiles) {
-        var uploadhandlerpath = {% url 'upload_file' %};  // Update with the URL of your Django view
+        var uploadhandlerpath = {% url 'upload_file' %};  
 
         console.log("upload", file, "to", uploadhandlerpath);
 
