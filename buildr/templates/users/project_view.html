@@ -394,139 +394,103 @@
     });
     </script>
 <script>
-     
-     $(document).ready( function () {
-    $('#issueTable').DataTable({
+    jQuery(document).ready(function(jQuery) {
+    jQuery('#issueTable').DataTable({
         lengthMenu: [
-        [10, 25, 50, -1],
-        [10, 25, 50, 'All']
-    ],
-   order:false,
-    processing:true,
- 
-    // layout: {
-    //     top1: {
-    //         searchPanes: {
-    //             panes: [
-    //                 {
-    //                     header: 'Custom',
-    //                     options: [
-    //                         {
-    //                             label: 'Accountants from Tokyo',
-    //                             value: function (rowData, rowIdx) {
-    //                                 return rowData[1] === 'Accountant' && rowData[2] === 'Tokyo';
-    //                             }
-    //                         }
-    //                     ],
-    //                     dtOpts: {
-    //                         searching: false,
-    //                         order: [[1, 'desc']]
-    //                     }
-    //                 }
-    //             ]
-    //         }
-    //     }
-    // },
-    // columnDefs: [
-    //     {
-    //         searchPanes: {
-    //             show: false
-    //         },
-    //         targets: ['_all']
-    //     }
-    // ]
+            [10, 25, 50, -1],
+            [10, 25, 50, 'All']
+        ],
+        order: false,
+        processing: true,
+    });
 });
-} );
 
-     function updateIssueField(issueId, fieldName, value) {
-        console.log('Project ID:', issueId);
-        console.log('Field Name:', fieldName);
-        console.log('Value:', value);
-            $.ajax({
-                url: "{% url 'update_issue_field' %}",
-                method: "POST",
-                data: {
-                    'issue_id': issueId,
-                    'field_name': fieldName,
-                    'value': value,
-                    'csrfmiddlewaretoken': '{{ csrf_token }}'
-                },
-                error: function(response) {
+function updateIssueField(issueId, fieldName, value) {
+    console.log('Project ID:', issueId);
+    console.log('Field Name:', fieldName);
+    console.log('Value:', value);
+
+    jQuery.ajax({
+        url: "{% url 'update_issue_field' %}",
+        method: "POST",
+        data: {
+            'issue_id': issueId,
+            'field_name': fieldName,
+            'value': value,
+            'csrfmiddlewaretoken': '{{ csrf_token }}'
+        },
+        error: function(response) {
             if (response.error) {
                 alert('Error: ' + (response.error || 'An error occurred while updating the field.'));
             }
         },
         error: function(xhr, status, error) {
             console.error("AJAX Error:", status, error);
-            alert('An error occurred while updating the field.');}
-            });
+            alert('An error occurred while updating the field.');
         }
-
-    // Status Change
-    $(document).on('change', '.status-dropdown', function () {
-
-        var issueId = $(this).data('issue-id'); //retrieving issuesId
-        var newStatus = $(this).val(); //retrieving new status value
-        updateIssueField(issueId, 'status', newStatus);
     });
+}
 
-    // Priority Change
-    $(document).on('change', '.priority-dropdown', function () {
-        var issueId = $(this).data('issue-id');
-        var newPriority = $(this).val();
-        updateIssueField(issueId, 'priority', newPriority);
-    });
+// Status Change
+jQuery(document).on('change', '.status-dropdown', function () {
+    var issueId = jQuery(this).data('issue-id'); // Retrieving issueId
+    var newStatus = jQuery(this).val(); // Retrieving new status value
+    updateIssueField(issueId, 'status', newStatus);
+});
 
+// Priority Change
+jQuery(document).on('change', '.priority-dropdown', function () {
+    var issueId = jQuery(this).data('issue-id');
+    var newPriority = jQuery(this).val();
+    updateIssueField(issueId, 'priority', newPriority);
+});
 
-</script>
+function updateProjectField(projectId, fieldName, value) {
+    console.log('Project ID:', projectId);
+    console.log('Field Name:', fieldName);
+    console.log('Value:', value);
 
-<script>
-
-    function updateProjectField(projectId, fieldName, value) { 
-        console.log('Project ID:', projectId);
-        console.log('Field Name:', fieldName);
-        console.log('Value:', value);
-
-        $.ajax({ 
-            url: "{% url 'update_project_field' %}",
-            method: "POST",
-            data: {
-                'project_id': projectId,
-                'field_name': fieldName,
-                'value': value,
-                'csrfmiddlewaretoken': '{{ csrf_token }}'
-            },
-            success: function (response) { //if the request is successful, callback function
-                alert('Field updated successfully!');
-                if (fieldName === 'status') { //updating in the UI part if the following fields are updated
-                    $('#editProject select[name="status"]').val(value); //updates the status drop-down
-                } else if (fieldName === 'priority') {
-                    $('#editProject select[name="priority"]').val(value);
-                } else if (fieldName === 'deadline') {
-                    $('#editProject input[name="deadline"]').val(value); // Update the deadline in the UI
-                } else {
-                    alert(response.error || 'An error occurred.');
-                }
-            },
-            error: function () {
-                alert('An error occurred while updating the field.');
+    jQuery.ajax({
+        url: "{% url 'update_project_field' %}",
+        method: "POST",
+        data: {
+            'project_id': projectId,
+            'field_name': fieldName,
+            'value': value,
+            'csrfmiddlewaretoken': '{{ csrf_token }}'
+        },
+        success: function (response) { // If the request is successful, callback function
+            alert('Field updated successfully!');
+            if (fieldName === 'status') { // Updating in the UI part if the following fields are updated
+                jQuery('#editProject select[name="status"]').val(value); // Updates the status drop-down
+            } else if (fieldName === 'priority') {
+                jQuery('#editProject select[name="priority"]').val(value);
+            } else if (fieldName === 'deadline') {
+                jQuery('#editProject input[name="deadline"]').val(value); // Update the deadline in the UI
+            } else {
+                alert(response.error || 'An error occurred.');
             }
-        });
-    }
-
-    // Project Status Change 
-    $('.project-status-dropdown').change(function () {
-        var projectId = $(this).data('project-id');
-        var newStatus = $(this).val();
-        updateProjectField(projectId, 'status', newStatus);
+        },
+        error: function () {
+            alert('An error occurred while updating the field.');
+        }
     });
+}
 
-    // Project Priority Change
-    $('.project-priority-dropdown').change(function () {
-        var projectId = $(this).data('project-id');
-        var newPriority = $(this).val();
-        updateProjectField(projectId, 'priority', newPriority);
-    });
+// Project Status Change 
+jQuery('.project-status-dropdown').change(function () {
+    var projectId = jQuery(this).data('project-id');
+    var newStatus = jQuery(this).val();
+    updateProjectField(projectId, 'status', newStatus);
+});
+
+// Project Priority Change
+jQuery('.project-priority-dropdown').change(function () {
+    var projectId = jQuery(this).data('project-id');
+    var newPriority = jQuery(this).val();
+    updateProjectField(projectId, 'priority', newPriority);
+});
+
 
     $(document).ready(function() {
     $('#deadline').datepicker({

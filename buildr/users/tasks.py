@@ -88,7 +88,7 @@ def send_email_task(self,emails, workspace_name, workspace_code):
         message = (
             f"You are invited to join the workspace '{workspace_name}'.\n If you already have an account with us, click the link below to join."
             f"Click on the link below to join:\n\n{join_workspace_url}"
-            f"If the above link doesnt work, please copy the workspace code and join the workspace manually. \nWorkspace code: {workspace_code}"
+            f"\nIf the above link doesnt work, please copy the workspace code and join the workspace manually. \nWorkspace code: {workspace_code}"
         )
         send_mail(
             subject=mail_subject,

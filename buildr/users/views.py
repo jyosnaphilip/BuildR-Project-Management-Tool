@@ -273,10 +273,10 @@ def join_workspace(request):
                 return redirect('home', custom_id)
             else:
                 messages.error(request, message="Invalid Code!")
-                return redirect('join-workspace', custom_id )
+                return redirect('join-workspace' )
         else:
             messages.error(request,message="Invalid Code!")
-            return redirect('join-workspace', custom_id)
+            return redirect('join-workspace')
     return render(request, 'partials/join_workspace.html')
 
 
@@ -1173,6 +1173,8 @@ def load_admin_specific_insights(custom_id, current_ws_id):
         resource_details = resource_allocation_details(active_projects)
         # get the number of tasks closed by each project team in the last week (barchart)
         closed_tasks_last_week = get_closed_tasks_last_week(current_ws_id)
+        for project in closed_tasks_last_week:
+            print(project.closed_count)
         # for card
         closed_tasks_last_week_num = closed_tasks_last_week.aggregate(total_closed=Sum('closed_count'))['total_closed'] or 0
         # barchart active issues per project

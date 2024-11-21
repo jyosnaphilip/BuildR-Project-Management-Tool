@@ -1,6 +1,6 @@
 import os
 import django
-
+from django.core.management.base import BaseCommand
 os.environ.setdefault('DJANGO_SETTINGS_MODULE','buildr.settings')
 django.setup()
 
@@ -15,23 +15,23 @@ ws = workspace.objects.filter(active=True)[3]
 project = Project.objects.filter(ws=ws)[0]
 
 def create_dummy_data(num_users=10,num_issues=5,num_comments=50):
-    users = []
+    users = customUser.objects.all()
     ws_members=[]
-    for _ in range(num_users):
-        user = User.objects.create_user(username=fake.user_name(), email=fake.email(), password='123')
-        custom_user = customUser.objects.create(
-            user=user,
-            profile_pic=None,
-            gameMode=random.choice([True, False])
-        )
-        users.append(custom_user)
-        ws_member = workspaceMember.objects.create(workspace=ws, customUser=custom_user)
-        ws_members.append(ws_member)
-        proj_member=project_member_bridge.objects.create(
-                    team_member=custom_user,
-                    project=project,
-                    role=random.choice(['Lead', 'Team member'])
-                )
+    # for _ in range(num_users):
+    #     user = User.objects.create_user(username=fake.user_name(), email=fake.email(), password='123')
+    #     custom_user = customUser.objects.create(
+    #         user=user,
+    #         profile_pic=None,
+    #         gameMode=random.choice([True, False])
+    #     )
+    #     users.append(custom_user)
+    #     ws_member = workspaceMember.objects.create(workspace=ws, customUser=custom_user)
+    #     ws_members.append(ws_member)
+    #     proj_member=project_member_bridge.objects.create(
+    #                 team_member=custom_user,
+    #                 project=project,
+    #                 role=random.choice(['Lead', 'Team member'])
+    #             )
     
     issues = []
 

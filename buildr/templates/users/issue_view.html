@@ -489,60 +489,60 @@
 <script>
      // Function to send AJAX request to update a field
     //  #for issue related at the top
-     function updateIssueField(issueId, fieldName, value) { 
-            $.ajax({
-                url: "{% url 'update_issue_field' %}",
-                method: "POST",
-                data: {
-                    'issue_id': issueId,
-                    'field_name': fieldName,
-                    'value': value,
-                    'csrfmiddlewaretoken': '{{ csrf_token }}'
-                },
-                success: function(response) {
+    function updateIssueField(issueId, fieldName, value) { 
+    jQuery.ajax({
+        url: "{% url 'update_issue_field' %}",
+        method: "POST",
+        data: {
+            'issue_id': issueId,
+            'field_name': fieldName,
+            'value': value,
+            'csrfmiddlewaretoken': '{{ csrf_token }}'
+        },
+        success: function(response) {
             if (response.success) {
                 alert('Field updated successfully!');
                 if (fieldName === 'status') {
-                        $('#editIssue select[name="status"]').val(value);
-                    } else if (fieldName === 'priority') {
-                        $('#editIssue select[name="priority"]').val(value);
-                    }
+                    jQuery('#editIssue select[name="status"]').val(value);
+                } else if (fieldName === 'priority') {
+                    jQuery('#editIssue select[name="priority"]').val(value);
+                }
             } else {
                 alert('Error: ' + (response.error || 'An error occurred while updating the field.'));
             }
         },
         error: function(xhr, status, error) {
             console.error("AJAX Error:", status, error);
-            alert('An error occurred while updating the field.');}
-            });
+            alert('An error occurred while updating the field.');
         }
+    });
+}
 
-        // Status Change
-        $(document).on('change', '.status-dropdown', function() {
-    var issueId = $(this).data('issue-id');
-    var newStatus = $(this).val();
-    updateIssueField(issueId, 'status', newStatus);});
-        // Priority Change
-        $(document).on('change', '.priority-dropdown', function() {
-    var issueId = $(this).data('issue-id');
-    var newPriority = $(this).val();
+// Status Change
+jQuery(document).on('change', '.status-dropdown', function() {
+    var issueId = jQuery(this).data('issue-id');
+    var newStatus = jQuery(this).val();
+    updateIssueField(issueId, 'status', newStatus);
+});
+
+// Priority Change
+jQuery(document).on('change', '.priority-dropdown', function() {
+    var issueId = jQuery(this).data('issue-id');
+    var newPriority = jQuery(this).val();
     updateIssueField(issueId, 'priority', newPriority);
 });
 
-      
-</script>
-<script>
-     function updatesubIssueField(issueId, fieldName, value) {
-            $.ajax({
-                url: "{% url 'update_issue_field' %}",
-                method: "POST",
-                data: {
-                    'issue_id': issueId,
-                    'field_name': fieldName,
-                    'value': value,
-                    'csrfmiddlewaretoken': '{{ csrf_token }}'
-                },
-                success: function(response) {
+function updatesubIssueField(issueId, fieldName, value) {
+    jQuery.ajax({
+        url: "{% url 'update_issue_field' %}",
+        method: "POST",
+        data: {
+            'issue_id': issueId,
+            'field_name': fieldName,
+            'value': value,
+            'csrfmiddlewaretoken': '{{ csrf_token }}'
+        },
+        success: function(response) {
             if (response.success) {
                 alert('Field updated successfully!');
             } else {
@@ -551,60 +551,64 @@
         },
         error: function(xhr, status, error) {
             console.error("AJAX Error:", status, error);
-            alert('An error occurred while updating the field.');}
-            });
+            alert('An error occurred while updating the field.');
         }
-         // sub issueStatus Change
-         $(document).on('change', '.subissue-status-dropdown', function() {
-    var issueId = $(this).data('subissue-id');
-    var newStatus = $(this).val();
-    updatesubIssueField(issueId, 'status', newStatus);});
-        // Priority Change
-        $(document).on('change', '.subissue-priority-dropdown', function() {
-    var issueId = $(this).data('subissue-id');
-    var newPriority = $(this).val();
+    });
+}
+
+// Subissue Status Change
+jQuery(document).on('change', '.subissue-status-dropdown', function() {
+    var issueId = jQuery(this).data('subissue-id');
+    var newStatus = jQuery(this).val();
+    updatesubIssueField(issueId, 'status', newStatus);
+});
+
+// Subissue Priority Change
+jQuery(document).on('change', '.subissue-priority-dropdown', function() {
+    var issueId = jQuery(this).data('subissue-id');
+    var newPriority = jQuery(this).val();
     updatesubIssueField(issueId, 'priority', newPriority);
-        })
-</script>
-<script>
-    // will run only after html is loaded
-    document.addEventListener('DOMContentLoaded', function() {
-    var inputField=document.getElementById('new-subissue-input');
-    inputField.addEventListener('keypress',function(e){
-        if(e.key==='Enter'){
+});
+
+// Add Subissue on Enter Key
+document.addEventListener('DOMContentLoaded', function() {
+    var inputField = document.getElementById('new-subissue-input');
+    inputField.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
             e.preventDefault();
-            var newSubIssue=inputField.value.trim();
-            if (newSubIssue!=="") {
-                fetch("{% url 'add_subIssue'  custom_id issue.issue_id %}", {
+            var newSubIssue = inputField.value.trim();
+            if (newSubIssue !== "") {
+                fetch("{% url 'add_subIssue' custom_id issue.issue_id %}", {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                         'X-CSRFToken': '{{ csrf_token }}'
                     },
                     body: JSON.stringify({
-                        subissue: newSubissue
+                        subissue: newSubIssue
                     })
                 })
-                .then(response=>response.json())
-                .then(data=>{
+                .then(response => response.json())
+                .then(data => {
                     if (data.success) {
-                        // If success,add new subissue to the table
-                        var newRow=document.createElement('tr');
-                        newRow.innerHTML=`<td>${data.subissue.name}</td><td>${data.subissue.deadline}</td>`;
+                        // If success, add new subissue to the table
+                        var newRow = document.createElement('tr');
+                        newRow.innerHTML = `<td>${data.subissue.name}</td><td>${data.subissue.deadline}</td>`;
                         document.querySelector('tbody').insertBefore(newRow, document.getElementById('new-subissue'));
                         
-                        // Clear input 
-                        inputField.value='';
+                        // Clear input
+                        inputField.value = '';
                     } else {
                         // Handle error
                         alert('Error adding subissue');
                     }
                 })
-                .catch(error=>console.error('Error:', error));
+                .catch(error => console.error('Error:', error));
             }
         }
     });
 });
+
 </script>
 <script>
 
